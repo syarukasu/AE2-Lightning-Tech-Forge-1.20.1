@@ -10,19 +10,19 @@
   "inputs": [
     {
       "ingredient": {
-        "item": "ae2:certus_quartz_crystal"
+        "tag": "c:gems/certus_quartz"
       },
       "count": 4
     },
     {
       "ingredient": {
-        "item": "ae2:fluix_crystal"
+        "tag": "c:gems/fluix"
       },
       "count": 4
     },
     {
       "ingredient": {
-        "item": "neoecoae:energized_crystal"
+        "tag": "c:gems/energized_crystal"
       },
       "count": 4
     },

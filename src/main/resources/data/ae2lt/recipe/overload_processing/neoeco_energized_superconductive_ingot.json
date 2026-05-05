@@ -10,19 +10,19 @@
   "inputs": [
     {
       "ingredient": {
-        "item": "neoecoae:energized_fluix_crystal"
+        "tag": "c:gems/energized_fluix_crystal"
       },
       "count": 4
     },
     {
       "ingredient": {
-        "item": "neoecoae:aluminum_ingot"
+        "tag": "c:ingots/aluminum"
       },
       "count": 4
     },
     {
       "ingredient": {
-        "item": "ae2:silicon"
+        "tag": "c:silicon"
       },
       "count": 4
     },

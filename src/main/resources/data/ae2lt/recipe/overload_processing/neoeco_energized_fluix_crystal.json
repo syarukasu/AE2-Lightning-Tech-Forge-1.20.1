@@ -10,13 +10,13 @@
   "inputs": [
     {
       "ingredient": {
-        "item": "neoecoae:energized_crystal_dust"
+        "tag": "c:gems/energized_crystal"
       },
       "count": 64
     },
     {
       "ingredient": {
-        "item": "ae2:fluix_crystal"
+        "tag": "c:gems/fluix"
       },
       "count": 64
     }
