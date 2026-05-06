@@ -304,7 +304,7 @@ public class FrequencyScreen extends AbstractContainerScreen<FrequencyMenu> {
     @Override
     protected void init() {
         super.init();
-        FrequencyBindingClient.restoreCursorPositionIfNeeded();
+        FrequencyBindingClient.restoreCursorPositionIfNeeded(freqMenu().getBlockPos());
         lastCacheRevision = ClientFrequencyCache.revision();
         lastFreqId = freqMenu().getCurrentFrequencyId();
         initTabWidgets();

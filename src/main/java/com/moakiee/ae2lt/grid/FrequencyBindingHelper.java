@@ -25,12 +25,20 @@ public final class FrequencyBindingHelper implements WirelessFrequencyManager.Tr
 
     private static final Logger LOG = LoggerFactory.getLogger("ae2lt-wireless");
 
+    /** Initial retry delay when a transmitter event is missed. */
+    private static final int INITIAL_RETRY_COOLDOWN_TICKS = 20;
+    /** Upper bound for retry backoff; keeps unloaded chunks from causing steady update churn. */
+    private static final int MAX_RETRY_COOLDOWN_TICKS = 20 * 10;
+
     private final FrequencyBindingHost host;
 
     private int frequencyId = -1;
     @Nullable
     private IGridConnection virtualConnection;
     private boolean needsConnectionUpdate;
+    private int retryCooldownTicks;
+    private int nextRetryCooldownTicks = INITIAL_RETRY_COOLDOWN_TICKS;
+    private int subscribedFrequencyId = -1;
 
     public FrequencyBindingHelper(FrequencyBindingHost host) {
         this.host = host;
@@ -43,34 +51,15 @@ public final class FrequencyBindingHelper implements WirelessFrequencyManager.Tr
     public void setFrequency(int newFreqId) {
         if (newFreqId == this.frequencyId) return;
 
-        var be = host.getFrequencyBindingBlockEntity();
-        var manager = WirelessFrequencyManager.get();
-
-        unsubscribeListener();
-        destroyVirtualConnection();
-        if (manager != null && frequencyId > 0 && be.getLevel() != null) {
-            manager.unregisterDevice(frequencyId, be.getLevel().dimension(), be.getBlockPos());
-        }
-
+        detach();
         this.frequencyId = newFreqId;
-
-        subscribeListener();
-        registerDevice();
+        attach();
         host.saveFrequencyBindingChanges();
         host.markFrequencyBindingForUpdate();
-        needsConnectionUpdate = true;
     }
 
     public void clearFrequency() {
-        var be = host.getFrequencyBindingBlockEntity();
-        var manager = WirelessFrequencyManager.get();
-
-        unsubscribeListener();
-        destroyVirtualConnection();
-        if (manager != null && frequencyId > 0 && be.getLevel() != null) {
-            manager.unregisterDevice(frequencyId, be.getLevel().dimension(), be.getBlockPos());
-        }
-
+        detach();
         this.frequencyId = -1;
         host.saveFrequencyBindingChanges();
         host.markFrequencyBindingForUpdate();
@@ -83,12 +72,8 @@ public final class FrequencyBindingHelper implements WirelessFrequencyManager.Tr
         if (!available) {
             var manager = WirelessFrequencyManager.get();
             if (manager != null && !manager.isFrequencyValid(freqId)) {
-                var be = host.getFrequencyBindingBlockEntity();
-                destroyVirtualConnection();
-                unsubscribeListener();
-                if (be.getLevel() != null) {
-                    manager.unregisterDevice(freqId, be.getLevel().dimension(), be.getBlockPos());
-                }
+                // The frequency was deleted, so fully unbind this device.
+                detach();
                 this.frequencyId = -1;
                 host.saveFrequencyBindingChanges();
                 host.markFrequencyBindingForUpdate();
@@ -96,25 +81,30 @@ public final class FrequencyBindingHelper implements WirelessFrequencyManager.Tr
             }
         }
 
-        needsConnectionUpdate = true;
+        requestConnectionUpdate();
     }
 
     public void onMainNodeStateChanged(IGridNodeListener.State reason) {
         if (reason == IGridNodeListener.State.GRID_BOOT) {
-            needsConnectionUpdate = true;
+            requestConnectionUpdate();
         }
     }
 
     public void serverTick() {
+        if (retryCooldownTicks > 0) {
+            retryCooldownTicks--;
+            return;
+        }
         if (!needsConnectionUpdate) return;
 
         var be = host.getFrequencyBindingBlockEntity();
-        if (be.getMainNode().getNode() == null) return;
+        if (be.getMainNode().getNode() == null) return;  // Keep the flag until the grid node exists.
 
         needsConnectionUpdate = false;
 
         if (frequencyId <= 0 || be.getLevel() == null || be.getLevel().isClientSide()) return;
 
+        boolean wasConnected = isConnected();
         if (virtualConnection != null) {
             revalidateConnection();
         }
@@ -123,43 +113,34 @@ public final class FrequencyBindingHelper implements WirelessFrequencyManager.Tr
             tryEstablishConnection();
         }
 
-        host.markFrequencyBindingForUpdate();
+        boolean connected = isConnected();
+        if (connected) {
+            resetRetryBackoff();
+        }
+        if (connected != wasConnected) {
+            host.markFrequencyBindingForUpdate();
+        }
     }
 
     public void onReady() {
         if (frequencyId > 0) {
             var manager = WirelessFrequencyManager.get();
             if (manager != null && !manager.isFrequencyValid(frequencyId)) {
+                detach();
                 frequencyId = -1;
                 host.saveFrequencyBindingChanges();
                 return;
             }
-            registerDevice();
         }
-
-        subscribeListener();
-        if (frequencyId > 0) {
-            needsConnectionUpdate = true;
-        }
+        attach();
     }
 
     public void setRemoved() {
-        var be = host.getFrequencyBindingBlockEntity();
-        var manager = WirelessFrequencyManager.get();
-
-        unsubscribeListener();
-        destroyVirtualConnection();
-        if (manager != null && frequencyId > 0 && be.getLevel() != null) {
-            manager.unregisterDevice(frequencyId, be.getLevel().dimension(), be.getBlockPos());
-        }
+        detach();
     }
 
     public void clearRemoved() {
-        subscribeListener();
-        registerDevice();
-        if (frequencyId > 0) {
-            needsConnectionUpdate = true;
-        }
+        attach();
     }
 
     public void save(CompoundTag tag) {
@@ -221,20 +202,83 @@ public final class FrequencyBindingHelper implements WirelessFrequencyManager.Tr
         return false;
     }
 
+    /**
+     * Releases side effects for the current frequencyId without changing the
+     * stored id: listener, virtual connection, and device registry entry.
+     */
+    private void detach() {
+        clearConnectionUpdate();
+        unsubscribeListener();
+        destroyVirtualConnection();
+        unregisterDeviceIfBound();
+    }
+
+    /**
+     * Rebuilds side effects for the current frequencyId and asks the next
+     * server tick to establish the virtual connection.
+     */
+    private void attach() {
+        subscribeListener();
+        registerDevice();
+        if (frequencyId > 0) {
+            requestConnectionUpdate();
+        }
+    }
+
+    private void requestConnectionUpdate() {
+        needsConnectionUpdate = true;
+        retryCooldownTicks = 0;
+        resetRetryBackoff();
+    }
+
+    private void clearConnectionUpdate() {
+        needsConnectionUpdate = false;
+        retryCooldownTicks = 0;
+        resetRetryBackoff();
+    }
+
+    private void resetRetryBackoff() {
+        nextRetryCooldownTicks = INITIAL_RETRY_COOLDOWN_TICKS;
+    }
+
+    /** Called after a failed connection attempt; backs off to avoid retry/update churn. */
+    private void scheduleRetry() {
+        needsConnectionUpdate = true;
+        retryCooldownTicks = nextRetryCooldownTicks;
+        nextRetryCooldownTicks = Math.min(nextRetryCooldownTicks * 2, MAX_RETRY_COOLDOWN_TICKS);
+    }
+
+    private void unregisterDeviceIfBound() {
+        if (frequencyId <= 0) return;
+        var be = host.getFrequencyBindingBlockEntity();
+        if (be.getLevel() == null) return;
+        var manager = WirelessFrequencyManager.get();
+        if (manager != null) {
+            manager.unregisterDevice(frequencyId, be.getLevel().dimension(), be.getBlockPos());
+        }
+    }
+
     private void subscribeListener() {
         if (frequencyId <= 0) return;
+        if (subscribedFrequencyId == frequencyId) return;
+        if (subscribedFrequencyId > 0) {
+            unsubscribeListener();
+        }
+
         var manager = WirelessFrequencyManager.get();
         if (manager != null) {
             manager.addListener(frequencyId, this);
+            subscribedFrequencyId = frequencyId;
         }
     }
 
     private void unsubscribeListener() {
-        if (frequencyId <= 0) return;
+        if (subscribedFrequencyId <= 0) return;
         var manager = WirelessFrequencyManager.get();
         if (manager != null) {
-            manager.removeListener(frequencyId, this);
+            manager.removeListener(subscribedFrequencyId, this);
         }
+        subscribedFrequencyId = -1;
     }
 
     private void registerDevice() {
@@ -258,21 +302,31 @@ public final class FrequencyBindingHelper implements WirelessFrequencyManager.Tr
         if (virtualConnection != null) return;
 
         IGridNode myNode = be.getMainNode().getNode();
-        if (myNode == null) return;
+        if (myNode == null) {
+            scheduleRetry();
+            return;
+        }
 
         var manager = WirelessFrequencyManager.get();
-        if (manager == null) return;
+        if (manager == null) return;  // The server registry is not ready; retrying would not help.
 
         var entry = manager.findTransmitter(frequencyId);
-        if (entry == null) return;
+        if (entry == null) {
+            // The transmitter may be in an unloaded chunk or not through onReady yet.
+            scheduleRetry();
+            return;
+        }
 
         if (!entry.advanced() && !be.getLevel().dimension().equals(entry.dimension())) {
-            return;
+            return;  // Dimension mismatch is a configuration issue, not a transient state.
         }
 
         var server = ((ServerLevel) be.getLevel()).getServer();
         IGridNode remoteNode = manager.resolveNode(frequencyId, server);
-        if (remoteNode == null) return;
+        if (remoteNode == null) {
+            scheduleRetry();
+            return;
+        }
 
         for (var conn : myNode.getConnections()) {
             if (conn.getOtherSide(myNode) == remoteNode) {
@@ -283,10 +337,10 @@ public final class FrequencyBindingHelper implements WirelessFrequencyManager.Tr
         try {
             virtualConnection = GridConnection.create(myNode, remoteNode, null);
             LOG.debug("Virtual connection established: device@{} -> freq={}", be.getBlockPos(), frequencyId);
-            host.markFrequencyBindingForUpdate();
         } catch (IllegalStateException e) {
             LOG.warn("Virtual connection FAILED: device@{} -> freq={}: {}",
                     be.getBlockPos(), frequencyId, e.getMessage());
+            scheduleRetry();
         }
     }
 

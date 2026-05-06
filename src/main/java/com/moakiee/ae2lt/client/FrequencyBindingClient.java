@@ -4,13 +4,19 @@ import java.util.List;
 
 import com.moakiee.ae2lt.menu.FrequencyBindingMenu;
 import com.moakiee.ae2lt.network.OpenFrequencyMenuPacket;
+import net.minecraft.core.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 public final class FrequencyBindingClient {
+    /** Drop stale cursor restores if the server rejects or delays opening the requested screen. */
+    private static final long RESTORE_TIMEOUT_MS = 10000L;
+
     private static boolean restoreCursor;
+    private static BlockPos restoreCursorBlockPos;
+    private static long restoreCursorAtMs;
     private static double restoreCursorX;
     private static double restoreCursorY;
 
@@ -21,7 +27,7 @@ public final class FrequencyBindingClient {
         var button = new TextureToggleButton(
                 TextureToggleButton.ButtonType.FREQUENCY_BIND,
                 ignored -> {
-                    rememberCursorPosition();
+                    rememberCursorPosition(menu.getFrequencyBindingBlockPos());
                     PacketDistributor.sendToServer(new OpenFrequencyMenuPacket(
                             menu.getFrequencyBindingToken(),
                             menu.getFrequencyBindingBlockPos()));
@@ -30,7 +36,7 @@ public final class FrequencyBindingClient {
         return button;
     }
 
-    private static void rememberCursorPosition() {
+    private static void rememberCursorPosition(BlockPos blockPos) {
         var mc = Minecraft.getInstance();
         if (mc == null || mc.getWindow() == null) {
             return;
@@ -41,11 +47,20 @@ public final class FrequencyBindingClient {
         GLFW.glfwGetCursorPos(mc.getWindow().getWindow(), x, y);
         restoreCursorX = x[0];
         restoreCursorY = y[0];
+        restoreCursorBlockPos = blockPos.immutable();
+        restoreCursorAtMs = System.currentTimeMillis();
         restoreCursor = true;
     }
 
-    public static void restoreCursorPositionIfNeeded() {
+    public static void restoreCursorPositionIfNeeded(BlockPos blockPos) {
         if (!restoreCursor) {
+            return;
+        }
+
+        if (!blockPos.equals(restoreCursorBlockPos)
+                || System.currentTimeMillis() - restoreCursorAtMs > RESTORE_TIMEOUT_MS) {
+            restoreCursor = false;
+            restoreCursorBlockPos = null;
             return;
         }
 
@@ -56,5 +71,6 @@ public final class FrequencyBindingClient {
 
         GLFW.glfwSetCursorPos(mc.getWindow().getWindow(), restoreCursorX, restoreCursorY);
         restoreCursor = false;
+        restoreCursorBlockPos = null;
     }
 }
