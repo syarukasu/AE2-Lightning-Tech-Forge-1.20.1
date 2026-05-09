@@ -60,8 +60,8 @@ Found a bug or have a suggestion? Please open an issue on the project tracker wi
 
 ## License
 
-![Source License](https://img.shields.io/badge/source-LGPL--3.0-blue)
-![Asset License](https://img.shields.io/badge/assets-CC%20BY--NC--SA%203.0-lightgrey)
+[![Source License](https://img.shields.io/badge/Source-LGPL--3.0-blue)](LICENSE)
+[![Assets License](https://img.shields.io/badge/Assets-CC%20BY--NC--SA%203.0-lightgrey)](LICENSE_ASSETS.md)
 
 AE2 Lightning Tech uses separate licenses for source code and textures:
 

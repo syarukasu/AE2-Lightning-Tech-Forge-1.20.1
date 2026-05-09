@@ -60,8 +60,8 @@ AE2 闪电科技 把闪电变成一种可用的资源。收集自然雷电，精
 
 ## 许可证
 
-![源码许可证](https://img.shields.io/badge/source-LGPL--3.0-blue)
-![材质许可证](https://img.shields.io/badge/assets-CC%20BY--NC--SA%203.0-lightgrey)
+[![源码许可证](https://img.shields.io/badge/Source-LGPL--3.0-blue)](LICENSE)
+[![材质许可证](https://img.shields.io/badge/Assets-CC%20BY--NC--SA%203.0-lightgrey)](LICENSE_ASSETS.md)
 
 AE2 闪电科技对源码和材质使用不同的许可证：
 
