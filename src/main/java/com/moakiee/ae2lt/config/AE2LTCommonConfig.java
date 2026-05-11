@@ -3,6 +3,8 @@ package com.moakiee.ae2lt.config;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public final class AE2LTCommonConfig {
+    public static final int CURRENT_CONFIG_VERSION = 2;
+
     public static final ModConfigSpec SPEC;
 
     private static final Values VALUES;
@@ -153,6 +155,7 @@ public final class AE2LTCommonConfig {
     }
 
     private static final class Values {
+        private final ModConfigSpec.IntValue configVersion;
         private final ModConfigSpec.IntValue lightningCollectorCooldownTicks;
         private final ModConfigSpec.IntValue electroChimeMaxCatalysis;
         private final ModConfigSpec.BooleanValue overloadTntEnableTerrainDamage;
@@ -189,6 +192,10 @@ public final class AE2LTCommonConfig {
         private final ModConfigSpec.BooleanValue pigmeeFumoGiftOnFirstJoin;
 
         private Values(ModConfigSpec.Builder builder) {
+            configVersion = builder
+                    .comment("Internal config schema version. Do not edit; used by the mod for upgrade migrations.")
+                    .defineInRange("configVersion", CURRENT_CONFIG_VERSION, 1, Integer.MAX_VALUE);
+
             builder.push("lightningCollector");
             lightningCollectorCooldownTicks = builder
                     .comment("Cooldown in ticks after each captured lightning strike.")
@@ -268,7 +275,7 @@ public final class AE2LTCommonConfig {
             builder.push("overloadProcessingFactory");
             overloadFactoryParallelPerMatrix = builder
                     .comment("Parallel operations provided by each Lightning Collapse Matrix.")
-                    .defineInRange("parallelPerMatrix", 4, 0, Integer.MAX_VALUE / 64);
+                    .defineInRange("parallelPerMatrix", 8, 0, Integer.MAX_VALUE / 32);
             overloadFactoryEnergyCapacity = builder
                     .comment("Internal FE buffer capacity of the Overload Processing Factory.")
                     .defineInRange("energyCapacity", 640_000_000L, 1L, Long.MAX_VALUE);

@@ -1,4 +1,6 @@
 {
+  "message.ae2lt.config_migrated_v2": "[AE2 闪电科技] 本次更新涉及平衡调整，ae2lt-common.toml 已被重置为默认值。如果你之前改过其中的配置项，请到新文件里重新设定。",
+  "message.ae2lt.config_migrated_v2.matrix": "[AE2 闪电科技] 过载处理工厂的矩阵槽上限已调整为 32 枚。原有超过 32 枚的堆叠会被保留，但仅 32 枚参与并行计算，请打开 GUI 直接取出多余的矩阵。",
   "key.ae2lt.lightning": "闪电",
   "key.ae2lt.high_voltage_lightning": "高压闪电",
   "key.ae2lt.extreme_high_voltage_lightning": "极高压闪电",
