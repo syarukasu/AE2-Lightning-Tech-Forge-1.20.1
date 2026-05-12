@@ -494,7 +494,7 @@ public final class RailgunBeamRenderClient {
                 if (randDir.lengthSqr() < 1.0E-6D) continue;
                 randDir = randDir.normalize().scale(0.4D + mc.level.random.nextDouble() * 0.7D);
                 Vec3 toArc = fromArc.add(randDir);
-                RailgunArcRenderer.spawnImpactSpark(fromArc, toArc, 14 + mc.level.random.nextInt(8));
+                RailgunArcRenderer.spawnBeamSpark(fromArc, toArc, 14 + mc.level.random.nextInt(8));
             }
         }
     }

@@ -98,6 +98,18 @@ public final class RailgunArcRenderer {
                 0.04F, 0.13F);
     }
 
+    /** Short crackling arc branching from the sustained beam (cyan-white beam palette). */
+    public static void spawnBeamSpark(Vec3 from, Vec3 to, int lifetime) {
+        Vec3 dir = to.subtract(from);
+        double len = dir.length();
+        int segments = Math.max(4, Math.min(14, (int) Math.round(len * 2.5D)));
+        float spread = (float) Math.min(0.35D, 0.06D + len * 0.04D);
+        spawn(from, to, segments, spread, lifetime,
+                0.95F, 1.00F, 1.00F,   // hot cyan-white core
+                0.52F, 0.88F, 1.00F,   // bright cyan glow
+                0.04F, 0.13F);
+    }
+
     public static void spawn(Vec3 from, Vec3 to, int segments, float spread, int lifetime,
                              float coreR, float coreG, float coreB,
                              float glowR, float glowG, float glowB,
