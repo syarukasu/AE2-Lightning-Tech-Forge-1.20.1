@@ -20,8 +20,8 @@ public record AmmoCost(long aeEnergy, long ehv) {
             default -> { ae = 0L; ehv = 0L; }
         }
         if (mods.hasEnergy()) {
-            ae = (long) Math.ceil(ae * 0.75D);
-            ehv = (long) Math.ceil(ehv * 0.75D);
+            ae = (long) Math.ceil(ae * 0.50D);
+            ehv = (long) Math.ceil(ehv * 0.50D);
         }
         return new AmmoCost(ae, ehv);
     }
@@ -29,7 +29,7 @@ public record AmmoCost(long aeEnergy, long ehv) {
     public static long beamAeCost(RailgunModules mods) {
         long ae = AE2LTCommonConfig.railgunBeamAeCostPerSettle();
         if (mods.hasEnergy()) {
-            ae = (long) Math.ceil(ae * 0.5D);
+            ae = (long) Math.ceil(ae * 0.25D);
         }
         return ae;
     }
@@ -37,7 +37,7 @@ public record AmmoCost(long aeEnergy, long ehv) {
     public static int beamHvCostInterval(RailgunModules mods) {
         int n = AE2LTCommonConfig.railgunBeamHvCostInterval();
         if (mods.hasEnergy()) {
-            n *= 2;
+            n *= 3;
         }
         return Math.max(1, n);
     }

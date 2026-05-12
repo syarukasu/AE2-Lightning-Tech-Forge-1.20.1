@@ -28,17 +28,11 @@ import com.moakiee.ae2lt.network.railgun.RailgunSettingsTogglePacket;
  *   y=14:  [Modules]   [Compute x2]                 [Tactical]
  *   y=24:  [CORE][lbl] [COMP][COMP]                 [TerrainBtn 116-172]
  *   y=42:                  [Accel x2]
- *   y=50:  [RESN][lbl] [ACCEL][ACCEL]               [PvpBtn 116-172]
- *   y=76:  [ENRG][lbl]
+ *   y=50:  [ENRG][lbl] [ACCEL][ACCEL]               [PvpBtn 116-172]
  *   y=95:  [Inventory]                              [Network: Bound/Unbound]
  *   y=107: [player inv]
  *   y=165: [hotbar]
  * </pre>
- *
- * <p>Toggle buttons are 56x16 wide bars containing label + state colored text.
- * Slot type labels sit beside each module slot. The network binding line in the
- * inventory-title row reads from the AE2 wireless link target component on the
- * gun stack and shows full pos/dimension on hover.
  */
 public class RailgunScreen extends AbstractContainerScreen<RailgunMenu> {
 
@@ -56,8 +50,7 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunMenu> {
     private static final int LBL_TACTICAL_X = 118, LBL_TACTICAL_Y = 14;
 
     private static final int LBL_CORE_X = 44, LBL_CORE_Y = 28;
-    private static final int LBL_RESON_X = 44, LBL_RESON_Y = 54;
-    private static final int LBL_ENERGY_X = 44, LBL_ENERGY_Y = 80;
+    private static final int LBL_ENERGY_X = 44, LBL_ENERGY_Y = 54;
 
     // Network status (right of inventory title row at y=95)
     private static final int LBL_NETWORK_X = 88, LBL_NETWORK_Y = 95;
@@ -86,9 +79,10 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunMenu> {
         gfx.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, 0xFFD8D8D8);
 
         // Module slot tiles (positions match RailgunMenu)
+        // Left column: CORE(26,24), ENERGY(26,50)
         drawSlotTile(gfx, x + 26, y + 24);
         drawSlotTile(gfx, x + 26, y + 50);
-        drawSlotTile(gfx, x + 26, y + 76);
+        // Right area: COMPUTE(80,24)(98,24), ACCEL(80,50)(98,50)
         drawSlotTile(gfx, x + 80, y + 24);
         drawSlotTile(gfx, x + 98, y + 24);
         drawSlotTile(gfx, x + 80, y + 50);
@@ -157,9 +151,6 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunMenu> {
         gfx.drawString(this.font,
                 Component.translatable("ae2lt.railgun.gui.slot.core"),
                 LBL_CORE_X, LBL_CORE_Y, COLOR_LABEL, false);
-        gfx.drawString(this.font,
-                Component.translatable("ae2lt.railgun.gui.slot.resonance"),
-                LBL_RESON_X, LBL_RESON_Y, COLOR_LABEL, false);
         gfx.drawString(this.font,
                 Component.translatable("ae2lt.railgun.gui.slot.energy"),
                 LBL_ENERGY_X, LBL_ENERGY_Y, COLOR_LABEL, false);
@@ -319,13 +310,12 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunMenu> {
     /** Returns the empty-slot tooltip key for the given module slot, or null if not a module slot. */
     private static String slotTooltipKey(Slot slot) {
         // Slot indices match RailgunMenu's addSlot order:
-        // 0=CORE, 1=RESONANCE, 2=ENERGY, 3-4=COMPUTE, 5-6=ACCELERATION
+        // 0=CORE, 1=ENERGY, 2-3=COMPUTE, 4-5=ACCELERATION
         return switch (slot.index) {
             case 0 -> typeKey(RailgunModuleType.CORE);
-            case 1 -> typeKey(RailgunModuleType.RESONANCE);
-            case 2 -> typeKey(RailgunModuleType.ENERGY);
-            case 3, 4 -> typeKey(RailgunModuleType.COMPUTE);
-            case 5, 6 -> typeKey(RailgunModuleType.ACCELERATION);
+            case 1 -> typeKey(RailgunModuleType.ENERGY);
+            case 2, 3 -> typeKey(RailgunModuleType.COMPUTE);
+            case 4, 5 -> typeKey(RailgunModuleType.ACCELERATION);
             default -> null;
         };
     }
@@ -333,7 +323,6 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunMenu> {
     private static String typeKey(RailgunModuleType type) {
         return switch (type) {
             case CORE -> "ae2lt.railgun.gui.slot.tooltip.core";
-            case RESONANCE -> "ae2lt.railgun.gui.slot.tooltip.resonance";
             case ENERGY -> "ae2lt.railgun.gui.slot.tooltip.energy";
             case COMPUTE -> "ae2lt.railgun.gui.slot.tooltip.compute";
             case ACCELERATION -> "ae2lt.railgun.gui.slot.tooltip.acceleration";

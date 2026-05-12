@@ -6,11 +6,13 @@ import com.moakiee.ae2lt.item.ElectroChimeCrystalItem;
 import com.moakiee.ae2lt.item.FixedInfiniteCellItem;
 import com.moakiee.ae2lt.item.InfiniteStorageCellItem;
 import com.moakiee.ae2lt.item.LightningStorageComponentItem;
+import com.moakiee.ae2lt.item.OverloadArmorItem;
 import com.moakiee.ae2lt.item.OverloadCrystalItem;
 import com.moakiee.ae2lt.item.OverloadPatternEncoderItem;
 import com.moakiee.ae2lt.item.OverloadPatternItem;
 import com.moakiee.ae2lt.item.OverloadedFilterComponentItem;
 import com.moakiee.ae2lt.item.OverloadedWirelessConnectorItem;
+import com.moakiee.ae2lt.item.TestOverloadArmorSubmoduleItem;
 import com.moakiee.ae2lt.item.PerfectElectroChimeCrystalItem;
 import com.moakiee.ae2lt.item.ResearchNoteItem;
 import com.moakiee.ae2lt.item.WeatherCondensateItem;
@@ -160,6 +162,17 @@ public final class ModItems {
             OverloadedFilterComponentItem::new,
             new Item.Properties().stacksTo(1));
 
+    // ── Overload Armor ──────────────────────────────────────────────────────
+    public static final DeferredItem<Item> OVERLOAD_ARMOR = ITEMS.registerItem(
+            "overload_armor",
+            OverloadArmorItem::new,
+            new Item.Properties());
+
+    public static final DeferredItem<TestOverloadArmorSubmoduleItem> TEST_OVERLOAD_ARMOR_SUBMODULE = ITEMS.registerItem(
+            "test_overload_armor_submodule",
+            TestOverloadArmorSubmoduleItem::new,
+            new Item.Properties());
+
     // ── Electromagnetic Railgun (终末期 BiS 武器) ─────────────────────────────
     public static final DeferredItem<ElectromagneticRailgunItem> ELECTROMAGNETIC_RAILGUN = ITEMS.registerItem(
             "electromagnetic_railgun",
@@ -177,12 +190,6 @@ public final class ModItems {
             () -> new RailgunModuleItem(
                     new Item.Properties().stacksTo(16).rarity(Rarity.RARE),
                     RailgunModuleType.COMPUTE));
-
-    public static final DeferredItem<RailgunModuleItem> RAILGUN_MODULE_RESONANCE = ITEMS.register(
-            "railgun_module_resonance",
-            () -> new RailgunModuleItem(
-                    new Item.Properties().stacksTo(16).rarity(Rarity.RARE),
-                    RailgunModuleType.RESONANCE));
 
     public static final DeferredItem<RailgunModuleItem> RAILGUN_MODULE_ACCELERATION = ITEMS.register(
             "railgun_module_acceleration",

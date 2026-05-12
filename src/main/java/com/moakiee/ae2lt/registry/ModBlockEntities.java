@@ -8,6 +8,7 @@ import com.moakiee.ae2lt.blockentity.GhostOutputBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningAssemblyChamberBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningCollectorBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningSimulationChamberBlockEntity;
+import com.moakiee.ae2lt.blockentity.OverloadArmorWorkbenchBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadProcessingFactoryBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadedControllerBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadedInterfaceBlockEntity;
@@ -159,6 +160,14 @@ public final class ModBlockEntities {
                     () -> BlockEntityType.Builder.of(
                             FumoBlockEntity::new,
                             collectFumoBlocks())
+                            .build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<OverloadArmorWorkbenchBlockEntity>>
+            OVERLOAD_ARMOR_WORKBENCH = BLOCK_ENTITY_TYPES.register(
+                    "overload_armor_workbench",
+                    () -> BlockEntityType.Builder.of(
+                            OverloadArmorWorkbenchBlockEntity::new,
+                            ModBlocks.OVERLOAD_ARMOR_WORKBENCH.get())
                             .build(null));
 
     private static Block[] collectFumoBlocks() {

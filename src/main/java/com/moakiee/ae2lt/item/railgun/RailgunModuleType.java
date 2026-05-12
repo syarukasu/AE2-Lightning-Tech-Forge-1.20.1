@@ -10,7 +10,6 @@ import com.mojang.serialization.Codec;
 public enum RailgunModuleType implements StringRepresentable {
     CORE("core"),
     COMPUTE("compute"),
-    RESONANCE("resonance"),
     ACCELERATION("acceleration"),
     ENERGY("energy");
 

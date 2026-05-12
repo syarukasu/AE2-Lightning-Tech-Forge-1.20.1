@@ -17,6 +17,8 @@ import com.moakiee.ae2lt.menu.FrequencyMenu;
 import com.moakiee.ae2lt.menu.LightningAssemblyChamberMenu;
 import com.moakiee.ae2lt.menu.LightningCollectorMenu;
 import com.moakiee.ae2lt.menu.LightningSimulationChamberMenu;
+import com.moakiee.ae2lt.menu.OverloadArmorMenu;
+import com.moakiee.ae2lt.menu.OverloadArmorWorkbenchMenu;
 import com.moakiee.ae2lt.menu.OverloadPatternEncoderMenu;
 import com.moakiee.ae2lt.menu.OverloadProcessingFactoryMenu;
 import com.moakiee.ae2lt.menu.OverloadedInterfaceMenu;
@@ -37,6 +39,8 @@ public class ModScreens {
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(OverloadedPatternProviderMenu.TYPE, ModScreens::createOverloadedPatternProviderScreen);
         event.register(OverloadPatternEncoderMenu.TYPE, OverloadPatternEncoderScreen::new);
+        event.register(OverloadArmorMenu.TYPE, OverloadArmorScreen::new);
+        event.register(OverloadArmorWorkbenchMenu.TYPE, OverloadArmorWorkbenchScreen::new);
         event.register(OverloadedInterfaceMenu.TYPE, ModScreens::createOverloadedInterfaceScreen);
         if (ModBlocks.hasOverloadedPowerSupply()) {
             event.register(OverloadedPowerSupplyMenu.TYPE, ModScreens::createOverloadedPowerSupplyScreen);

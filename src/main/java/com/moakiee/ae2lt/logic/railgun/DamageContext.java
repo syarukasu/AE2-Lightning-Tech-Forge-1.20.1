@@ -40,12 +40,12 @@ public record DamageContext(
         boolean storm = isStorming(level, player);
         int compute = mods.computeCount();
         double base = AE2LTCommonConfig.railgunBeamDamagePerSettle();
-        base *= 1.0D + 0.10D * compute;
+        base *= 1.0D + 0.25D * compute;
         if (storm) {
             base *= RailgunDefaults.STORM_DAMAGE_MUL;
         }
-        int chains = RailgunDefaults.CHAIN_BASE + compute * 2;
-        if (storm) {
+        int chains = compute > 0 ? RailgunDefaults.CHAIN_BASE + (compute - 1) * 2 : 0;
+        if (storm && chains > 0) {
             chains += RailgunDefaults.STORM_CHAIN_BONUS;
         }
         chains = Math.min(chains, RailgunDefaults.CHAIN_HARD_CAP);
@@ -58,7 +58,7 @@ public record DamageContext(
                 RailgunDefaults.ARMOR_BYPASS_BEAM,
                 RailgunDefaults.CHAIN_DECAY,
                 chains,
-                1,
+                compute > 0 ? 1 : 0,
                 radius,
                 false,
                 true,
@@ -74,7 +74,7 @@ public record DamageContext(
             case EHV3 -> AE2LTCommonConfig.railgunBaseDamageEhv3();
             default -> 0.0D;
         };
-        base *= 1.0D + 0.10D * compute;
+        base *= 1.0D + 0.25D * compute;
         if (storm) {
             base *= RailgunDefaults.STORM_DAMAGE_MUL;
         }
@@ -84,12 +84,14 @@ public record DamageContext(
             case EHV3 -> RailgunDefaults.ARMOR_BYPASS_TIER3;
             default -> 0.0D;
         };
-        int chains = switch (tier) {
-            case EHV1 -> 8;
-            case EHV2 -> 14;
-            case EHV3 -> 24;
-            default -> 0;
-        } + compute * 4;
+        int chains = compute > 0
+                ? switch (tier) {
+                    case EHV1 -> 8;
+                    case EHV2 -> 14;
+                    case EHV3 -> 24;
+                    default -> 0;
+                } + Math.max(0, compute - 1) * 4
+                : 0;
         if (storm) {
             chains += RailgunDefaults.STORM_CHAIN_BONUS;
         }
@@ -101,7 +103,9 @@ public record DamageContext(
             case EHV3 -> RailgunDefaults.CHAIN_FORK_BASE_EHV3;
             default -> 1;
         };
-        int forks = forkBase + compute * RailgunDefaults.CHAIN_FORK_PER_COMPUTE;
+        int forks = compute > 0
+                ? forkBase + Math.max(0, compute - 1) * RailgunDefaults.CHAIN_FORK_PER_COMPUTE
+                : 0;
         if (storm) {
             forks += RailgunDefaults.CHAIN_FORK_STORM_BONUS;
         }

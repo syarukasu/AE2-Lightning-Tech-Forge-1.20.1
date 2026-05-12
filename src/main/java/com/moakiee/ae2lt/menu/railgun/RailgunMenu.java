@@ -24,6 +24,13 @@ import com.moakiee.ae2lt.item.railgun.RailgunModules;
 /**
  * Railgun module configuration menu. Backed by an in-memory module container
  * synchronized with the host's data component on every server tick.
+ *
+ * <p>Slot layout (6 slots):
+ * <pre>
+ *   Left column:     Right area:
+ *   slot0 CORE        slot2 COMPUTE  slot3 COMPUTE
+ *   slot1 ENERGY      slot4 ACCEL    slot5 ACCEL
+ * </pre>
  */
 public class RailgunMenu extends AEBaseMenu {
 
@@ -33,8 +40,7 @@ public class RailgunMenu extends AEBaseMenu {
                     AE2LightningTech.MODID, "railgun"));
 
     private static final int CORE_X = 26, CORE_Y = 24;
-    private static final int RESONANCE_X = 26, RESONANCE_Y = 50;
-    private static final int ENERGY_X = 26, ENERGY_Y = 76;
+    private static final int ENERGY_X = 26, ENERGY_Y = 50;
     private static final int COMPUTE_X1 = 80, COMPUTE_Y1 = 24;
     private static final int COMPUTE_X2 = 98, COMPUTE_Y2 = 24;
     private static final int ACCEL_X1 = 80, ACCEL_Y1 = 50;
@@ -52,19 +58,18 @@ public class RailgunMenu extends AEBaseMenu {
         this.moduleContainer = new ModuleContainer();
         loadFromHost();
 
+        // 0=CORE, 1=ENERGY, 2-3=COMPUTE, 4-5=ACCELERATION
         addSlot(new RailgunModuleSlot(moduleContainer, 0, CORE_X, CORE_Y, RailgunModuleType.CORE),
                 SlotSemantics.MACHINE_INPUT);
-        addSlot(new RailgunModuleSlot(moduleContainer, 1, RESONANCE_X, RESONANCE_Y, RailgunModuleType.RESONANCE),
+        addSlot(new RailgunModuleSlot(moduleContainer, 1, ENERGY_X, ENERGY_Y, RailgunModuleType.ENERGY),
                 SlotSemantics.MACHINE_INPUT);
-        addSlot(new RailgunModuleSlot(moduleContainer, 2, ENERGY_X, ENERGY_Y, RailgunModuleType.ENERGY),
+        addSlot(new RailgunModuleSlot(moduleContainer, 2, COMPUTE_X1, COMPUTE_Y1, RailgunModuleType.COMPUTE),
                 SlotSemantics.MACHINE_INPUT);
-        addSlot(new RailgunModuleSlot(moduleContainer, 3, COMPUTE_X1, COMPUTE_Y1, RailgunModuleType.COMPUTE),
+        addSlot(new RailgunModuleSlot(moduleContainer, 3, COMPUTE_X2, COMPUTE_Y2, RailgunModuleType.COMPUTE),
                 SlotSemantics.MACHINE_INPUT);
-        addSlot(new RailgunModuleSlot(moduleContainer, 4, COMPUTE_X2, COMPUTE_Y2, RailgunModuleType.COMPUTE),
+        addSlot(new RailgunModuleSlot(moduleContainer, 4, ACCEL_X1, ACCEL_Y1, RailgunModuleType.ACCELERATION),
                 SlotSemantics.MACHINE_INPUT);
-        addSlot(new RailgunModuleSlot(moduleContainer, 5, ACCEL_X1, ACCEL_Y1, RailgunModuleType.ACCELERATION),
-                SlotSemantics.MACHINE_INPUT);
-        addSlot(new RailgunModuleSlot(moduleContainer, 6, ACCEL_X2, ACCEL_Y2, RailgunModuleType.ACCELERATION),
+        addSlot(new RailgunModuleSlot(moduleContainer, 5, ACCEL_X2, ACCEL_Y2, RailgunModuleType.ACCELERATION),
                 SlotSemantics.MACHINE_INPUT);
 
         addPlayerInventorySlots(playerInventory);
@@ -95,30 +100,28 @@ public class RailgunMenu extends AEBaseMenu {
     private void loadFromHost() {
         RailgunModules m = host.getModules();
         moduleContainer.setItem(0, m.core().copy());
-        moduleContainer.setItem(1, m.resonance().copy());
-        moduleContainer.setItem(2, m.energy().copy());
+        moduleContainer.setItem(1, m.energy().copy());
         List<ItemStack> compute = new ArrayList<>(m.compute());
         while (compute.size() < 2) compute.add(ItemStack.EMPTY);
-        moduleContainer.setItem(3, compute.get(0).copy());
-        moduleContainer.setItem(4, compute.get(1).copy());
+        moduleContainer.setItem(2, compute.get(0).copy());
+        moduleContainer.setItem(3, compute.get(1).copy());
         List<ItemStack> accel = new ArrayList<>(m.acceleration());
         while (accel.size() < 2) accel.add(ItemStack.EMPTY);
-        moduleContainer.setItem(5, accel.get(0).copy());
-        moduleContainer.setItem(6, accel.get(1).copy());
+        moduleContainer.setItem(4, accel.get(0).copy());
+        moduleContainer.setItem(5, accel.get(1).copy());
         moduleContainer.dirty = false;
     }
 
     private void persistToHost() {
         ItemStack core = sanitize(moduleContainer.getItem(0), RailgunModuleType.CORE);
-        ItemStack reson = sanitize(moduleContainer.getItem(1), RailgunModuleType.RESONANCE);
-        ItemStack energy = sanitize(moduleContainer.getItem(2), RailgunModuleType.ENERGY);
+        ItemStack energy = sanitize(moduleContainer.getItem(1), RailgunModuleType.ENERGY);
         List<ItemStack> compute = Arrays.asList(
-                sanitize(moduleContainer.getItem(3), RailgunModuleType.COMPUTE),
-                sanitize(moduleContainer.getItem(4), RailgunModuleType.COMPUTE));
+                sanitize(moduleContainer.getItem(2), RailgunModuleType.COMPUTE),
+                sanitize(moduleContainer.getItem(3), RailgunModuleType.COMPUTE));
         List<ItemStack> accel = Arrays.asList(
-                sanitize(moduleContainer.getItem(5), RailgunModuleType.ACCELERATION),
-                sanitize(moduleContainer.getItem(6), RailgunModuleType.ACCELERATION));
-        host.setModules(new RailgunModules(core, compute, reson, accel, energy));
+                sanitize(moduleContainer.getItem(4), RailgunModuleType.ACCELERATION),
+                sanitize(moduleContainer.getItem(5), RailgunModuleType.ACCELERATION));
+        host.setModules(new RailgunModules(core, compute, accel, energy));
     }
 
     private static ItemStack sanitize(ItemStack stack, RailgunModuleType expected) {
@@ -166,12 +169,12 @@ public class RailgunMenu extends AEBaseMenu {
         }
     }
 
-    /** Tiny Container backing the seven module slots. */
+    /** Tiny Container backing the six module slots. */
     private static final class ModuleContainer extends SimpleContainer {
         boolean dirty = false;
 
         ModuleContainer() {
-            super(7);
+            super(6);
         }
 
         @Override

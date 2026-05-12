@@ -1,7 +1,6 @@
 package com.moakiee.ae2lt.item.railgun;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -17,11 +16,13 @@ import net.minecraft.world.item.ItemStack;
  *
  * <p>Stored as ItemStack so each module instance can carry its own NBT/components in
  * the future without schema migration.
+ *
+ * <p>All CODEC fields use {@code optionalFieldOf} with defaults so that old save data
+ * missing a field (e.g. the removed {@code resonance}) deserialises gracefully.
  */
 public record RailgunModules(
         ItemStack core,
         List<ItemStack> compute,
-        ItemStack resonance,
         List<ItemStack> acceleration,
         ItemStack energy) {
 
@@ -31,32 +32,25 @@ public record RailgunModules(
     public static final RailgunModules EMPTY = new RailgunModules(
             ItemStack.EMPTY,
             List.of(),
-            ItemStack.EMPTY,
             List.of(),
             ItemStack.EMPTY);
 
     public static final Codec<RailgunModules> CODEC = RecordCodecBuilder.create(b -> b.group(
-            ItemStack.OPTIONAL_CODEC.fieldOf("core").forGetter(RailgunModules::core),
-            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("compute").forGetter(RailgunModules::compute),
-            ItemStack.OPTIONAL_CODEC.fieldOf("resonance").forGetter(RailgunModules::resonance),
-            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("acceleration").forGetter(RailgunModules::acceleration),
-            ItemStack.OPTIONAL_CODEC.fieldOf("energy").forGetter(RailgunModules::energy))
+            ItemStack.OPTIONAL_CODEC.optionalFieldOf("core", ItemStack.EMPTY).forGetter(RailgunModules::core),
+            ItemStack.OPTIONAL_CODEC.listOf().optionalFieldOf("compute", List.of()).forGetter(RailgunModules::compute),
+            ItemStack.OPTIONAL_CODEC.listOf().optionalFieldOf("acceleration", List.of()).forGetter(RailgunModules::acceleration),
+            ItemStack.OPTIONAL_CODEC.optionalFieldOf("energy", ItemStack.EMPTY).forGetter(RailgunModules::energy))
             .apply(b, RailgunModules::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RailgunModules> STREAM_CODEC = StreamCodec.composite(
             ItemStack.OPTIONAL_STREAM_CODEC, RailgunModules::core,
             ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()), RailgunModules::compute,
-            ItemStack.OPTIONAL_STREAM_CODEC, RailgunModules::resonance,
             ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()), RailgunModules::acceleration,
             ItemStack.OPTIONAL_STREAM_CODEC, RailgunModules::energy,
             RailgunModules::new);
 
     public boolean hasCore() {
         return !core.isEmpty();
-    }
-
-    public boolean hasResonance() {
-        return !resonance.isEmpty();
     }
 
     public boolean hasEnergy() {

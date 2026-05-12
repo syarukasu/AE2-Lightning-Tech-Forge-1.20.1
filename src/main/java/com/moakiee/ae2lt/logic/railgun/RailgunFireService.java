@@ -62,8 +62,8 @@ public final class RailgunFireService {
         int t2 = RailgunDefaults.CHARGE_TICKS_TIER2;
         int t3 = RailgunDefaults.CHARGE_TICKS_TIER3;
         if (mods.accelerationCount() > 0) {
-            // 20% per accel module reduction in time-to-charge; min 30% of original.
-            double mul = Math.max(0.30D, 1.0D - 0.20D * mods.accelerationCount());
+            // 30% per accel module reduction in time-to-charge; min 20% of original.
+            double mul = Math.max(0.20D, 1.0D - 0.30D * mods.accelerationCount());
             t1 = Math.max(1, (int) Math.round(t1 * mul));
             t2 = Math.max(t1 + 1, (int) Math.round(t2 * mul));
             t3 = Math.max(t2 + 1, (int) Math.round(t3 * mul));
@@ -132,13 +132,14 @@ public final class RailgunFireService {
         Vec3 firstHitPos = ehr != null ? ehr.getLocation() : endBlock;
         List<RailgunChainResolver.Hit> hits = new ArrayList<>();
         int primaryId = -1;
-        // Resonance module: pulse radius +2, damage ratio 0.6 → 0.9 at max tier.
-        // Computed up-front so the client shockwave FX can be widened in lockstep
-        // with the damage AOE.
         double effectivePulseRadius = tier.isMax()
-                ? RailgunDefaults.PULSE_RADIUS + (mods.hasResonance() ? 2.0D : 0.0D)
+                ? RailgunDefaults.PULSE_RADIUS + 1.5D * mods.computeCount()
                 : 0.0D;
-        double effectivePulseRatio = mods.hasResonance() ? 0.9D : RailgunDefaults.PULSE_DAMAGE_RATIO;
+        double effectivePulseRatio = switch (mods.computeCount()) {
+            case 0 -> RailgunDefaults.PULSE_DAMAGE_RATIO;
+            case 1 -> 0.85D;
+            default -> 1.0D;
+        };
         if (ehr != null && ehr.getEntity() instanceof LivingEntity primary) {
             primaryId = primary.getId();
             hits.add(new RailgunChainResolver.Hit(primary, ctx.firstDamage(), false, false));

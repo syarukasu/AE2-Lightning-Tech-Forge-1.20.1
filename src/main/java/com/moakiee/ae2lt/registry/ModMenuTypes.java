@@ -8,6 +8,8 @@ import com.moakiee.ae2lt.menu.LightningCollectorMenu;
 import com.moakiee.ae2lt.menu.LightningSimulationChamberMenu;
 import com.moakiee.ae2lt.menu.OverloadPatternEncoderMenu;
 import com.moakiee.ae2lt.menu.OverloadProcessingFactoryMenu;
+import com.moakiee.ae2lt.menu.OverloadArmorMenu;
+import com.moakiee.ae2lt.menu.OverloadArmorWorkbenchMenu;
 import com.moakiee.ae2lt.menu.OverloadedInterfaceMenu;
 import com.moakiee.ae2lt.menu.OverloadedPatternProviderMenu;
 import com.moakiee.ae2lt.menu.OverloadedPowerSupplyMenu;
@@ -89,6 +91,16 @@ public final class ModMenuTypes {
             RAILGUN = MENU_TYPES.register(
                     "railgun",
                     () -> RailgunMenu.TYPE);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<OverloadArmorMenu>>
+            OVERLOAD_ARMOR = MENU_TYPES.register(
+                    "overload_armor",
+                    () -> OverloadArmorMenu.TYPE);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<OverloadArmorWorkbenchMenu>>
+            OVERLOAD_ARMOR_WORKBENCH = MENU_TYPES.register(
+                    "overload_armor_workbench",
+                    () -> OverloadArmorWorkbenchMenu.TYPE);
 
     private ModMenuTypes() {
     }

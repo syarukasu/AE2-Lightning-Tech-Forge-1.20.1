@@ -8,6 +8,8 @@ import com.moakiee.ae2lt.network.railgun.RailgunFirePacket;
 import com.moakiee.ae2lt.network.railgun.RailgunOpenGuiPacket;
 import com.moakiee.ae2lt.network.railgun.RailgunRecoilFxPacket;
 import com.moakiee.ae2lt.network.railgun.RailgunSettingsTogglePacket;
+import com.moakiee.ae2lt.network.OpenOverloadArmorMenuPacket;
+import com.moakiee.ae2lt.network.SubmoduleLifecyclePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -102,6 +104,18 @@ public final class NetworkInit {
                 RailgunRecoilFxPacket.TYPE,
                 RailgunRecoilFxPacket.STREAM_CODEC,
                 RailgunRecoilFxPacket::handle);
+
+        // Overload Armor: C→S
+        registrar.playToServer(
+                OpenOverloadArmorMenuPacket.TYPE,
+                OpenOverloadArmorMenuPacket.STREAM_CODEC,
+                OpenOverloadArmorMenuPacket::handle);
+
+        // Overload Armor: S→C
+        registrar.playToClient(
+                SubmoduleLifecyclePacket.TYPE,
+                SubmoduleLifecyclePacket.STREAM_CODEC,
+                SubmoduleLifecyclePacket::handle);
     }
 
     public static ResourceLocation id(String path) {
