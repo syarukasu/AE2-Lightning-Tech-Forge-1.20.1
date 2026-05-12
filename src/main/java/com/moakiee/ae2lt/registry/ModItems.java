@@ -19,6 +19,7 @@ import com.moakiee.ae2lt.item.SpeedSubmoduleItem;
 import com.moakiee.ae2lt.item.ResistanceSubmoduleItem;
 import com.moakiee.ae2lt.item.ReflectSubmoduleItem;
 import com.moakiee.ae2lt.item.DashSubmoduleItem;
+import com.moakiee.ae2lt.item.FlightSubmoduleItem;
 import com.moakiee.ae2lt.item.PerfectElectroChimeCrystalItem;
 import com.moakiee.ae2lt.item.ResearchNoteItem;
 import com.moakiee.ae2lt.item.WeatherCondensateItem;
@@ -208,6 +209,11 @@ public final class ModItems {
             "armor_submodule_dash",
             DashSubmoduleItem::new,
             new Item.Properties());
+
+    public static final DeferredItem<FlightSubmoduleItem> ARMOR_SUBMODULE_FLIGHT = ITEMS.registerItem(
+            "armor_submodule_flight",
+            FlightSubmoduleItem::new,
+            new Item.Properties().stacksTo(1));
 
     // ── Electromagnetic Railgun (终末期 BiS 武器) ─────────────────────────────
     public static final DeferredItem<ElectromagneticRailgunItem> ELECTROMAGNETIC_RAILGUN = ITEMS.registerItem(

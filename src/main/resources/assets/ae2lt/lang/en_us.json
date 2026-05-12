@@ -679,5 +679,9 @@
   "ae2lt.overload_armor.feature.dash.name": "Dash",
   "ae2lt.overload_armor.feature.dash.desc": "Dash forward in the direction you are looking",
   "ae2lt.overload_armor.feature.dash.cooldown": "Dash on cooldown",
-  "key.ae2lt.dash": "Dash (Overload Armor)"
+  "key.ae2lt.dash": "Dash (Overload Armor)",
+  "item.ae2lt.armor_submodule_flight": "Flight Module",
+  "item.ae2lt.armor_submodule_flight.tooltip": "Grants creative flight while active (high overload cost: 64)",
+  "ae2lt.overload_armor.feature.flight.name": "Creative Flight",
+  "ae2lt.overload_armor.feature.flight.desc": "Grants creative-mode flight while the armor is equipped and active"
 }

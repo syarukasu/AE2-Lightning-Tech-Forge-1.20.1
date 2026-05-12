@@ -679,5 +679,9 @@
   "ae2lt.overload_armor.feature.dash.name": "冲刺",
   "ae2lt.overload_armor.feature.dash.desc": "向视角方向快速冲刺",
   "ae2lt.overload_armor.feature.dash.cooldown": "冲刺冷却中",
-  "key.ae2lt.dash": "冲刺（过载护甲）"
+  "key.ae2lt.dash": "冲刺（过载护甲）",
+  "item.ae2lt.armor_submodule_flight": "飞行模块",
+  "item.ae2lt.armor_submodule_flight.tooltip": "激活时提供创造模式飞行（高过载消耗：64）",
+  "ae2lt.overload_armor.feature.flight.name": "创造飞行",
+  "ae2lt.overload_armor.feature.flight.desc": "护甲装备并激活时提供创造模式飞行能力"
 }
