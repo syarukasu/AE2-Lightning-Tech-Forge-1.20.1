@@ -657,5 +657,9 @@
   "item.ae2lt.armor_submodule_night_vision": "夜视模块",
   "item.ae2lt.armor_submodule_night_vision.tooltip": "激活时提供永久夜视效果",
   "ae2lt.overload_armor.feature.night_vision.name": "夜视",
-  "ae2lt.overload_armor.feature.night_vision.desc": "护甲装备并激活时提供永久夜视效果"
+  "ae2lt.overload_armor.feature.night_vision.desc": "护甲装备并激活时提供永久夜视效果",
+  "item.ae2lt.armor_submodule_water_breathing": "水下呼吸模块",
+  "item.ae2lt.armor_submodule_water_breathing.tooltip": "激活时提供永久水下呼吸效果",
+  "ae2lt.overload_armor.feature.water_breathing.name": "水下呼吸",
+  "ae2lt.overload_armor.feature.water_breathing.desc": "护甲装备并激活时提供永久水下呼吸效果"
 }

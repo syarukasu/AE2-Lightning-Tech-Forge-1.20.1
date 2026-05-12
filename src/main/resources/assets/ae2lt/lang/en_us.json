@@ -657,5 +657,9 @@
   "item.ae2lt.armor_submodule_night_vision": "Night Vision Module",
   "item.ae2lt.armor_submodule_night_vision.tooltip": "Grants permanent Night Vision while active",
   "ae2lt.overload_armor.feature.night_vision.name": "Night Vision",
-  "ae2lt.overload_armor.feature.night_vision.desc": "Grants permanent Night Vision while the armor is equipped and active"
+  "ae2lt.overload_armor.feature.night_vision.desc": "Grants permanent Night Vision while the armor is equipped and active",
+  "item.ae2lt.armor_submodule_water_breathing": "Water Breathing Module",
+  "item.ae2lt.armor_submodule_water_breathing.tooltip": "Grants permanent Water Breathing while active",
+  "ae2lt.overload_armor.feature.water_breathing.name": "Water Breathing",
+  "ae2lt.overload_armor.feature.water_breathing.desc": "Grants permanent Water Breathing while the armor is equipped and active"
 }
