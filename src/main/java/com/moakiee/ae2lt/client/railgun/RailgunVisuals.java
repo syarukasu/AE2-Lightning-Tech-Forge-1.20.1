@@ -43,11 +43,19 @@ public final class RailgunVisuals {
     private static final double FP_FORWARD_OFFSET = 1.40D;
     private static final double FP_VERTICAL_OFFSET = -0.40D;
 
-    // Third-person muzzle geometry. Shoulder anchored on body yaw (lags head),
-    // muzzle extended along view direction (tracks head instantly).
-    private static final double TP_SHOULDER_HEIGHT_FACTOR = 0.78D;
-    private static final double TP_SHOULDER_SIDE = 0.3125D;
-    private static final double TP_BARREL_LENGTH = 1.18D;
+    // Third-person muzzle geometry, derived from the model:
+    //   arm pivot (HumanoidModel): X = ±5/16, Y = body pivot + 2/16 down
+    //   muzzle = front opening of the rail bore. Only top (y=12..13) and
+    //   bottom (y=8..9) rails reach z=-10; we anchor the beam at the bottom
+    //   rail's upper edge (y=9) which reads visually as "out of the barrel".
+    private static final double TP_SHOULDER_HEIGHT_FACTOR = 0.764D; // 1.376 / 1.8
+    private static final double TP_SHOULDER_SIDE = 0.3125D;          // 5/16
+    private static final double TP_BARREL_OUTWARD = 0.0625D;         // 1/16
+    private static final double TP_BARREL_ALONG_ARM = 1.519D;
+    private static final double TP_BARREL_PERP_UP = 0.230D;
+    // Arm tilt vs. horizontal: arm.xRot baseline (-1.48) is 5.2° below -π/2.
+    private static final float TP_ARM_PITCH_OFFSET_DEG =
+            (float) Math.toDegrees(RailgunClientExtensions.MAIN_ARM_X_ROT_BASE + Math.PI / 2.0D);
 
     private RailgunVisuals() {}
 
@@ -171,20 +179,27 @@ public final class RailgunVisuals {
     }
 
     /**
-     * Third-person muzzle: shoulder anchored on {@code yBodyRot} (lags head,
-     * keeps the shoulder stable mid-whip), then extended along the rendered
-     * barrel direction so the muzzle swings with the head — matches the model.
+     * Third-person muzzle: shoulder anchored on {@code yBodyRot}, then offset
+     * by the model-derived (along-arm, perpendicular-up, outward) triple so
+     * the visual origin lines up with the rendered barrel mouth.
      */
     private static Vec3 computeThirdPersonBarrelOrigin(Player player, float partialTick) {
         float bodyYaw = Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot);
         float bodyYawRad = bodyYaw * (float) (Math.PI / 180.0D);
         Vec3 bodyRight = new Vec3(-Math.cos(bodyYawRad), 0.0D, -Math.sin(bodyYawRad));
         double sideMul = holdingArm(player) == HumanoidArm.LEFT ? -1.0D : 1.0D;
-        Vec3 lookDir = computeBarrelDirection(player, partialTick);
+        // The arm baseline is 5.2° below horizontal: the muzzle is on the arm,
+        // not the line-of-sight, and rides above the hand.
+        float headYaw = Mth.rotLerp(partialTick, player.yHeadRotO, player.yHeadRot);
+        float viewPitch = Mth.lerp(partialTick, player.xRotO, player.getXRot());
+        float armPitch = viewPitch + TP_ARM_PITCH_OFFSET_DEG;
+        Vec3 armDir = Vec3.directionFromRotation(armPitch, headYaw);
+        Vec3 armPerpUp = Vec3.directionFromRotation(armPitch - 90F, headYaw);
         return player.getPosition(partialTick)
                 .add(0.0D, player.getBbHeight() * TP_SHOULDER_HEIGHT_FACTOR, 0.0D)
-                .add(bodyRight.scale(TP_SHOULDER_SIDE * sideMul))
-                .add(lookDir.scale(TP_BARREL_LENGTH));
+                .add(bodyRight.scale((TP_SHOULDER_SIDE + TP_BARREL_OUTWARD) * sideMul))
+                .add(armDir.scale(TP_BARREL_ALONG_ARM))
+                .add(armPerpUp.scale(TP_BARREL_PERP_UP));
     }
 
     /** Rodrigues rotation of v around unit axis by angle in degrees. */

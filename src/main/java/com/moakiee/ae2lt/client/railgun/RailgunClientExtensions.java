@@ -21,6 +21,12 @@ import com.moakiee.ae2lt.item.railgun.ElectromagneticRailgunItem;
 public final class RailgunClientExtensions implements IClientItemExtensions {
     public static final RailgunClientExtensions INSTANCE = new RailgunClientExtensions();
 
+    // Arm pose baseline used by poseRailgunArms. Exposed so RailgunVisuals can
+    // align the third-person muzzle anchor with the rendered arm direction.
+    // Horizontal forward would be -π/2 rad; -1.48 tilts the arm ~5.2° below.
+    public static final float MAIN_ARM_X_ROT_BASE = -1.48F;
+    public static final float SUPPORT_ARM_X_ROT_BASE = -1.42F;
+
     private RailgunClientExtensions() {
     }
 
@@ -55,11 +61,11 @@ public final class RailgunClientExtensions implements IClientItemExtensions {
         ModelPart main = right ? model.rightArm : model.leftArm;
         ModelPart support = right ? model.leftArm : model.rightArm;
         float mirror = right ? 1.0F : -1.0F;
-        main.xRot = -1.48F + model.head.xRot;
+        main.xRot = MAIN_ARM_X_ROT_BASE + model.head.xRot;
         main.yRot = model.head.yRot;
         main.zRot = 0.0F;
 
-        support.xRot = -1.42F + model.head.xRot;
+        support.xRot = SUPPORT_ARM_X_ROT_BASE + model.head.xRot;
         support.yRot = model.head.yRot + mirror * 0.42F;
         support.zRot = -mirror * 0.14F;
     }
