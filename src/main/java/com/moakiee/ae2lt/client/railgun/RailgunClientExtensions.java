@@ -47,9 +47,13 @@ public final class RailgunClientExtensions implements IClientItemExtensions {
 
         int side = arm == HumanoidArm.RIGHT ? 1 : -1;
 
-        // Keep the gun locked in a shouldered position. Using swing/equip/charge
-        // here makes held left-fire and right-charge visibly jitter.
-        poseStack.translate(side * 0.48F, -0.49F, -0.98F);
+        // Keep the gun locked in a shouldered position while preserving the
+        // vanilla equip dip. Starting right-click use calls ItemInHandRenderer#itemUsed,
+        // so suppress that one-frame hand-height reset while the railgun is charging.
+        boolean charging = player.isUsingItem()
+                && player.getUseItem().getItem() instanceof ElectromagneticRailgunItem;
+        float equipDip = charging ? 0.0F : equipProcess;
+        poseStack.translate(side * 0.48F, -0.49F - 0.6F * equipDip, -0.98F);
         poseStack.mulPose(Axis.XP.rotationDegrees(-4.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(side * -2.0F));
         poseStack.mulPose(Axis.ZP.rotationDegrees(side * -3.0F));

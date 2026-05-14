@@ -69,6 +69,11 @@ public class ElectromagneticRailgunItem extends Item implements IMenuItem {
     }
 
     @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return oldStack.getItem() != newStack.getItem() || slotChanged;
+    }
+
+    @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
         if (level.isClientSide) {
             return;
