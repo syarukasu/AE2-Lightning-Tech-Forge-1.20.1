@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "neoecoae"
+    }
+  ],
   "type": "ae2lt:crystal_catalyzer",
   "catalyst": {
     "item": "neoecoae:energized_fluix_crystal_block"
