@@ -15,7 +15,7 @@ import com.moakiee.ae2lt.menu.OverloadedPatternProviderMenu;
 import com.moakiee.ae2lt.menu.OverloadedPowerSupplyMenu;
 import com.moakiee.ae2lt.menu.TeslaCoilMenu;
 import com.moakiee.ae2lt.menu.FrequencyMenu;
-import com.moakiee.ae2lt.menu.railgun.RailgunMenu;
+import com.moakiee.ae2lt.menu.railgun.RailgunSettingsMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -87,10 +87,10 @@ public final class ModMenuTypes {
                     "crystal_catalyzer",
                     () -> CrystalCatalyzerMenu.TYPE);
 
-    public static final DeferredHolder<MenuType<?>, MenuType<RailgunMenu>>
-            RAILGUN = MENU_TYPES.register(
-                    "railgun",
-                    () -> RailgunMenu.TYPE);
+    public static final DeferredHolder<MenuType<?>, MenuType<RailgunSettingsMenu>>
+            RAILGUN_SETTINGS = MENU_TYPES.register(
+                    "railgun_settings",
+                    () -> RailgunSettingsMenu.TYPE);
 
     public static final DeferredHolder<MenuType<?>, MenuType<OverloadArmorMenu>>
             OVERLOAD_ARMOR = MENU_TYPES.register(

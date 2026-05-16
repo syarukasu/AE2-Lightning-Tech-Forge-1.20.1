@@ -7,7 +7,6 @@ import com.moakiee.ae2lt.network.railgun.RailgunBeamUpdatePacket;
 import com.moakiee.ae2lt.network.railgun.RailgunFirePacket;
 import com.moakiee.ae2lt.network.railgun.RailgunOpenGuiPacket;
 import com.moakiee.ae2lt.network.railgun.RailgunRecoilFxPacket;
-import com.moakiee.ae2lt.network.railgun.RailgunSettingsTogglePacket;
 import com.moakiee.ae2lt.network.OpenOverloadArmorMenuPacket;
 import com.moakiee.ae2lt.network.DashPacket;
 import com.moakiee.ae2lt.network.SubmoduleLifecyclePacket;
@@ -83,11 +82,6 @@ public final class NetworkInit {
                 RailgunBeamTogglePacket.TYPE,
                 RailgunBeamTogglePacket.STREAM_CODEC,
                 RailgunBeamTogglePacket::handle);
-        registrar.playToServer(
-                RailgunSettingsTogglePacket.TYPE,
-                RailgunSettingsTogglePacket.STREAM_CODEC,
-                RailgunSettingsTogglePacket::handle);
-
         // Railgun: S→C
         registrar.playToClient(
                 RailgunFirePacket.TYPE,

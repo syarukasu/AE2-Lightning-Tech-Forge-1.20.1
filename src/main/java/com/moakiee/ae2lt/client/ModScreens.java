@@ -25,7 +25,7 @@ import com.moakiee.ae2lt.menu.OverloadedInterfaceMenu;
 import com.moakiee.ae2lt.menu.OverloadedPatternProviderMenu;
 import com.moakiee.ae2lt.menu.OverloadedPowerSupplyMenu;
 import com.moakiee.ae2lt.menu.TeslaCoilMenu;
-import com.moakiee.ae2lt.menu.railgun.RailgunMenu;
+import com.moakiee.ae2lt.menu.railgun.RailgunSettingsMenu;
 import com.moakiee.ae2lt.client.railgun.RailgunScreen;
 import com.moakiee.ae2lt.registry.ModBlocks;
 
@@ -53,7 +53,7 @@ public class ModScreens {
         event.register(AtmosphericIonizerMenu.TYPE, ModScreens::createAtmosphericIonizerScreen);
         event.register(FrequencyMenu.TYPE, FrequencyScreen::new);
         event.register(CrystalCatalyzerMenu.TYPE, ModScreens::createCrystalCatalyzerScreen);
-        event.register(RailgunMenu.TYPE, RailgunScreen::new);
+        event.register(RailgunSettingsMenu.TYPE, RailgunScreen::new);
     }
 
     private static OverloadedPatternProviderScreen createOverloadedPatternProviderScreen(
