@@ -19,9 +19,6 @@ public sealed interface DeviceCapability {
     /** Multiplier on energy consumption + optional flat capacity addition. */
     record EnergyTuning(double consumeMul, long capacityAdd) implements DeviceCapability {}
 
-    /** Overload budget tuning (armor live, railgun reserved). */
-    record OverloadTuning(int budgetCap, double dissipationRate) implements DeviceCapability {}
-
     // --- railgun only ---
 
     /** Lightning chain segments / forks / hard-cap bonus, packed. */

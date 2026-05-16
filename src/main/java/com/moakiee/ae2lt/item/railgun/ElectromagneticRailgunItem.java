@@ -50,8 +50,7 @@ public class ElectromagneticRailgunItem extends Item implements IMenuItem, Devic
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        RailgunModuleEntries mods = stack.getOrDefault(ModDataComponents.RAILGUN_MODULE_ENTRIES.get(), RailgunModuleEntries.EMPTY);
-        if (!mods.hasCore()) {
+        if (!RailgunStructuralCore.hasCore(stack)) {
             if (!level.isClientSide) {
                 player.displayClientMessage(
                         Component.translatable("ae2lt.railgun.core_required"), true);

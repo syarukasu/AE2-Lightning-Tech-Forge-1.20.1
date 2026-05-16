@@ -33,6 +33,7 @@ import com.moakiee.ae2lt.AE2LightningTech;
 import com.moakiee.ae2lt.config.RailgunDefaults;
 import com.moakiee.ae2lt.item.railgun.ElectromagneticRailgunItem;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleEntries;
+import com.moakiee.ae2lt.item.railgun.RailgunStructuralCore;
 import com.moakiee.ae2lt.item.railgun.RailgunSettings;
 import com.moakiee.ae2lt.me.key.LightningKey;
 import com.moakiee.ae2lt.network.NetworkHandler;
@@ -135,6 +136,10 @@ public final class RailgunBeamService {
 
     private static boolean settle(ServerLevel level, ServerPlayer player, ItemStack stack,
                                   BeamState s, int chainThrottle) {
+        if (!RailgunStructuralCore.hasCore(stack)) {
+            RailgunFireService.sendFail(player, "ae2lt.railgun.core_required");
+            return false;
+        }
         var bound = RailgunBinding.resolve(stack, player);
         if (!bound.success()) {
             RailgunFireService.sendFail(player, RailgunBinding.failKey(bound.failure()));

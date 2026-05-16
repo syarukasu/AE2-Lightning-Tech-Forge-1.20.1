@@ -23,7 +23,7 @@ public final class RailgunModuleStorage implements DeviceModuleStorage {
 
     @Override
     public int baseOverloadBudget(ItemStack device) {
-        return baseOverloadBudget(entryData(device));
+        return RailgunStructuralCore.baseOverloadBudget(device);
     }
 
     @Override
@@ -53,12 +53,15 @@ public final class RailgunModuleStorage implements DeviceModuleStorage {
         }
 
         var entries = entryData(device);
+        if (!RailgunStructuralCore.hasCore(device)) {
+            return false;
+        }
         if (entries.getCount(module.moduleType()) >= module.getMaxInstallAmount()) {
             return false;
         }
 
         int nextLoad = currentIdleOverload(entries) + module.getIdleOverload();
-        return nextLoad <= baseOverloadBudgetAfterInstall(entries, candidate);
+        return nextLoad <= baseOverloadBudget(device);
     }
 
     @Override
@@ -153,11 +156,6 @@ public final class RailgunModuleStorage implements DeviceModuleStorage {
         }
     }
 
-    private static int baseOverloadBudget(RailgunModuleEntries entries) {
-        ItemStack core = entries.first(RailgunModuleType.CORE);
-        return baseOverloadBudgetFromCore(core);
-    }
-
     private static int currentIdleOverload(RailgunModuleEntries entries) {
         int total = 0;
         for (var stack : entries.entries()) {
@@ -166,25 +164,5 @@ public final class RailgunModuleStorage implements DeviceModuleStorage {
             }
         }
         return total;
-    }
-
-    private static int baseOverloadBudgetAfterInstall(RailgunModuleEntries entries, ItemStack candidate) {
-        if (candidate.getItem() instanceof RailgunModuleItem module
-                && module.moduleType() == RailgunModuleType.CORE) {
-            return baseOverloadBudgetFromCore(candidate);
-        }
-        return baseOverloadBudget(entries);
-    }
-
-    private static int baseOverloadBudgetFromCore(ItemStack core) {
-        if (core.isEmpty() || !(core.getItem() instanceof RailgunModuleItem module)) {
-            return 0;
-        }
-        for (var capability : module.capabilities(core)) {
-            if (capability instanceof DeviceCapability.OverloadTuning tuning) {
-                return Math.max(tuning.budgetCap(), 0);
-            }
-        }
-        return 0;
     }
 }

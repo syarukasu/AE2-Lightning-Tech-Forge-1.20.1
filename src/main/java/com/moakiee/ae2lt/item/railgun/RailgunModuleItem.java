@@ -12,8 +12,6 @@ import com.moakiee.ae2lt.device.capability.DeviceCapability;
 import com.moakiee.ae2lt.device.module.OverloadDeviceModuleItem;
 
 public class RailgunModuleItem extends Item implements OverloadDeviceModuleItem {
-    public static final int CORE_OVERLOAD_BUDGET = 128;
-
     private static final Set<DeviceKind> ACCEPTS = Set.of(DeviceKind.RAILGUN);
 
     private final RailgunModuleType type;
@@ -64,7 +62,7 @@ public class RailgunModuleItem extends Item implements OverloadDeviceModuleItem 
         // Per-stack contribution. Aggregation (count of N modules) is done by services
         // iterating the resolver output — the same way the legacy *Count() helpers worked.
         return switch (type) {
-            case CORE -> List.of(new DeviceCapability.OverloadTuning(CORE_OVERLOAD_BUDGET, 0.0D));
+            case CORE -> List.of();
             case COMPUTE -> List.of(
                     new DeviceCapability.ChainTuning(2, 1, 0),
                     new DeviceCapability.PulseTuning(1.5D, 1.0D));

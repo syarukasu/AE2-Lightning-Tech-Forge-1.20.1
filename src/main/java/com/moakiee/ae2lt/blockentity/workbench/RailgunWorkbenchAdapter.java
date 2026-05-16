@@ -19,7 +19,8 @@ import com.moakiee.ae2lt.device.network.RailgunNetworkBinding;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleEntries;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleItem;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleStorage;
-import com.moakiee.ae2lt.item.railgun.RailgunModuleType;
+import com.moakiee.ae2lt.item.railgun.RailgunStructuralCore;
+import com.moakiee.ae2lt.registry.ModItems;
 
 public final class RailgunWorkbenchAdapter implements DeviceWorkbenchAdapter {
     public static final RailgunWorkbenchAdapter INSTANCE = new RailgunWorkbenchAdapter();
@@ -109,7 +110,7 @@ public final class RailgunWorkbenchAdapter implements DeviceWorkbenchAdapter {
 
     @Override
     public ItemStack getStructuralSlot(ItemStack device, HolderLookup.Provider registries, StructuralSlotSpec spec) {
-        return RailgunModuleStorage.entryData(device).first(RailgunModuleType.CORE);
+        return RailgunStructuralCore.getCore(device);
     }
 
     @Override
@@ -118,10 +119,10 @@ public final class RailgunWorkbenchAdapter implements DeviceWorkbenchAdapter {
             HolderLookup.Provider registries,
             StructuralSlotSpec spec,
             ItemStack stack) {
-        RailgunModuleStorage.INSTANCE.uninstallAll(device, RailgunModuleType.CORE.getSerializedName());
-        if (!stack.isEmpty()) {
-            RailgunModuleStorage.INSTANCE.installOne(device, stack.copyWithCount(1));
+        if (!stack.isEmpty() && !canPlaceStructural(device, registries, spec, stack)) {
+            return;
         }
+        RailgunStructuralCore.setCore(device, stack);
     }
 
     @Override
@@ -130,7 +131,7 @@ public final class RailgunWorkbenchAdapter implements DeviceWorkbenchAdapter {
             HolderLookup.Provider registries,
             StructuralSlotSpec spec,
             int amount) {
-        return RailgunModuleStorage.INSTANCE.uninstallOne(device, RailgunModuleType.CORE.getSerializedName());
+        return RailgunStructuralCore.removeCore(device, amount);
     }
 
     @Override
@@ -140,9 +141,9 @@ public final class RailgunWorkbenchAdapter implements DeviceWorkbenchAdapter {
             StructuralSlotSpec spec,
             ItemStack stack) {
         return !device.isEmpty()
-                && stack.getItem() instanceof RailgunModuleItem module
-                && module.moduleType() == RailgunModuleType.CORE
-                && RailgunModuleStorage.INSTANCE.canInstallOne(device, stack);
+                && !stack.isEmpty()
+                && stack.is(ModItems.ULTIMATE_OVERLOAD_CORE.get())
+                && RailgunStructuralCore.canInstallCore(device, stack);
     }
 
     @Override
@@ -152,7 +153,15 @@ public final class RailgunWorkbenchAdapter implements DeviceWorkbenchAdapter {
             StructuralSlotSpec spec,
             Player player,
             ItemStack carried) {
-        return !device.isEmpty();
+        if (device.isEmpty()) {
+            return false;
+        }
+        if (!RailgunModuleStorage.INSTANCE.hasAnyInstalled(device)) {
+            return true;
+        }
+        return !carried.isEmpty()
+                && carried.is(ModItems.ULTIMATE_OVERLOAD_CORE.get())
+                && RailgunStructuralCore.canInstallCore(device, carried);
     }
 
     private static StructuralSlotSpec slot(int index, DeviceSlotType type, SlotSemantic semantic) {

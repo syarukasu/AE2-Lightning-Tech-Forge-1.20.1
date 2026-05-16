@@ -33,6 +33,7 @@ import com.moakiee.ae2lt.config.RailgunDefaults;
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
 import com.moakiee.ae2lt.item.railgun.RailgunChargeTier;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleEntries;
+import com.moakiee.ae2lt.item.railgun.RailgunStructuralCore;
 import com.moakiee.ae2lt.item.railgun.RailgunSettings;
 import com.moakiee.ae2lt.me.key.LightningKey;
 import com.moakiee.ae2lt.network.NetworkHandler;
@@ -75,6 +76,10 @@ public final class RailgunFireService {
 
     public static void fireCharged(ServerLevel level, ServerPlayer player, ItemStack stack, RailgunChargeTier tier) {
         if (tier == RailgunChargeTier.HV) return;
+        if (!RailgunStructuralCore.hasCore(stack)) {
+            sendFail(player, "ae2lt.railgun.core_required");
+            return;
+        }
 
         var bound = RailgunBinding.resolve(stack, player);
         if (!bound.success()) {
@@ -97,7 +102,7 @@ public final class RailgunFireService {
             sendFail(player, "ae2lt.railgun.fail.no_ae");
             return;
         }
-        // 2. Try EHV; fall back to HV compensation if core present.
+        // 2. Try EHV; fall back to HV compensation if the core module is present.
         long ehvNeeded = cost.ehv();
         long ehvGot = inv.extract(LightningKey.EXTREME_HIGH_VOLTAGE, ehvNeeded, Actionable.MODULATE, src);
         long ehvShort = ehvNeeded - ehvGot;

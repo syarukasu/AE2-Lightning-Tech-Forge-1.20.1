@@ -9,6 +9,7 @@ import com.moakiee.ae2lt.item.railgun.RailgunSettings;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -49,6 +50,14 @@ public final class ModDataComponents {
                     builder -> builder
                             .persistent(RailgunModuleEntries.CODEC)
                             .networkSynchronized(RailgunModuleEntries.STREAM_CODEC));
+
+    /** Structural core installed in an electromagnetic railgun. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ItemStack>>
+            RAILGUN_STRUCTURAL_CORE = DATA_COMPONENTS.registerComponentType(
+                    "railgun_structural_core",
+                    builder -> builder
+                            .persistent(ItemStack.OPTIONAL_CODEC)
+                            .networkSynchronized(ItemStack.OPTIONAL_STREAM_CODEC));
 
     /** Persistent UI toggles for the railgun (terrain destruction, PVP lock). */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<RailgunSettings>>
