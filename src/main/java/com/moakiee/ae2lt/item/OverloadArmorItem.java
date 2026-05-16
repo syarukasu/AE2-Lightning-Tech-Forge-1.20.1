@@ -26,6 +26,8 @@ import appeng.menu.MenuOpener;
 import appeng.menu.locator.ItemMenuHostLocator;
 import appeng.menu.locator.MenuLocators;
 
+import com.moakiee.ae2lt.device.DeviceItem;
+import com.moakiee.ae2lt.device.DeviceKind;
 import com.moakiee.ae2lt.menu.OverloadArmorHost;
 import com.moakiee.ae2lt.menu.OverloadArmorMenu;
 import com.moakiee.ae2lt.overload.armor.OverloadArmorCarrierLocator;
@@ -35,9 +37,14 @@ import com.moakiee.ae2lt.overload.armor.OverloadArmorState;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class OverloadArmorItem extends ArmorItem implements IMenuItem, ICurioItem {
+public class OverloadArmorItem extends ArmorItem implements IMenuItem, ICurioItem, DeviceItem {
     public OverloadArmorItem(Properties properties) {
         super(ArmorMaterials.NETHERITE, Type.CHESTPLATE, properties.stacksTo(1).fireResistant());
+    }
+
+    @Override
+    public DeviceKind deviceKind() {
+        return DeviceKind.OVERLOAD_ARMOR;
     }
 
     @Override

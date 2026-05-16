@@ -24,20 +24,27 @@ import net.minecraft.world.phys.BlockHitResult;
 import appeng.api.implementations.menuobjects.IMenuItem;
 import appeng.api.implementations.menuobjects.ItemMenuHost;
 import appeng.core.localization.Tooltips;
+import appeng.menu.locator.ItemMenuHostLocator;
 
+import com.moakiee.ae2lt.device.DeviceItem;
+import com.moakiee.ae2lt.device.DeviceKind;
 import com.moakiee.ae2lt.logic.railgun.RailgunEnergyBuffer;
 import com.moakiee.ae2lt.logic.railgun.RailgunFireService;
 import com.moakiee.ae2lt.menu.railgun.RailgunHost;
 import com.moakiee.ae2lt.registry.ModDataComponents;
-import appeng.menu.locator.ItemMenuHostLocator;
 
-public class ElectromagneticRailgunItem extends Item implements IMenuItem {
+public class ElectromagneticRailgunItem extends Item implements IMenuItem, DeviceItem {
 
     /** Sentinel duration; we manage charging via {@link #onUseTick}. */
     private static final int USE_DURATION = 72_000;
 
     public ElectromagneticRailgunItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public DeviceKind deviceKind() {
+        return DeviceKind.RAILGUN;
     }
 
     @Override
