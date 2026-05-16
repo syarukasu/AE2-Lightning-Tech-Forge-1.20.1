@@ -215,6 +215,9 @@ public final class ModItems {
             FlightSubmoduleItem::new,
             new Item.Properties().stacksTo(1));
 
+    public static final DeferredItem<Item> OVERLOAD_MODULE_BASE =
+            ITEMS.registerSimpleItem("overload_module_base", new Item.Properties());
+
     // ── Electromagnetic Railgun (终末期 BiS 武器) ─────────────────────────────
     public static final DeferredItem<ElectromagneticRailgunItem> ELECTROMAGNETIC_RAILGUN = ITEMS.registerItem(
             "electromagnetic_railgun",
