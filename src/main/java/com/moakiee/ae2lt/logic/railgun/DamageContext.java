@@ -5,6 +5,7 @@ import com.moakiee.ae2lt.config.RailgunDefaults;
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
 import com.moakiee.ae2lt.item.railgun.RailgunChargeTier;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleEntries;
+import com.moakiee.ae2lt.item.railgun.RailgunSettings;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -12,8 +13,7 @@ import net.minecraft.world.level.Level;
 
 /**
  * Pre-computed per-fire-event damage parameters. The base damage for a tier
- * already factors compute modules and storm bonus; the bypass ratio and chain
- * count are tier-derived.
+ * already factors storm bonus; compute modules only shape chain/AoE behavior.
  */
 public record DamageContext(
         double firstDamage,
@@ -37,11 +37,17 @@ public record DamageContext(
         return base * (1.0D - effective);
     }
 
-    public static DamageContext buildBeam(Player player, RailgunModuleEntries mods, Level level, boolean pvpLock) {
+    public static DamageContext buildBeam(Player player, RailgunModuleEntries mods, Level level,
+                                          boolean pvpLock, RailgunSettings.BeamMode beamMode) {
         boolean storm = isStorming(level, player);
         int compute = countChainTuning(mods);
-        double base = AE2LTCommonConfig.railgunBeamDamagePerSettle();
-        base *= 1.0D + 0.25D * compute;
+        // HV/EHV split: HV = low base, no bypass; EHV = high base, strong bypass.
+        double base = (beamMode == RailgunSettings.BeamMode.EHV)
+                ? AE2LTCommonConfig.railgunBeamEhvDamagePerSettle()
+                : AE2LTCommonConfig.railgunBeamHvDamagePerSettle();
+        double bypass = (beamMode == RailgunSettings.BeamMode.EHV)
+                ? AE2LTCommonConfig.railgunBeamEhvBypass()
+                : AE2LTCommonConfig.railgunBeamHvBypass();
         if (storm) {
             base *= RailgunDefaults.STORM_DAMAGE_MUL;
         }
@@ -56,7 +62,7 @@ public record DamageContext(
         }
         return new DamageContext(
                 base,
-                RailgunDefaults.ARMOR_BYPASS_BEAM,
+                bypass,
                 RailgunDefaults.CHAIN_DECAY,
                 chains,
                 compute > 0 ? 1 : 0,
@@ -75,16 +81,13 @@ public record DamageContext(
             case EHV3 -> AE2LTCommonConfig.railgunBaseDamageEhv3();
             default -> 0.0D;
         };
-        base *= 1.0D + 0.25D * compute;
         if (storm) {
             base *= RailgunDefaults.STORM_DAMAGE_MUL;
         }
-        double bypass = switch (tier) {
-            case EHV1 -> RailgunDefaults.ARMOR_BYPASS_TIER1;
-            case EHV2 -> RailgunDefaults.ARMOR_BYPASS_TIER2;
-            case EHV3 -> RailgunDefaults.ARMOR_BYPASS_TIER3;
-            default -> 0.0D;
-        };
+        // Charged-shot armor bypass: single dial for all tiers (config).
+        // Tier differentiation now comes from base damage + AoE / chain / pulse / forced-kill,
+        // not from per-tier bypass — the EHV ammunition itself is the bypass justification.
+        double bypass = (tier == RailgunChargeTier.HV) ? 0.0D : AE2LTCommonConfig.railgunChargedBypass();
         int chains = compute > 0
                 ? switch (tier) {
                     case EHV1 -> 8;

@@ -152,11 +152,15 @@ public final class AE2LTCommonConfig {
         return VALUES.pigmeeFumoGiftOnFirstJoin.get();
     }
 
-    // ── Railgun: damage (per-tier base + beam settle) ─────────────────────────
-    public static int railgunBeamDamagePerSettle() { return VALUES.railgunBeamDamagePerSettle.get(); }
+    // ── Railgun: damage (per-tier base + beam settle, HV/EHV beam split) ──────
+    public static int railgunBeamHvDamagePerSettle() { return VALUES.railgunBeamHvDamagePerSettle.get(); }
+    public static int railgunBeamEhvDamagePerSettle() { return VALUES.railgunBeamEhvDamagePerSettle.get(); }
+    public static double railgunBeamHvBypass() { return VALUES.railgunBeamHvBypass.get(); }
+    public static double railgunBeamEhvBypass() { return VALUES.railgunBeamEhvBypass.get(); }
     public static int railgunBaseDamageEhv1() { return VALUES.railgunBaseDamageEhv1.get(); }
     public static int railgunBaseDamageEhv2() { return VALUES.railgunBaseDamageEhv2.get(); }
     public static int railgunBaseDamageEhv3() { return VALUES.railgunBaseDamageEhv3.get(); }
+    public static double railgunChargedBypass() { return VALUES.railgunChargedBypass.get(); }
 
     // ── Railgun: AE energy + lightning ammo ───────────────────────────────────
     public static long railgunBeamAeCostPerSettle() { return VALUES.railgunBeamAeCostPerSettle.get(); }
@@ -164,6 +168,7 @@ public final class AE2LTCommonConfig {
     public static long railgunAeCostTier2() { return VALUES.railgunAeCostTier2.get(); }
     public static long railgunAeCostTier3() { return VALUES.railgunAeCostTier3.get(); }
     public static int railgunBeamHvCostInterval() { return VALUES.railgunBeamHvCostInterval.get(); }
+    public static long railgunBeamEhvCostPerSettle() { return VALUES.railgunBeamEhvCostPerSettle.get(); }
     public static long railgunEhvCostTier1() { return VALUES.railgunEhvCostTier1.get(); }
     public static long railgunEhvCostTier2() { return VALUES.railgunEhvCostTier2.get(); }
     public static long railgunEhvCostTier3() { return VALUES.railgunEhvCostTier3.get(); }
@@ -174,14 +179,15 @@ public final class AE2LTCommonConfig {
     // ── Railgun: PvP / terrain switches and budget ────────────────────────────
     public static boolean railgunDamagePlayers() { return VALUES.railgunDamagePlayers.get(); }
     public static boolean railgunParalysisOnPlayers() { return VALUES.railgunParalysisOnPlayers.get(); }
+    public static boolean railgunTerrainDestructionEnabled() { return VALUES.railgunTerrainDestructionEnabled.get(); }
     public static boolean railgunTerrainDropItems() { return VALUES.railgunTerrainDropItems.get(); }
     public static int railgunTerrainBlocksPerTick() { return VALUES.railgunTerrainBlocksPerTick.get(); }
 
     // ── Railgun: Overload Execution module ──────────────────────────────────
-    public static double overloadExecutionDecayRate() { return VALUES.overloadExecutionDecayRate.get(); }
-    public static int overloadExecutionDecayDelayTicks() { return VALUES.overloadExecutionDecayDelayTicks.get(); }
-    public static int overloadExecutionMaxTracked() { return VALUES.overloadExecutionMaxTracked.get(); }
     public static boolean overloadExecutionEnabled() { return VALUES.overloadExecutionEnabled.get(); }
+    public static int overloadExecutionDecayWindowTicks() { return VALUES.overloadExecutionDecayWindowTicks.get(); }
+    public static double overloadExecutionDecayPower() { return VALUES.overloadExecutionDecayPower.get(); }
+    public static int overloadExecutionMaxTracked() { return VALUES.overloadExecutionMaxTracked.get(); }
 
     private static final class Values {
         private final ModConfigSpec.IntValue lightningCollectorCooldownTicks;
@@ -220,15 +226,20 @@ public final class AE2LTCommonConfig {
         private final ModConfigSpec.BooleanValue pigmeeFumoGiftOnFirstJoin;
 
         // ── Railgun fields ────────────────────────────────────────────────
-        private final ModConfigSpec.IntValue railgunBeamDamagePerSettle;
+        private final ModConfigSpec.IntValue railgunBeamHvDamagePerSettle;
+        private final ModConfigSpec.IntValue railgunBeamEhvDamagePerSettle;
+        private final ModConfigSpec.DoubleValue railgunBeamHvBypass;
+        private final ModConfigSpec.DoubleValue railgunBeamEhvBypass;
         private final ModConfigSpec.IntValue railgunBaseDamageEhv1;
         private final ModConfigSpec.IntValue railgunBaseDamageEhv2;
         private final ModConfigSpec.IntValue railgunBaseDamageEhv3;
+        private final ModConfigSpec.DoubleValue railgunChargedBypass;
         private final ModConfigSpec.LongValue railgunBeamAeCostPerSettle;
         private final ModConfigSpec.LongValue railgunAeCostTier1;
         private final ModConfigSpec.LongValue railgunAeCostTier2;
         private final ModConfigSpec.LongValue railgunAeCostTier3;
         private final ModConfigSpec.IntValue railgunBeamHvCostInterval;
+        private final ModConfigSpec.LongValue railgunBeamEhvCostPerSettle;
         private final ModConfigSpec.LongValue railgunEhvCostTier1;
         private final ModConfigSpec.LongValue railgunEhvCostTier2;
         private final ModConfigSpec.LongValue railgunEhvCostTier3;
@@ -237,14 +248,15 @@ public final class AE2LTCommonConfig {
         private final ModConfigSpec.IntValue railgunBufferRefillIntervalTicks;
         private final ModConfigSpec.BooleanValue railgunDamagePlayers;
         private final ModConfigSpec.BooleanValue railgunParalysisOnPlayers;
+        private final ModConfigSpec.BooleanValue railgunTerrainDestructionEnabled;
         private final ModConfigSpec.BooleanValue railgunTerrainDropItems;
         private final ModConfigSpec.IntValue railgunTerrainBlocksPerTick;
 
-        // Overload Execution
-        private final ModConfigSpec.DoubleValue overloadExecutionDecayRate;
-        private final ModConfigSpec.IntValue overloadExecutionDecayDelayTicks;
-        private final ModConfigSpec.IntValue overloadExecutionMaxTracked;
+        // Overload Execution (HP-record / decay model)
         private final ModConfigSpec.BooleanValue overloadExecutionEnabled;
+        private final ModConfigSpec.IntValue overloadExecutionDecayWindowTicks;
+        private final ModConfigSpec.DoubleValue overloadExecutionDecayPower;
+        private final ModConfigSpec.IntValue overloadExecutionMaxTracked;
 
         private Values(ModConfigSpec.Builder builder) {
             builder.push("lightningCollector");
@@ -381,18 +393,30 @@ public final class AE2LTCommonConfig {
 
             builder.push("railgun");
             builder.push("damage");
-            railgunBeamDamagePerSettle = builder
-                    .comment("Beam damage per 2-tick settle. Theoretical 300 DPS, ~150 DPS after vanilla i-frames.")
-                    .defineInRange("beamDamagePerSettle", 30, 0, Integer.MAX_VALUE);
+            railgunBeamHvDamagePerSettle = builder
+                    .comment("HV beam damage per 2-tick settle. Low base, no armor bypass — basic DPS ammo.")
+                    .defineInRange("beamHvDamagePerSettle", 10, 0, Integer.MAX_VALUE);
+            railgunBeamEhvDamagePerSettle = builder
+                    .comment("EHV beam damage per 2-tick settle. Higher base + strong armor bypass — anti-armor ammo.")
+                    .defineInRange("beamEhvDamagePerSettle", 30, 0, Integer.MAX_VALUE);
+            railgunBeamHvBypass = builder
+                    .comment("HV beam armor bypass (0.0 = fully blocked by armor, 1.0 = ignore armor).")
+                    .defineInRange("beamHvBypass", 0.0D, 0.0D, 1.0D);
+            railgunBeamEhvBypass = builder
+                    .comment("EHV beam armor bypass (0.0 = fully blocked by armor, 1.0 = ignore armor).")
+                    .defineInRange("beamEhvBypass", 0.8D, 0.0D, 1.0D);
             railgunBaseDamageEhv1 = builder
                     .comment("Charge tier 1 base damage.")
-                    .defineInRange("baseDamageEhv1", 200, 0, Integer.MAX_VALUE);
+                    .defineInRange("baseDamageEhv1", 100, 0, Integer.MAX_VALUE);
             railgunBaseDamageEhv2 = builder
                     .comment("Charge tier 2 base damage.")
-                    .defineInRange("baseDamageEhv2", 350, 0, Integer.MAX_VALUE);
+                    .defineInRange("baseDamageEhv2", 300, 0, Integer.MAX_VALUE);
             railgunBaseDamageEhv3 = builder
                     .comment("Charge tier 3 (max) base damage.")
-                    .defineInRange("baseDamageEhv3", 500, 0, Integer.MAX_VALUE);
+                    .defineInRange("baseDamageEhv3", 600, 0, Integer.MAX_VALUE);
+            railgunChargedBypass = builder
+                    .comment("Charged-shot armor bypass for all tiers (single dial — replaces per-tier 0.4/0.6/0.8).")
+                    .defineInRange("chargedBypass", 0.8D, 0.0D, 1.0D);
             builder.pop();
 
             builder.push("energy");
@@ -409,8 +433,11 @@ public final class AE2LTCommonConfig {
                     .comment("AE energy consumed per tier-3 (max) charged shot.")
                     .defineInRange("aeCostTier3", 200000L, 0L, Long.MAX_VALUE);
             railgunBeamHvCostInterval = builder
-                    .comment("Beam consumes 1 HV every N settles (settle = 2 ticks). N=8 means ~1.25 HV/sec; energy module doubles N.")
+                    .comment("HV beam consumes 1 HV every N settles (settle = 2 ticks). N=8 means ~1.25 HV/sec; energy module triples N.")
                     .defineInRange("beamHvCostInterval", 8, 1, 64);
+            railgunBeamEhvCostPerSettle = builder
+                    .comment("EHV beam: EHV consumed per settle (each settle = 2 ticks). 1 = 10 EHV/sec sustained.")
+                    .defineInRange("beamEhvCostPerSettle", 1L, 0L, Long.MAX_VALUE);
             railgunEhvCostTier1 = builder
                     .comment("EHV consumed per tier-1 charged shot.")
                     .defineInRange("ehvCostTier1", 32L, 0L, Long.MAX_VALUE);
@@ -444,6 +471,10 @@ public final class AE2LTCommonConfig {
             builder.pop();
 
             builder.push("terrain");
+            railgunTerrainDestructionEnabled = builder
+                    .comment("Master switch for railgun terrain destruction.",
+                            "When false, no railgun shot can break blocks even if the item setting is ON.")
+                    .define("enableTerrainDestruction", true);
             railgunTerrainDropItems = builder
                     .comment("Whether terrain destruction produces drops (drops auto-despawn after 60s).")
                     .define("dropItems", false);
@@ -453,18 +484,22 @@ public final class AE2LTCommonConfig {
             builder.pop();
 
             builder.push("overloadExecution");
-            overloadExecutionDecayRate = builder
-                    .comment("Fraction of accumulated damage that decays per tick after the delay period.")
-                    .defineInRange("decayRate", 0.02D, 0.0D, 1.0D);
-            overloadExecutionDecayDelayTicks = builder
-                    .comment("Ticks without hitting a target before decay starts.")
-                    .defineInRange("decayDelayTicks", 200, 0, Integer.MAX_VALUE);
-            overloadExecutionMaxTracked = builder
-                    .comment("Maximum number of targets tracked simultaneously.")
-                    .defineInRange("maxTracked", 8, 1, 64);
             overloadExecutionEnabled = builder
-                    .comment("Master switch for the Overload Execution module.")
+                    .comment("Master switch for the Overload Execution module (EHv3-charged forced-kill).")
                     .define("enabled", true);
+            overloadExecutionDecayWindowTicks = builder
+                    .comment("Decay window in ticks. After this many ticks since the last hit, the recorded HP fully resets to current HP.",
+                            "Default 1200 = 60 seconds.")
+                    .defineInRange("decayWindowTicks", 1200, 1, Integer.MAX_VALUE);
+            overloadExecutionDecayPower = builder
+                    .comment("Decay curve exponent (slow-start, fast-finish). recovery_fraction = (elapsed / window)^power.",
+                            "  1.0 = linear",
+                            "  2.0 = quadratic (default — early ticks barely heal, last ticks restore fast)",
+                            "  3.0 = cubic (even slower start)")
+                    .defineInRange("decayPower", 2.0D, 0.1D, 10.0D);
+            overloadExecutionMaxTracked = builder
+                    .comment("Maximum number of targets whose recorded HP is kept simultaneously on a single railgun.")
+                    .defineInRange("maxTracked", 8, 1, 64);
             builder.pop();
             builder.pop();
         }

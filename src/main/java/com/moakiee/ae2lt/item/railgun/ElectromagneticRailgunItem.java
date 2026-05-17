@@ -85,7 +85,16 @@ public class ElectromagneticRailgunItem extends Item implements IMenuItem, Devic
             return;
         }
         long current = stack.getOrDefault(ModDataComponents.RAILGUN_CHARGE_TICKS.get(), 0L);
-        stack.set(ModDataComponents.RAILGUN_CHARGE_TICKS.get(), current + 1L);
+        // ACCEL module step-up: each module adds +1 charge-ticks per real tick.
+        //   0 modules → +1 / tick (baseline)
+        //   1 module  → +2 / tick (2× speed)
+        //   2 modules → +3 / tick (3× speed)
+        // Thresholds (RailgunDefaults.CHARGE_TICKS_TIER1/2/3) stay fixed in
+        // "charge units"; only the rate of accumulation changes.
+        RailgunModuleEntries mods = stack.getOrDefault(
+                ModDataComponents.RAILGUN_MODULE_ENTRIES.get(), RailgunModuleEntries.EMPTY);
+        long step = 1L + RailgunFireService.countAccelerationModules(mods);
+        stack.set(ModDataComponents.RAILGUN_CHARGE_TICKS.get(), current + step);
     }
 
     @Override
@@ -101,7 +110,7 @@ public class ElectromagneticRailgunItem extends Item implements IMenuItem, Devic
         if (tier == RailgunChargeTier.HV) {
             return;
         }
-        RailgunFireService.fireCharged(sl, player, stack, tier);
+        RailgunFireService.fireCharged(sl, player, stack, tier, charged);
     }
 
     @Override

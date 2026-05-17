@@ -63,6 +63,7 @@ public final class RailgunTerrainService {
 
     public static void queueDestroy(ServerLevel level, Vec3 center, RailgunChargeTier tier,
                                      ServerPlayer player, ItemStack stack) {
+        if (!AE2LTCommonConfig.railgunTerrainDestructionEnabled()) return;
         if (tier == RailgunChargeTier.HV) return;
         double radius = switch (tier) {
             case EHV1 -> RailgunDefaults.TERRAIN_RADIUS_TIER1;
@@ -97,6 +98,7 @@ public final class RailgunTerrainService {
 
     public static void queueDestroyAlongPath(ServerLevel level, List<Vec3> hitPoints,
                                               ServerPlayer player, ItemStack stack) {
+        if (!AE2LTCommonConfig.railgunTerrainDestructionEnabled()) return;
         double r = RailgunDefaults.PENETRATION_DESTROY_RADIUS;
         float maxHardness = (float) RailgunDefaults.PENETRATION_DESTROY_HARDNESS;
         for (Vec3 p : hitPoints) {

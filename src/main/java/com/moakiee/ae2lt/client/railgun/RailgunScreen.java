@@ -19,7 +19,8 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunSettingsMenu> 
 
     private static final int BTN_X = 116;
     private static final int BTN_TERRAIN_Y = 22;
-    private static final int BTN_PVP_Y = 44;
+    private static final int BTN_AOE_Y = 44;
+    private static final int BTN_PVP_Y = 66;
     private static final int BTN_W = 52;
     private static final int BTN_H = 16;
 
@@ -61,7 +62,8 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunSettingsMenu> 
         // Network status panel.
         gfx.fill(x + NETWORK_X - 2, y + NETWORK_Y - 3,
                 x + this.imageWidth - 8, y + NETWORK_Y + 11, 0xFF1B1B1B);
-        drawToggleBg(gfx, x + BTN_X, y + BTN_TERRAIN_Y, menu.terrainDestruction, 0xFFCC4444);
+        drawToggleBg(gfx, x + BTN_X, y + BTN_TERRAIN_Y, menu.terrainDestruction, menu.terrainDestructionAllowed ? 0xFFCC4444 : 0xFF555555);
+        drawToggleBg(gfx, x + BTN_X, y + BTN_AOE_Y, menu.aoeEnabled, 0xFFAA66CC);
         drawToggleBg(gfx, x + BTN_X, y + BTN_PVP_Y, menu.pvpLock, 0xFF4488CC);
         drawPlayerInventory(gfx, x + PLAYER_INV_X, y + PLAYER_INV_Y);
     }
@@ -150,6 +152,8 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunSettingsMenu> 
 
         drawToggleLabel(gfx, BTN_X, BTN_TERRAIN_Y,
                 "ae2lt.railgun.gui.button.terrain", menu.terrainDestruction);
+        drawToggleLabel(gfx, BTN_X, BTN_AOE_Y,
+                "ae2lt.railgun.gui.button.aoe", menu.aoeEnabled);
         drawToggleLabel(gfx, BTN_X, BTN_PVP_Y,
                 "ae2lt.railgun.gui.button.pvp_lock", menu.pvpLock);
     }
@@ -193,7 +197,14 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunSettingsMenu> 
             int gx = (this.width - this.imageWidth) / 2;
             int gy = (this.height - this.imageHeight) / 2;
             if (inRect(mouseX, mouseY, gx + BTN_X, gy + BTN_TERRAIN_Y, BTN_W, BTN_H)) {
-                menu.clientToggleTerrain();
+                if (menu.terrainDestructionAllowed) {
+                    menu.clientToggleTerrain();
+                    playClick();
+                }
+                return true;
+            }
+            if (inRect(mouseX, mouseY, gx + BTN_X, gy + BTN_AOE_Y, BTN_W, BTN_H)) {
+                menu.clientToggleAoe();
                 playClick();
                 return true;
             }
@@ -225,9 +236,18 @@ public class RailgunScreen extends AbstractContainerScreen<RailgunSettingsMenu> 
         int gy = (this.height - this.imageHeight) / 2;
 
         if (inRect(mouseX, mouseY, gx + BTN_X, gy + BTN_TERRAIN_Y, BTN_W, BTN_H)) {
-            var key = menu.terrainDestruction
+            var key = !menu.terrainDestructionAllowed
+                    ? "ae2lt.railgun.terrain.disabled_by_config"
+                    : menu.terrainDestruction
                     ? "ae2lt.railgun.terrain.on"
                     : "ae2lt.railgun.terrain.off";
+            gfx.renderTooltip(this.font, Component.translatable(key), mouseX, mouseY);
+            return;
+        }
+        if (inRect(mouseX, mouseY, gx + BTN_X, gy + BTN_AOE_Y, BTN_W, BTN_H)) {
+            var key = menu.aoeEnabled
+                    ? "ae2lt.railgun.aoe.on"
+                    : "ae2lt.railgun.aoe.off";
             gfx.renderTooltip(this.font, Component.translatable(key), mouseX, mouseY);
             return;
         }

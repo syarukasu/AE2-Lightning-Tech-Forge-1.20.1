@@ -30,8 +30,10 @@ import appeng.api.networking.IGrid;
 import appeng.api.networking.security.IActionSource;
 
 import com.moakiee.ae2lt.AE2LightningTech;
+import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.config.RailgunDefaults;
 import com.moakiee.ae2lt.item.railgun.ElectromagneticRailgunItem;
+import com.moakiee.ae2lt.item.railgun.RailgunChargeTier;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleEntries;
 import com.moakiee.ae2lt.item.railgun.RailgunStructuralCore;
 import com.moakiee.ae2lt.item.railgun.RailgunSettings;
@@ -151,33 +153,87 @@ public final class RailgunBeamService {
 
         long aeCost = AmmoCost.beamAeCost(mods);
         IActionSource src = IActionSource.ofPlayer(player);
-        int interval = AmmoCost.beamHvCostInterval(mods);
-        // The HV pull is sampled BEFORE the AE buffer deduction so that we don't
-        // half-pay (deduct AE then fail HV). If HV is required but unavailable,
-        // we fail immediately without touching the buffer or the network.
-        long pendingHv = 0L;
-        if (s.settleCount % interval == 0) {
-            long got = grid.getStorageService().getInventory().extract(
-                    LightningKey.HIGH_VOLTAGE, 1L, Actionable.SIMULATE, src);
-            if (got < 1L) {
-                RailgunFireService.sendFail(player, "ae2lt.railgun.fail.no_hv");
-                return false;
-            }
-            pendingHv = 1L;
+        RailgunSettings.BeamMode beamMode = settings.beamMode();
+
+        // Resolve lightning ammunition cost for this settle.
+        //  HV mode  : 1 HV every N settles (configurable interval, energy module ×3).
+        //  EHV mode : N EHV per settle (config; default 1). If EHV is short and the
+        //             CORE module is installed, fall back to 16:1 HV compensation —
+        //             same semantics as the charged-fire path.
+        LightningKey primaryKey;
+        long primaryNeeded;
+        String failKey;
+        boolean allowCoreCompensation;
+        if (beamMode == RailgunSettings.BeamMode.EHV) {
+            primaryKey = LightningKey.EXTREME_HIGH_VOLTAGE;
+            primaryNeeded = AE2LTCommonConfig.railgunBeamEhvCostPerSettle();
+            failKey = "ae2lt.railgun.fail.no_ehv";
+            allowCoreCompensation = mods.hasCore();
+        } else {
+            primaryKey = LightningKey.HIGH_VOLTAGE;
+            int interval = AmmoCost.beamHvCostInterval(mods);
+            primaryNeeded = (s.settleCount % interval == 0) ? 1L : 0L;
+            failKey = "ae2lt.railgun.fail.no_hv";
+            allowCoreCompensation = false;
         }
+
+        // SIMULATE phase: prove we can afford the shot, without committing anything,
+        // so a later failure cannot leave AE deducted but ammo missing.
+        long primaryAvail = 0L;
+        long compensationHvNeeded = 0L;
+        if (primaryNeeded > 0L) {
+            primaryAvail = grid.getStorageService().getInventory().extract(
+                    primaryKey, primaryNeeded, Actionable.SIMULATE, src);
+            if (primaryAvail < primaryNeeded) {
+                if (!allowCoreCompensation) {
+                    RailgunFireService.sendFail(player, failKey);
+                    return false;
+                }
+                long ehvShort = primaryNeeded - primaryAvail;
+                compensationHvNeeded = ehvShort * RailgunDefaults.COMPENSATION_RATIO;
+                long hvAvail = grid.getStorageService().getInventory().extract(
+                        LightningKey.HIGH_VOLTAGE, compensationHvNeeded, Actionable.SIMULATE, src);
+                if (hvAvail < compensationHvNeeded) {
+                    RailgunFireService.sendFail(player, "ae2lt.railgun.fail.no_compensation_hv");
+                    return false;
+                }
+            }
+        }
+
         if (!RailgunEnergyBuffer.tryConsume(stack, player, aeCost)) {
             RailgunFireService.sendFail(player, "ae2lt.railgun.fail.no_ae");
             return false;
         }
-        if (pendingHv > 0L) {
-            long got = grid.getStorageService().getInventory().extract(
-                    LightningKey.HIGH_VOLTAGE, pendingHv, Actionable.MODULATE, src);
-            if (got < pendingHv) {
-                // Should be impossible after a successful SIMULATE in the same tick,
-                // but be defensive: refund AE so we never half-charge the player.
+
+        // MODULATE phase: actually deduct. After a successful SIMULATE in the same
+        // tick this should always succeed; if it doesn't, roll back everything we
+        // committed (AE + any earlier ammo extracted this settle).
+        if (primaryNeeded > 0L) {
+            long takePrimary = Math.min(primaryAvail, primaryNeeded);
+            long gotPrimary = (takePrimary > 0L)
+                    ? grid.getStorageService().getInventory().extract(primaryKey, takePrimary, Actionable.MODULATE, src)
+                    : 0L;
+            if (gotPrimary < takePrimary) {
                 RailgunEnergyBuffer.refund(stack, aeCost);
-                RailgunFireService.sendFail(player, "ae2lt.railgun.fail.no_hv");
+                RailgunFireService.sendFail(player, failKey);
                 return false;
+            }
+            if (compensationHvNeeded > 0L) {
+                long gotHv = grid.getStorageService().getInventory().extract(
+                        LightningKey.HIGH_VOLTAGE, compensationHvNeeded, Actionable.MODULATE, src);
+                if (gotHv < compensationHvNeeded) {
+                    // Defensive rollback: undo primary + AE so the player isn't half-charged.
+                    if (gotPrimary > 0L) {
+                        grid.getStorageService().getInventory().insert(primaryKey, gotPrimary, Actionable.MODULATE, src);
+                    }
+                    if (gotHv > 0L) {
+                        grid.getStorageService().getInventory().insert(
+                                LightningKey.HIGH_VOLTAGE, gotHv, Actionable.MODULATE, src);
+                    }
+                    RailgunEnergyBuffer.refund(stack, aeCost);
+                    RailgunFireService.sendFail(player, "ae2lt.railgun.fail.no_compensation_hv");
+                    return false;
+                }
             }
         }
 
@@ -186,7 +242,7 @@ public final class RailgunBeamService {
         EntityHitResult ehr = trace.entityHit();
 
         if (ehr != null && ehr.getEntity() instanceof LivingEntity primary) {
-            DamageContext ctx = DamageContext.buildBeam(player, mods, level, settings.pvpLock());
+            DamageContext ctx = DamageContext.buildBeam(player, mods, level, settings.pvpLock(), beamMode);
             // Primary hit
             DamageSource ds = beamDamageSource(level, player);
             double armorReduction = DamageContext.effectiveArmorReduction(primary);
@@ -198,13 +254,14 @@ public final class RailgunBeamService {
                         RailgunDefaults.PARALYSIS_DURATION_TICKS,
                         0, false, true, true), player);
             }
-            // Overload execution: accumulate damage and check for forced kill
-            OverloadExecutionService.onHit(level, player, stack, primary, finalDamage);
+            // Beam never triggers Overload Execution — that's reserved for EHv3 charged shots.
             // Throttled chain
-            if (player.tickCount - s.lastChainTick >= chainThrottle) {
+            if (settings.aoeEnabled() && player.tickCount - s.lastChainTick >= chainThrottle) {
                 s.lastChainTick = player.tickCount;
                 List<RailgunChainResolver.Hit> chain = RailgunChainResolver.resolveChain(level, player, primary, ctx);
-                RailgunFireService.applyAll(level, player, chain, ctx, stack);
+                // Pass HV as the "tier" sentinel — applyAll's Overload-Execution gate
+                // (RailgunChargeTier.EHV3 only) ignores it for any non-EHv3 value.
+                RailgunFireService.applyAll(level, player, chain, ctx, stack, RailgunChargeTier.HV);
                 if (!chain.isEmpty()) {
                     broadcastBeamChainFx(level, player, primary, chain);
                 }

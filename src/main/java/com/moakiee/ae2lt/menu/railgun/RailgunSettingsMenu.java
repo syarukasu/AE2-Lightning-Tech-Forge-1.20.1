@@ -13,6 +13,7 @@ import appeng.menu.guisync.GuiSync;
 import appeng.menu.implementations.MenuTypeBuilder;
 
 import com.moakiee.ae2lt.AE2LightningTech;
+import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleEntries;
 import com.moakiee.ae2lt.item.railgun.RailgunSettings;
 import com.moakiee.ae2lt.logic.railgun.RailgunBinding;
@@ -49,6 +50,10 @@ public class RailgunSettingsMenu extends AEBaseMenu {
     public int accelCount;
     @GuiSync(8)
     public int overloadExecInstalled;
+    @GuiSync(9)
+    public boolean aoeEnabled;
+    @GuiSync(10)
+    public boolean terrainDestructionAllowed;
 
     private final RailgunHost host;
 
@@ -60,6 +65,7 @@ public class RailgunSettingsMenu extends AEBaseMenu {
 
         registerClientAction("toggleTerrain", this::toggleTerrain);
         registerClientAction("togglePvpLock", this::togglePvpLock);
+        registerClientAction("toggleAoe", this::toggleAoe);
         updateSnapshot();
     }
 
@@ -73,6 +79,10 @@ public class RailgunSettingsMenu extends AEBaseMenu {
 
     public void clientTogglePvpLock() {
         sendClientAction("togglePvpLock");
+    }
+
+    public void clientToggleAoe() {
+        sendClientAction("toggleAoe");
     }
 
     @Override
@@ -97,6 +107,10 @@ public class RailgunSettingsMenu extends AEBaseMenu {
         if (!isServerSide()) {
             return;
         }
+        if (!AE2LTCommonConfig.railgunTerrainDestructionEnabled()) {
+            updateSnapshot();
+            return;
+        }
         RailgunSettings current = host.getSettings();
         host.setSettings(current.withTerrain(!current.terrainDestruction()));
         updateSnapshot();
@@ -111,6 +125,15 @@ public class RailgunSettingsMenu extends AEBaseMenu {
         updateSnapshot();
     }
 
+    private void toggleAoe() {
+        if (!isServerSide()) {
+            return;
+        }
+        RailgunSettings current = host.getSettings();
+        host.setSettings(current.withAoeEnabled(!current.aoeEnabled()));
+        updateSnapshot();
+    }
+
     private void updateSnapshot() {
         ItemStack stack = host.getStack();
         bufferStored = RailgunEnergyBuffer.read(stack);
@@ -120,8 +143,10 @@ public class RailgunSettingsMenu extends AEBaseMenu {
         boundDimensionLabel = boundPos == null ? "" : boundPos.dimension().location().toString();
 
         RailgunSettings settings = host.getSettings();
-        terrainDestruction = settings.terrainDestruction();
+        terrainDestructionAllowed = AE2LTCommonConfig.railgunTerrainDestructionEnabled();
+        terrainDestruction = terrainDestructionAllowed && settings.terrainDestruction();
         pvpLock = settings.pvpLock();
+        aoeEnabled = settings.aoeEnabled();
 
         RailgunModuleEntries modules = host.getModules();
         coreInstalled = modules.hasCore() ? 1 : 0;

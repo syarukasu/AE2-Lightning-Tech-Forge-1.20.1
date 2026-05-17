@@ -60,21 +60,27 @@ public final class RailgunFireService {
     private RailgunFireService() {}
 
     public static RailgunChargeTier tierForCharge(long ticks, RailgunModuleEntries mods) {
-        int t1 = RailgunDefaults.CHARGE_TICKS_TIER1;
-        int t2 = RailgunDefaults.CHARGE_TICKS_TIER2;
-        int t3 = RailgunDefaults.CHARGE_TICKS_TIER3;
-        int accel = countAccelerationFactor(mods);
-        if (accel > 0) {
-            // 30% per accel module reduction in time-to-charge; min 20% of original.
-            double mul = Math.max(0.20D, 1.0D - 0.30D * accel);
-            t1 = Math.max(1, (int) Math.round(t1 * mul));
-            t2 = Math.max(t1 + 1, (int) Math.round(t2 * mul));
-            t3 = Math.max(t2 + 1, (int) Math.round(t3 * mul));
-        }
-        return RailgunChargeTier.fromTicks(ticks, t1, t2, t3);
+        // Tier thresholds are fixed in "charge units" — ACCEL modules no longer
+        // shrink the thresholds. Instead, they speed up accumulation in the
+        // item's onUseTick (+N charge units per real tick). This way the thresholds
+        // stay readable and the HUD progress maps 1:1 to the real charge counter.
+        return RailgunChargeTier.fromTicks(
+                ticks,
+                RailgunDefaults.CHARGE_TICKS_TIER1,
+                RailgunDefaults.CHARGE_TICKS_TIER2,
+                RailgunDefaults.CHARGE_TICKS_TIER3);
+    }
+
+    /** Number of ACCEL modules installed; exposed for {@code onUseTick} step-up. */
+    public static int countAccelerationModules(RailgunModuleEntries mods) {
+        return countAccelerationFactor(mods);
     }
 
     public static void fireCharged(ServerLevel level, ServerPlayer player, ItemStack stack, RailgunChargeTier tier) {
+        fireCharged(level, player, stack, tier, -1L);
+    }
+
+    public static void fireCharged(ServerLevel level, ServerPlayer player, ItemStack stack, RailgunChargeTier tier, long chargedTicks) {
         if (tier == RailgunChargeTier.HV) return;
         if (!RailgunStructuralCore.hasCore(stack)) {
             sendFail(player, "ae2lt.railgun.core_required");
@@ -90,6 +96,7 @@ public final class RailgunFireService {
 
         RailgunModuleEntries mods = stack.getOrDefault(ModDataComponents.RAILGUN_MODULE_ENTRIES.get(), RailgunModuleEntries.EMPTY);
         RailgunSettings settings = stack.getOrDefault(ModDataComponents.RAILGUN_SETTINGS.get(), RailgunSettings.DEFAULT);
+        boolean aoeEnabled = settings.aoeEnabled();
         AmmoCost cost = AmmoCost.forCharged(tier, mods);
 
         IActionSource src = IActionSource.ofPlayer(player);
@@ -135,12 +142,13 @@ public final class RailgunFireService {
                 e -> e instanceof LivingEntity le && le != player && !le.isSpectator());
 
         DamageContext ctx = DamageContext.buildCharged(player, tier, mods, level, settings.pvpLock());
+        sendChargedDebug(player, tier, chargedTicks, mods, ctx.firstDamage());
 
         Vec3 firstHitPos = ehr != null ? ehr.getLocation() : endBlock;
         List<RailgunChainResolver.Hit> hits = new ArrayList<>();
         int primaryId = -1;
         int chainTuningCount = countChainTuning(mods);
-        double effectivePulseRadius = tier.isMax()
+        double effectivePulseRadius = aoeEnabled && tier.isMax()
                 ? RailgunDefaults.PULSE_RADIUS + 1.5D * chainTuningCount
                 : 0.0D;
         double effectivePulseRatio = switch (chainTuningCount) {
@@ -151,13 +159,17 @@ public final class RailgunFireService {
         if (ehr != null && ehr.getEntity() instanceof LivingEntity primary) {
             primaryId = primary.getId();
             hits.add(new RailgunChainResolver.Hit(primary, ctx.firstDamage(), false, false));
-            hits.addAll(RailgunChainResolver.resolveChainForkedFrom(
-                    level, player, primary, ctx, Set.of(), null));
+            if (aoeEnabled) {
+                hits.addAll(RailgunChainResolver.resolveChainForkedFrom(
+                        level, player, primary, ctx, Set.of(), null));
+            }
             if (tier.isMax()) {
                 hits.addAll(RailgunChainResolver.resolvePenetration(level, player, primary, ctx,
                         RailgunDefaults.PENETRATION_MAX_TARGETS));
-                hits.addAll(RailgunChainResolver.resolvePulse(level, player, primary.position(),
-                        effectivePulseRadius, effectivePulseRatio, ctx, primaryId));
+                if (aoeEnabled) {
+                    hits.addAll(RailgunChainResolver.resolvePulse(level, player, primary.position(),
+                            effectivePulseRadius, effectivePulseRatio, ctx, primaryId));
+                }
             }
         }
         // Impact splash AOE — fires whether or not we hit a target directly. Skips primary
@@ -174,7 +186,7 @@ public final class RailgunFireService {
             case EHV3 -> RailgunDefaults.IMPACT_DAMAGE_RATIO_TIER3;
             default -> 0.0D;
         };
-        if (impactRadius > 0.0D && impactRatio > 0.0D) {
+        if (aoeEnabled && impactRadius > 0.0D && impactRatio > 0.0D) {
             hits.addAll(RailgunChainResolver.resolveImpactSplash(
                     level, player, firstHitPos, impactRadius, impactRatio, primaryId, ctx));
         }
@@ -182,7 +194,7 @@ public final class RailgunFireService {
         // splash victim and chain from there. All previously-hit IDs (primary + primary
         // chain + penetration + pulse + splash) are excluded so the splash chain only
         // jumps to fresh targets. The first arc visually starts at the impact center.
-        LivingEntity splashAnchor = findClosestSplashAnchor(hits, firstHitPos, primaryId);
+        LivingEntity splashAnchor = aoeEnabled ? findClosestSplashAnchor(hits, firstHitPos, primaryId) : null;
         if (splashAnchor != null) {
             Set<Integer> alreadyHit = new HashSet<>();
             for (var h : hits) {
@@ -192,11 +204,11 @@ public final class RailgunFireService {
                     level, player, splashAnchor, ctx, alreadyHit, firstHitPos));
         }
         if (!hits.isEmpty()) {
-            applyAll(level, player, hits, ctx, stack);
+            applyAll(level, player, hits, ctx, stack, tier);
         }
 
         // 4. Terrain
-        if (settings.terrainDestruction()) {
+        if (AE2LTCommonConfig.railgunTerrainDestructionEnabled() && settings.terrainDestruction()) {
             RailgunTerrainService.queueDestroy(level, firstHitPos, tier, player, stack);
             if (tier.isMax()) {
                 List<Vec3> tunnel = new ArrayList<>();
@@ -213,14 +225,15 @@ public final class RailgunFireService {
         RailgunRecoilService.apply(player, tier);
 
         // 6. Broadcast client FX
-        broadcastFire(level, player, from, firstHitPos, tier, hits, effectivePulseRadius);
+        broadcastFire(level, player, from, firstHitPos, tier, hits, effectivePulseRadius, aoeEnabled);
     }
 
     public static void applyAll(ServerLevel level, ServerPlayer player, List<RailgunChainResolver.Hit> hits, DamageContext ctx) {
-        applyAll(level, player, hits, ctx, ItemStack.EMPTY);
+        applyAll(level, player, hits, ctx, ItemStack.EMPTY, RailgunChargeTier.HV);
     }
 
-    public static void applyAll(ServerLevel level, ServerPlayer player, List<RailgunChainResolver.Hit> hits, DamageContext ctx, ItemStack railgunStack) {
+    public static void applyAll(ServerLevel level, ServerPlayer player, List<RailgunChainResolver.Hit> hits,
+                                DamageContext ctx, ItemStack railgunStack, RailgunChargeTier tier) {
         if (hits.isEmpty()) return;
         Holder<net.minecraft.world.damagesource.DamageType> damageHolder =
                 ModDamageTypes.electromagneticHolder(level);
@@ -228,6 +241,7 @@ public final class RailgunFireService {
         boolean damagePlayers = AE2LTCommonConfig.railgunDamagePlayers();
         boolean paralyzePlayers = AE2LTCommonConfig.railgunParalysisOnPlayers();
         int paralysisDur = RailgunDefaults.PARALYSIS_DURATION_TICKS;
+        boolean overloadEligible = tier == RailgunChargeTier.EHV3 && !railgunStack.isEmpty();
 
         for (var hit : hits) {
             LivingEntity target = hit.target();
@@ -251,8 +265,9 @@ public final class RailgunFireService {
                         true,
                         true), player);
             }
-            // Overload execution: accumulate damage and check for forced kill
-            if (!railgunStack.isEmpty()) {
+            // Overload Execution: only on EHv3 charged shots with the OVERLOAD module
+            // installed. The service itself re-checks the module + master switch.
+            if (overloadEligible) {
                 OverloadExecutionService.onHit(level, player, railgunStack, target, finalDamage);
             }
         }
@@ -260,7 +275,7 @@ public final class RailgunFireService {
 
     private static void broadcastFire(ServerLevel level, ServerPlayer player, Vec3 from, Vec3 firstHit,
                                       RailgunChargeTier tier, List<RailgunChainResolver.Hit> hits,
-                                      double effectivePulseRadius) {
+                                      double effectivePulseRadius, boolean aoeEnabled) {
         List<Vec3> chainPath = new ArrayList<>();
         Vec3 prev = firstHit;
         for (var h : hits) {
@@ -277,14 +292,17 @@ public final class RailgunFireService {
             prev = cur;
         }
         // Total radius for shockwave: impact splash + (max-tier) EMP pulse, picking the bigger.
-        double impactR = switch (tier) {
-            case EHV1 -> RailgunDefaults.IMPACT_RADIUS_TIER1;
-            case EHV2 -> RailgunDefaults.IMPACT_RADIUS_TIER2;
-            case EHV3 -> RailgunDefaults.IMPACT_RADIUS_TIER3;
-            default -> 0.0D;
-        };
-        if (tier.isMax()) {
-            impactR = Math.max(impactR, effectivePulseRadius);
+        double impactR = 0.0D;
+        if (aoeEnabled) {
+            impactR = switch (tier) {
+                case EHV1 -> RailgunDefaults.IMPACT_RADIUS_TIER1;
+                case EHV2 -> RailgunDefaults.IMPACT_RADIUS_TIER2;
+                case EHV3 -> RailgunDefaults.IMPACT_RADIUS_TIER3;
+                default -> 0.0D;
+            };
+            if (tier.isMax()) {
+                impactR = Math.max(impactR, effectivePulseRadius);
+            }
         }
         var pkt = new RailgunFirePacket(player.getUUID(), from, firstHit, chainPath, tier.ordinal(), tier.isMax(), (float) impactR);
         NetworkHandler.sendToTrackingChunk(level, player.chunkPosition(), pkt);
@@ -318,6 +336,29 @@ public final class RailgunFireService {
     public static void sendFail(@Nullable ServerPlayer player, String key) {
         if (player == null) return;
         player.displayClientMessage(Component.translatable(key), true);
+    }
+
+    private static void sendChargedDebug(ServerPlayer player, RailgunChargeTier tier, long chargedTicks,
+                                         RailgunModuleEntries mods, double baseDamage) {
+        int accel = countAccelerationModules(mods);
+        int compute = countChainTuning(mods);
+        String chargedText = chargedTicks >= 0L ? Long.toString(chargedTicks) : "?";
+        player.displayClientMessage(Component.literal(String.format(
+                "railgun tier=%s charge=%s step=%d compute=%d base=%.1f",
+                tierLabel(tier),
+                chargedText,
+                1 + accel,
+                compute,
+                baseDamage)), true);
+    }
+
+    private static String tierLabel(RailgunChargeTier tier) {
+        return switch (tier) {
+            case EHV1 -> "EHv1";
+            case EHV2 -> "EHv2";
+            case EHV3 -> "EHv3";
+            default -> "HV";
+        };
     }
 
     private static int countAccelerationFactor(RailgunModuleEntries mods) {
