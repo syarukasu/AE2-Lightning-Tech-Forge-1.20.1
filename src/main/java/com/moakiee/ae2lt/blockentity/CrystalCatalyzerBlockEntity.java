@@ -520,6 +520,14 @@ public class CrystalCatalyzerBlockEntity extends AENetworkedBlockEntity
         }
     }
 
+    public long getAvailableHighVoltage() {
+        return simulateLightningExtract(LightningKey.HIGH_VOLTAGE, Long.MAX_VALUE);
+    }
+
+    public long getAvailableExtremeHighVoltage() {
+        return simulateLightningExtract(LightningKey.EXTREME_HIGH_VOLTAGE, Long.MAX_VALUE);
+    }
+
     private long simulateLightningExtract(LightningKey key, long amount) {
         if (amount <= 0L) return 0L;
         var grid = getMainNode().getGrid();
