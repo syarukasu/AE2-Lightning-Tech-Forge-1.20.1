@@ -398,6 +398,11 @@ public class AE2LightningTech {
 
         event.registerBlockEntity(
                 AECapabilities.IN_WORLD_GRID_NODE_HOST,
+                ModBlockEntities.OVERLOAD_DEVICE_WORKBENCH.get(),
+                (blockEntity, context) -> (IInWorldGridNodeHost) blockEntity);
+
+        event.registerBlockEntity(
+                AECapabilities.IN_WORLD_GRID_NODE_HOST,
                 ModBlockEntities.ATMOSPHERIC_IONIZER.get(),
                 (blockEntity, context) -> (IInWorldGridNodeHost) blockEntity);
 
