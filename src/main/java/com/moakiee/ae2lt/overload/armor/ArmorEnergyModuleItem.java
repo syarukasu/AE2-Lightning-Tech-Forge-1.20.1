@@ -13,14 +13,11 @@ import com.moakiee.ae2lt.device.DeviceSlotType;
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
 import com.moakiee.ae2lt.device.module.ModuleTooltip;
 import com.moakiee.ae2lt.device.module.OverloadDeviceModuleItem;
+import com.moakiee.ae2lt.item.railgun.RailgunEnergyModuleRules;
 import com.moakiee.ae2lt.util.EnergyText;
 
 public final class ArmorEnergyModuleItem extends Item implements OverloadDeviceModuleItem {
-    private static final Set<DeviceKind> ACCEPTS = Set.of(
-            DeviceKind.CELESTWEAVE_OCULUS,
-            DeviceKind.CELESTWEAVE_CORE,
-            DeviceKind.CELESTWEAVE_CONDUIT,
-            DeviceKind.CELESTWEAVE_STRIDE);
+    private static final Set<DeviceKind> ACCEPTS = RailgunEnergyModuleRules.acceptedDeviceKinds();
 
     private final long capacityFe;
 

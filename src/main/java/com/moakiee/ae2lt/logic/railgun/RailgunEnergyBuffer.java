@@ -10,6 +10,8 @@ import appeng.api.networking.security.IActionSource;
 
 import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.item.railgun.RailgunEnergyRules;
+import com.moakiee.ae2lt.item.railgun.RailgunEnergyModuleRules;
+import com.moakiee.ae2lt.item.railgun.RailgunEnergyModuleStorage;
 import com.moakiee.ae2lt.logic.energy.AppFluxBridge;
 import com.moakiee.ae2lt.registry.ModDataComponents;
 
@@ -31,13 +33,19 @@ public final class RailgunEnergyBuffer {
 
     /** Capacity of the railgun's built-in FE buffer. */
     public static long capacity(ItemStack stack) {
-        return AE2LTCommonConfig.railgunBufferCapacity();
+        return RailgunEnergyModuleRules.capacityFromBaseAndModuleFe(
+                AE2LTCommonConfig.railgunBufferCapacity(),
+                RailgunEnergyModuleStorage.capacityFe(stack));
     }
 
     /** Write the new buffer level, clamping to [0, capacity]. */
     public static void write(ItemStack stack, long value) {
         long clamped = Math.max(0L, Math.min(capacity(stack), value));
         stack.set(ModDataComponents.RAILGUN_ENERGY_BUFFER.get(), clamped);
+    }
+
+    public static void clamp(ItemStack stack) {
+        write(stack, read(stack));
     }
 
     /** Add {@code amount} back to the buffer after a downstream fail-soft rollback. */

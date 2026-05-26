@@ -588,8 +588,8 @@ public final class AE2LTCommonConfig {
                     .comment("EHV consumed per tier-3 (max) charged shot.")
                     .defineInRange("ehvCostTier3", 256L, 0L, Long.MAX_VALUE);
             railgunBufferCapacity = builder
-                    .comment("Maximum FE stored in the railgun's internal buffer.",
-                            "Default 1,000,000 FE = ~5 tier-3 shots, ~125 tier-1 shots, or ~250 seconds of beam.")
+                    .comment("Base FE stored in the railgun when no structural energy module is installed.",
+                            "Installing an energy module makes the railgun capacity equal to that module's capacity.")
                     .defineInRange("bufferCapacity", 1_000_000L, 0L, Long.MAX_VALUE);
             builder.pop();
 
