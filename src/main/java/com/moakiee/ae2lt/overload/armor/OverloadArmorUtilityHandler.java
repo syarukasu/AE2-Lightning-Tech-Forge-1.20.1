@@ -39,7 +39,9 @@ public final class OverloadArmorUtilityHandler {
         var capabilities = collectActiveCapabilities(player);
         tickCleanse(player, capabilities);
         tickAutoFeed(player, capabilities);
-        if (!hasActivePhaseFlight(capabilities) && PhaseFlightSubmodule.hasTransientPhaseState(player)) {
+        if (hasActivePhaseFlight(capabilities)) {
+            PhaseFlightSubmodule.applyTransientPhaseState(player);
+        } else if (PhaseFlightSubmodule.hasTransientPhaseState(player)) {
             PhaseFlightSubmodule.clearTransientPhaseState(player);
         }
     }

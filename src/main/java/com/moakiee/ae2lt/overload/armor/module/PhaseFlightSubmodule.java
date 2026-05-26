@@ -75,9 +75,7 @@ public final class PhaseFlightSubmodule extends AbstractOverloadArmorSubmodule {
         }
 
         grantPhaseFlight(player, armor);
-        player.noPhysics = true;
-        player.setNoGravity(true);
-        player.fallDistance = 0.0F;
+        applyTransientPhaseState(player);
         applyPhaseMotion(player);
         return ArmorDynamicLoadRules.phaseFlightStateLoad(
                 true,
@@ -172,6 +170,13 @@ public final class PhaseFlightSubmodule extends AbstractOverloadArmorSubmodule {
 
     public static boolean hasTransientPhaseState(Player player) {
         return player.getPersistentData().getBoolean(PLAYER_PHASE_TAG);
+    }
+
+    public static void applyTransientPhaseState(Player player) {
+        player.noPhysics = true;
+        player.setNoGravity(true);
+        player.fallDistance = 0.0F;
+        player.getPersistentData().putBoolean(PLAYER_PHASE_TAG, true);
     }
 
     public static void clearTransientPhaseState(Player player) {

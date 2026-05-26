@@ -72,6 +72,10 @@ public final class NetworkInit {
                 FrequencyResponsePacket.TYPE,
                 FrequencyResponsePacket.STREAM_CODEC,
                 FrequencyResponsePacket::handle);
+        registrar.playToClient(
+                ArmorSubmoduleActivePacket.TYPE,
+                ArmorSubmoduleActivePacket.STREAM_CODEC,
+                ArmorSubmoduleActivePacket::handle);
 
         // Railgun: C→S (RailgunOpenGuiPacket removed — replaced by OpenDeviceHubPacket)
         registrar.playToServer(

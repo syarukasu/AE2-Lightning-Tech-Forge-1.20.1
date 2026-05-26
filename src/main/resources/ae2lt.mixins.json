@@ -19,6 +19,7 @@
     "GridConnectionMaxChannelsMixin",
     "GridGetMachineNodesMixin",
     "PathingCalculationCapMixin",
+    "PlayerPhaseFlightMixin",
     "ControllerValidatorMixin",
     "EjectCapabilityMixin",
     "EjectGhostBEMixin"

@@ -12,13 +12,16 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.device.overload.OverloadRuntime;
+import com.moakiee.ae2lt.network.ArmorSubmoduleActivePacket;
 import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmodule;
 import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmoduleItem;
 import com.moakiee.ae2lt.registry.ModDataComponents;
@@ -442,7 +445,16 @@ public final class OverloadArmorState {
             var cache = dist == Dist.CLIENT ? CLIENT_ACTIVE_CACHE : SERVER_ACTIVE_CACHE;
             Boolean previous = cache.put(key, active);
             setSubmoduleRuntimeActive(armor, submodule.id(), active);
-            if (previous != null && previous == active) {
+            boolean changed = previous == null || previous != active;
+            boolean predictiveMovement = "phase_flight".equals(submodule.id());
+            if (dist == Dist.DEDICATED_SERVER
+                    && player instanceof ServerPlayer serverPlayer
+                    && ArmorPhaseFlightRules.shouldSyncClientActiveState(active, changed, predictiveMovement)) {
+                PacketDistributor.sendToPlayer(
+                        serverPlayer,
+                        new ArmorSubmoduleActivePacket(armorId, submodule.id(), active));
+            }
+            if (!changed) {
                 continue;
             }
             if (active) {
@@ -581,6 +593,23 @@ public final class OverloadArmorState {
             return false;
         }
         return CLIENT_ACTIVE_CACHE.getOrDefault(cacheKey(armorId, submoduleId), false);
+    }
+
+    public static boolean isAnyClientSubmoduleActive(String submoduleId) {
+        if (submoduleId == null || submoduleId.isBlank()) {
+            return false;
+        }
+        String suffix = "#" + submoduleId;
+        for (var entry : CLIENT_ACTIVE_CACHE.entrySet()) {
+            if (entry.getKey().endsWith(suffix) && entry.getValue()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void clearClientActiveCache() {
+        CLIENT_ACTIVE_CACHE.clear();
     }
 
     public static void forgetSubmoduleActiveCache(UUID armorId) {
