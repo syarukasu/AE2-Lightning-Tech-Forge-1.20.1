@@ -529,10 +529,9 @@ public final class OverloadArmorState {
             Boolean previous = cache.put(key, active);
             setSubmoduleRuntimeActive(armor, submodule.id(), active);
             boolean changed = previous == null || previous != active;
-            boolean predictiveMovement = "phase_flight".equals(submodule.id());
             if (dist == Dist.DEDICATED_SERVER
                     && player instanceof ServerPlayer serverPlayer
-                    && ArmorPhaseFlightRules.shouldSyncClientActiveState(active, changed, predictiveMovement)) {
+                    && ArmorPhaseFlightRules.shouldSyncClientActiveState(active, changed)) {
                 PacketDistributor.sendToPlayer(
                         serverPlayer,
                         new ArmorSubmoduleActivePacket(armorId, submodule.id(), active));

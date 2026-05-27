@@ -15,9 +15,8 @@ public final class ArmorPhaseFlightRules {
 
     public static boolean shouldSyncClientActiveState(
             boolean active,
-            boolean changed,
-            boolean predictiveMovement) {
-        return changed || (active && predictiveMovement);
+            boolean changed) {
+        return changed;
     }
 
     public static boolean shouldApplyPseudoSpectatorState(
