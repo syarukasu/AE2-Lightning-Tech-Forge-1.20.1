@@ -2,36 +2,61 @@ package com.moakiee.ae2lt.overload.armor.module;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 
 public final class ResistanceSubmodule extends AbstractOverloadArmorSubmodule {
 
-    public static final ResistanceSubmodule INSTANCE = new ResistanceSubmodule();
+    public static final ResistanceSubmodule T1 = new ResistanceSubmodule(
+            "resistance_t1",
+            "ae2lt.overload_armor.feature.resistance_t1.name",
+            "ae2lt.overload_armor.feature.resistance_t1.desc");
+    public static final ResistanceSubmodule T2 = new ResistanceSubmodule(
+            "resistance_t2",
+            "ae2lt.overload_armor.feature.resistance_t2.name",
+            "ae2lt.overload_armor.feature.resistance_t2.desc");
 
-    private ResistanceSubmodule() {}
+    public static final String INSTALL_GROUP = "mitigation";
+
+    private final String id;
+    private final String nameKey;
+    private final String descriptionKey;
+
+    private ResistanceSubmodule(String id, String nameKey, String descriptionKey) {
+        this.id = id;
+        this.nameKey = nameKey;
+        this.descriptionKey = descriptionKey;
+    }
 
     @Override
     public String id() {
-        return "resistance";
+        return id;
     }
 
     @Override
     public String nameKey() {
-        return "ae2lt.overload_armor.feature.resistance.name";
+        return nameKey;
     }
 
     @Override
     public String descriptionKey() {
-        return "ae2lt.overload_armor.feature.resistance.desc";
+        return descriptionKey;
     }
 
     @Override
     public boolean defaultEnabled() {
         return true;
+    }
+
+    @Override
+    public int getMaxInstallAmount() {
+        return 1;
+    }
+
+    @Override
+    public String installGroupId() {
+        return INSTALL_GROUP;
     }
 
     @Override

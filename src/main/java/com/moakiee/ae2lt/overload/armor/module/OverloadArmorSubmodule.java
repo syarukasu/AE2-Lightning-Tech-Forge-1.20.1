@@ -97,6 +97,14 @@ public interface OverloadArmorSubmodule extends OverloadDeviceSubmodule {
     }
 
     /**
+     * Logical install group used for mutually-exclusive module tiers. Different items can
+     * expose different submodule ids while still sharing a single install group.
+     */
+    default String installGroupId() {
+        return id();
+    }
+
+    /**
      * Called once per armor tick while {@link #onActivated} has been fired but {@link #onDeactivated}
      * has not. Returns the dynamic overload load the submodule is contributing this tick. The
      * framework persists the returned value and aggregates it with {@link #getIdleOverloaded} when

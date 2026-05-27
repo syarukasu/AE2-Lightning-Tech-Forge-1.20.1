@@ -153,6 +153,14 @@ public final class OverloadArmorState {
         if (id.isBlank()) {
             return false;
         }
+        String groupId = resolveSubmoduleGroupId(candidate);
+        if (!groupId.isBlank()) {
+            int installedInGroup = getInstalledGroupAmount(armor, registries, groupId);
+            int installedSameId = getInstalledAmount(armor, registries, id);
+            if (installedInGroup > installedSameId) {
+                return false;
+            }
+        }
         int current = getInstalledAmount(armor, registries, id);
         int max = getSubmoduleMaxInstallAmountForStack(candidate);
         if (max > 0 && current >= max) {
@@ -303,6 +311,19 @@ public final class OverloadArmorState {
             }
         }
         return 0;
+    }
+
+    private static int getInstalledGroupAmount(ItemStack armor, HolderLookup.Provider registries, String groupId) {
+        if (groupId == null || groupId.isBlank()) {
+            return 0;
+        }
+        int total = 0;
+        for (var stack : loadModuleStacks(armor, registries)) {
+            if (groupId.equals(resolveSubmoduleGroupId(stack))) {
+                total += Math.max(1, stack.getCount());
+            }
+        }
+        return total;
     }
 
     private static int getInstalledUnitCount(ItemStack armor, HolderLookup.Provider registries) {
@@ -664,6 +685,19 @@ public final class OverloadArmorState {
         provider.collectSubmodules(stack, submodule -> {
             if (submodule != null && !submodule.id().isBlank() && ref[0].isEmpty()) {
                 ref[0] = submodule.id();
+            }
+        });
+        return ref[0];
+    }
+
+    private static String resolveSubmoduleGroupId(ItemStack stack) {
+        if (stack == null || stack.isEmpty() || !(stack.getItem() instanceof OverloadArmorSubmoduleItem provider)) {
+            return "";
+        }
+        var ref = new String[]{""};
+        provider.collectSubmodules(stack, submodule -> {
+            if (submodule != null && !submodule.installGroupId().isBlank() && ref[0].isEmpty()) {
+                ref[0] = submodule.installGroupId();
             }
         });
         return ref[0];

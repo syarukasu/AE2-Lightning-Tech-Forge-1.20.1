@@ -25,6 +25,7 @@ import com.moakiee.ae2lt.config.RailgunDefaults;
 import com.moakiee.ae2lt.item.railgun.RailgunEnergyRules;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleEntries;
 import com.moakiee.ae2lt.item.railgun.RailgunSettings;
+import com.moakiee.ae2lt.overload.armor.OverloadArmorUndyingHandler;
 import com.moakiee.ae2lt.registry.ModDataComponents;
 import com.moakiee.ae2lt.registry.ModDamageTypes;
 import com.moakiee.ae2lt.registry.ModMobEffects;
@@ -209,18 +210,22 @@ public final class OverloadExecutionService {
         // Layer 1: simulate massive player damage through vanilla pipeline.
         target.invulnerableTime = 0;
         target.hurt(source, (float) damage);
+        if (OverloadArmorUndyingHandler.wasProtectedThisTick(target)) return;
         if (!target.isAlive()) return;
 
         // Layer 2: directHurt — bypasses armor, enchantments, potions, events.
         directHurt(target, source, (float) damage);
+        if (OverloadArmorUndyingHandler.wasProtectedThisTick(target)) return;
         if (!target.isAlive()) return;
 
         // Layer 3: kill().
         target.kill();
+        if (OverloadArmorUndyingHandler.wasProtectedThisTick(target)) return;
         if (!target.isAlive()) return;
 
         // Layer 4: setHealth(0).
         target.setHealth(0.0F);
+        if (OverloadArmorUndyingHandler.wasProtectedThisTick(target)) return;
         if (!target.isAlive()) return;
 
         // Layer 5: forceDie() — directly set dead = true.

@@ -19,6 +19,7 @@ import com.moakiee.ae2lt.item.NightVisionSubmoduleItem;
 import com.moakiee.ae2lt.item.WaterBreathingSubmoduleItem;
 import com.moakiee.ae2lt.item.ResistanceSubmoduleItem;
 import com.moakiee.ae2lt.item.ReflectSubmoduleItem;
+import com.moakiee.ae2lt.item.UndyingSubmoduleItem;
 import com.moakiee.ae2lt.item.DashSubmoduleItem;
 import com.moakiee.ae2lt.item.FlightSubmoduleItem;
 import com.moakiee.ae2lt.item.CleanseSubmoduleItem;
@@ -33,6 +34,7 @@ import com.moakiee.ae2lt.item.railgun.RailgunModuleItem;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleType;
 import com.moakiee.ae2lt.overload.armor.ArmorEnergyModuleItem;
 import com.moakiee.ae2lt.overload.armor.ArmorEnergyRules;
+import com.moakiee.ae2lt.overload.armor.module.ResistanceSubmodule;
 import com.moakiee.ae2lt.part.OverloadedCablePart;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -207,15 +209,33 @@ public final class ModItems {
             WaterBreathingSubmoduleItem::new,
             new Item.Properties());
 
-    public static final DeferredItem<ResistanceSubmoduleItem> ARMOR_SUBMODULE_RESISTANCE = ITEMS.registerItem(
-            "module_mitigation",
-            ResistanceSubmoduleItem::new,
+    public static final DeferredItem<ResistanceSubmoduleItem> ARMOR_SUBMODULE_RESISTANCE_T1 = ITEMS.registerItem(
+            "module_mitigation_t1",
+            properties -> new ResistanceSubmoduleItem(
+                    properties,
+                    ResistanceSubmodule.T1,
+                    0.30D,
+                    "item.ae2lt.module_mitigation_t1.tooltip"),
+            new Item.Properties());
+
+    public static final DeferredItem<ResistanceSubmoduleItem> ARMOR_SUBMODULE_RESISTANCE_T2 = ITEMS.registerItem(
+            "module_mitigation_t2",
+            properties -> new ResistanceSubmoduleItem(
+                    properties,
+                    ResistanceSubmodule.T2,
+                    0.0D,
+                    "item.ae2lt.module_mitigation_t2.tooltip"),
             new Item.Properties());
 
     public static final DeferredItem<ReflectSubmoduleItem> ARMOR_SUBMODULE_REFLECT = ITEMS.registerItem(
             "module_reflect",
             ReflectSubmoduleItem::new,
             new Item.Properties());
+
+    public static final DeferredItem<UndyingSubmoduleItem> ARMOR_SUBMODULE_UNDYING = ITEMS.registerItem(
+            "module_undying",
+            UndyingSubmoduleItem::new,
+            new Item.Properties().rarity(Rarity.EPIC));
 
     public static final DeferredItem<DashSubmoduleItem> ARMOR_SUBMODULE_DASH = ITEMS.registerItem(
             "module_dash",

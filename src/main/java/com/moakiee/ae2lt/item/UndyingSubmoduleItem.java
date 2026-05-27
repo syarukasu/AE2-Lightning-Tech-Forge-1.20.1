@@ -15,28 +15,19 @@ import com.moakiee.ae2lt.overload.armor.ArmorOverloadRules;
 import com.moakiee.ae2lt.overload.armor.ArmorPart;
 import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmodule;
 import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmoduleItem;
-import com.moakiee.ae2lt.overload.armor.module.ResistanceSubmodule;
+import com.moakiee.ae2lt.overload.armor.module.UndyingSubmodule;
 
-public final class ResistanceSubmoduleItem extends Item implements OverloadArmorSubmoduleItem {
+public final class UndyingSubmoduleItem extends Item implements OverloadArmorSubmoduleItem {
 
-    private final ResistanceSubmodule submodule;
-    private final double passRate;
-    private final String tooltipKey;
+    private static final UndyingSubmodule INSTANCE = UndyingSubmodule.INSTANCE;
 
-    public ResistanceSubmoduleItem(
-            Properties properties,
-            ResistanceSubmodule submodule,
-            double passRate,
-            String tooltipKey) {
+    public UndyingSubmoduleItem(Properties properties) {
         super(properties.stacksTo(1));
-        this.submodule = submodule;
-        this.passRate = passRate;
-        this.tooltipKey = tooltipKey;
     }
 
     @Override
     public void collectSubmodules(ItemStack stack, Consumer<OverloadArmorSubmodule> output) {
-        output.accept(submodule);
+        output.accept(INSTANCE);
     }
 
     @Override
@@ -47,13 +38,16 @@ public final class ResistanceSubmoduleItem extends Item implements OverloadArmor
     @Override
     public List<DeviceCapability> capabilities(ItemStack stack) {
         return List.of(
-                new DeviceCapability.StagedMitigation(submodule.id(), passRate, 2),
-                new DeviceCapability.PassiveDrain(ArmorOverloadRules.RESISTANCE_PASSIVE_DRAIN_FE));
+                new DeviceCapability.LastStandTuning(
+                        ArmorOverloadRules.UNDYING_TRIGGER_COST_FE,
+                        ArmorOverloadRules.UNDYING_COOLDOWN_TICKS,
+                        ArmorOverloadRules.UNDYING_COMBO_WINDOW_TICKS),
+                new DeviceCapability.PassiveDrain(ArmorOverloadRules.UNDYING_PASSIVE_DRAIN_FE));
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable(tooltipKey)
+        tooltip.add(Component.translatable("item.ae2lt.module_undying.tooltip")
                 .withStyle(ChatFormatting.GRAY));
         ModuleTooltip.appendInstallInfo(this, tooltip);
     }

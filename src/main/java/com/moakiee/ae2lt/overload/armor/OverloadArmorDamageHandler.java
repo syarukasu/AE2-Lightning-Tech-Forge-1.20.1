@@ -19,7 +19,7 @@ import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmoduleItem;
 /**
  * Applies staged mitigation and reflect tuning from active armor modules.
  *
- * <p>{@code passRate} is applied multiplicatively after vanilla armor in Pre.
+ * <p>The strongest {@code passRate} is applied after vanilla armor in Pre.
  * {@code reflectPct} bounces post-resist damage back to LivingEntity attackers in Post.
  * Environmental damage (fire/fall/drown) is never reflected.
  */
@@ -32,12 +32,13 @@ public final class OverloadArmorDamageHandler {
     public static void onPre(LivingDamageEvent.Pre event) {
         if (!(event.getEntity() instanceof Player player) || player.level().isClientSide()) return;
         var capabilities = collectActiveCapabilities(player);
-        double passRate = collectPassRate(capabilities);
+        MitigationResult mitigation = collectMitigation(capabilities);
+        double passRate = mitigation.passRate();
         if (passRate < 1.0D) {
             float incoming = event.getNewDamage();
             float afterMitigation = incoming * (float) passRate;
             event.setNewDamage(afterMitigation);
-            applyMitigationLoad(capabilities, incoming - afterMitigation);
+            applyMitigationLoad(mitigation, incoming - afterMitigation);
         }
     }
 
@@ -51,28 +52,32 @@ public final class OverloadArmorDamageHandler {
         }
     }
 
-    private static double collectPassRate(java.util.List<ActiveCapability> capabilities) {
+    private static MitigationResult collectMitigation(java.util.List<ActiveCapability> capabilities) {
         double passRate = 1.0D;
+        ActiveCapability source = null;
         for (var active : capabilities) {
             if (active.capability() instanceof DeviceCapability.StagedMitigation mitigation) {
-                passRate *= Math.clamp(mitigation.passRate(), 0.0D, 1.0D);
+                double candidate = Math.clamp(mitigation.passRate(), 0.0D, 1.0D);
+                if (candidate < passRate) {
+                    passRate = candidate;
+                    source = active;
+                }
             }
         }
-        return passRate;
+        return new MitigationResult(passRate, source);
     }
 
-    private static void applyMitigationLoad(java.util.List<ActiveCapability> capabilities, float preventedDamage) {
+    private static void applyMitigationLoad(MitigationResult mitigation, float preventedDamage) {
         int totalLoad = ArmorDynamicLoadRules.pulseFromAmount(
                 preventedDamage,
                 AE2LTCommonConfig.overloadArmorMitigationLoadPerDamage());
-        if (totalLoad <= 0) {
+        if (totalLoad <= 0 || mitigation.source() == null) {
             return;
         }
-        for (var active : capabilities) {
-            if (active.capability() instanceof DeviceCapability.StagedMitigation mitigation) {
-                OverloadArmorState.addPulseLoad(active.armor(), "resistance", totalLoad);
-            }
-        }
+        OverloadArmorState.addPulseLoad(
+                mitigation.source().armor(),
+                mitigation.source().submoduleId(),
+                totalLoad);
     }
 
     private static float collectReflectedDamage(Player player, float damage) {
@@ -137,14 +142,30 @@ public final class OverloadArmorDamageHandler {
                     int count = Math.max(1, s.getCount());
                     for (int i = 0; i < count; i++) {
                         ItemStack unit = s.copyWithCount(1);
-                        for (var capability : m.capabilities(unit)) {
-                            out.add(new ActiveCapability(armor, capability));
-                        }
+                        collectActiveCapabilitiesForUnit(armor, unit, m, out);
                     }
                 }
             }
         }
         return out;
+    }
+
+    private static void collectActiveCapabilitiesForUnit(
+            ItemStack armor,
+            ItemStack unit,
+            OverloadDeviceModuleItem module,
+            java.util.List<ActiveCapability> out) {
+        if (!(unit.getItem() instanceof OverloadArmorSubmoduleItem provider)) {
+            return;
+        }
+        provider.collectSubmodules(unit, submodule -> {
+            if (submodule == null || !OverloadArmorState.isSubmoduleRuntimeActive(armor, submodule.id())) {
+                return;
+            }
+            for (var capability : module.capabilities(unit)) {
+                out.add(new ActiveCapability(armor, submodule.id(), capability));
+            }
+        });
     }
 
     private static boolean moduleRuntimeActive(ItemStack armor, ItemStack module) {
@@ -160,6 +181,9 @@ public final class OverloadArmorDamageHandler {
         return active[0];
     }
 
-    private record ActiveCapability(ItemStack armor, DeviceCapability capability) {
+    private record ActiveCapability(ItemStack armor, String submoduleId, DeviceCapability capability) {
+    }
+
+    private record MitigationResult(double passRate, ActiveCapability source) {
     }
 }
