@@ -1,6 +1,7 @@
 package com.moakiee.ae2lt.device.overload;
 
 import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,6 +13,10 @@ public final class OverloadRuntime {
 
     private final LoadBucket bucket;
     private final OverloadDynamics dynamics;
+    private boolean unpaidEnergy;
+    private String pendingDebtReason = "";
+    private String currentDebtReason = "";
+    private final java.util.ArrayDeque<LoadEvent> recentLoadEvents = new java.util.ArrayDeque<>();
 
     private OverloadRuntime() {
         this(new LoadBucket(), new OverloadDynamics());
@@ -55,10 +60,70 @@ public final class OverloadRuntime {
     }
 
     public LockState tick(int cap) {
-        return dynamics.tick(bucket.tick(), cap);
+        int currentLoad = bucket.tick();
+        boolean unpaid = unpaidEnergy;
+        String reason = pendingDebtReason;
+        unpaidEnergy = false;
+        pendingDebtReason = "";
+
+        LockState state = dynamics.tick(currentLoad, cap, unpaid);
+        if (dynamics.locked()) {
+            currentDebtReason = "locked";
+        } else if (dynamics.debtTicks() > 0) {
+            currentDebtReason = unpaid ? normalizeDebtReason(reason) : "overloaded";
+        } else {
+            currentDebtReason = "";
+        }
+        return state;
     }
 
     public int currentLoad() {
         return bucket.current();
+    }
+
+    public void clearTransientLoad() {
+        bucket.clear();
+        recentLoadEvents.clear();
+        unpaidEnergy = false;
+        pendingDebtReason = "";
+        if (!dynamics.locked() && dynamics.debtTicks() <= 0) {
+            currentDebtReason = "";
+        }
+    }
+
+    public void addPulse(String key, int load) {
+        bucket.addPulse(key, load);
+        recordLoadEvent(key, load);
+    }
+
+    public void markEnergyUnpaid(String reason) {
+        unpaidEnergy = true;
+        pendingDebtReason = normalizeDebtReason(reason);
+    }
+
+    public String currentDebtReason() {
+        return currentDebtReason;
+    }
+
+    public List<LoadEvent> recentLoadEvents() {
+        return List.copyOf(recentLoadEvents);
+    }
+
+    private void recordLoadEvent(String key, int load) {
+        if (load <= 0 || key == null || key.isBlank()) {
+            return;
+        }
+        recentLoadEvents.removeIf(event -> event.key().equals(key));
+        recentLoadEvents.addFirst(new LoadEvent(key, load));
+        while (recentLoadEvents.size() > 3) {
+            recentLoadEvents.removeLast();
+        }
+    }
+
+    private static String normalizeDebtReason(String reason) {
+        return reason == null || reason.isBlank() ? "energy" : reason;
+    }
+
+    public record LoadEvent(String key, int load) {
     }
 }

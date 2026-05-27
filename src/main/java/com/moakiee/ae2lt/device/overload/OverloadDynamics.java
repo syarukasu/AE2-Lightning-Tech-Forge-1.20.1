@@ -19,11 +19,16 @@ public final class OverloadDynamics {
     }
 
     public LockState tick(int currentLoad, int cap) {
+        return tick(currentLoad, cap, false);
+    }
+
+    public LockState tick(int currentLoad, int cap, boolean unpaidEnergy) {
         if (lockTicksRemaining > 0) {
             lockTicksRemaining--;
             return state();
         }
-        if (cap <= 0 || currentLoad <= cap) {
+        boolean overloaded = cap > 0 && currentLoad > cap;
+        if (!overloaded && !unpaidEnergy) {
             debtTicks = 0;
             return LockState.UNLOCKED;
         }

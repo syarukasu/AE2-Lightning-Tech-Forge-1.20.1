@@ -100,6 +100,7 @@ public final class OverloadArmorDamageHandler {
                         serverPlayer,
                         Math.max(0L, cost - ArmorEnergyBuffer.read(active.armor())));
                 if (!ArmorEnergyBuffer.tryConsume(active.armor(), serverPlayer, cost)) {
+                    OverloadArmorState.markEnergyUnpaid(active.armor(), "energy");
                     continue;
                 }
             }

@@ -21,7 +21,9 @@ public final class PhaseFlightSubmodule extends AbstractOverloadArmorSubmodule {
     private static final String TAG_WAS_FLYING = "PhaseWasFlying";
     private static final String TAG_PREVIOUS_SPEED = "PhasePreviousFlyingSpeed";
     private static final String PLAYER_PHASE_TAG = "ae2lt.phase_flight.active";
+    private static final String PLAYER_ESCAPE_TICKS_TAG = "ae2lt.phase_flight.escape_ticks";
     private static final float DEFAULT_FLYING_SPEED = 0.05F;
+    private static final int ESCAPE_PHASE_TICKS = 40;
 
     private PhaseFlightSubmodule() {
     }
@@ -87,6 +89,7 @@ public final class PhaseFlightSubmodule extends AbstractOverloadArmorSubmodule {
     private static void grantPhaseFlight(Player player, ItemStack armor) {
         var data = OverloadArmorState.getSubmoduleData(armor, INSTANCE);
         var abilities = player.getAbilities();
+        clearEscapePhase(player);
         player.getPersistentData().putBoolean(PLAYER_PHASE_TAG, true);
         if (!data.contains(TAG_HAD_MAYFLY, CompoundTag.TAG_BYTE)) {
             data.putBoolean(TAG_HAD_MAYFLY, abilities.mayfly);
@@ -103,13 +106,20 @@ public final class PhaseFlightSubmodule extends AbstractOverloadArmorSubmodule {
     }
 
     private static void revokePhaseFlight(Player player, ItemStack armor) {
+        if (player.isInWall() && !escapeFromBlocks(player)) {
+            beginEscapePhase(player, armor);
+            restoreStoredAbilities(player, armor);
+            return;
+        }
         player.noPhysics = false;
         player.setNoGravity(false);
+        clearEscapePhase(player);
         player.getPersistentData().remove(PLAYER_PHASE_TAG);
-        if (player.isInWall()) {
-            escapeFromBlocks(player);
-        }
 
+        restoreStoredAbilities(player, armor);
+    }
+
+    private static void restoreStoredAbilities(Player player, ItemStack armor) {
         var data = OverloadArmorState.getSubmoduleData(armor, INSTANCE);
         boolean hadMayfly = data.contains(TAG_HAD_MAYFLY, CompoundTag.TAG_BYTE) && data.getBoolean(TAG_HAD_MAYFLY);
         boolean wasFlying = data.contains(TAG_WAS_FLYING, CompoundTag.TAG_BYTE) && data.getBoolean(TAG_WAS_FLYING);
@@ -153,19 +163,48 @@ public final class PhaseFlightSubmodule extends AbstractOverloadArmorSubmodule {
         player.hurtMarked = true;
     }
 
-    private static void escapeFromBlocks(Player player) {
+    private static boolean escapeFromBlocks(Player player) {
         var level = player.level();
         BlockPos origin = player.blockPosition();
+        var preferred = java.util.List.of(
+                origin,
+                origin.above(),
+                origin.below(),
+                origin.north(),
+                origin.south(),
+                origin.east(),
+                origin.west(),
+                origin.above().north(),
+                origin.above().south(),
+                origin.above().east(),
+                origin.above().west());
+        for (BlockPos candidate : preferred) {
+            if (tryTeleportToCollisionFree(player, candidate)) {
+                return true;
+            }
+        }
         for (int radius = 0; radius <= 3; radius++) {
             for (BlockPos candidate : BlockPos.betweenClosed(origin.offset(-radius, -radius, -radius),
                     origin.offset(radius, radius, radius))) {
-                Vec3 target = Vec3.atBottomCenterOf(candidate);
-                if (level.noCollision(player, player.getBoundingBox().move(target.subtract(player.position())))) {
-                    player.teleportTo(target.x, target.y, target.z);
-                    return;
+                if (preferred.contains(candidate)) {
+                    continue;
+                }
+                if (tryTeleportToCollisionFree(player, candidate)) {
+                    return true;
                 }
             }
         }
+        return false;
+    }
+
+    private static boolean tryTeleportToCollisionFree(Player player, BlockPos candidate) {
+        var level = player.level();
+        Vec3 target = Vec3.atBottomCenterOf(candidate);
+        if (!level.noCollision(player, player.getBoundingBox().move(target.subtract(player.position())))) {
+            return false;
+        }
+        player.teleportTo(target.x, target.y, target.z);
+        return true;
     }
 
     public static boolean hasTransientPhaseState(Player player) {
@@ -183,5 +222,37 @@ public final class PhaseFlightSubmodule extends AbstractOverloadArmorSubmodule {
         player.noPhysics = false;
         player.setNoGravity(false);
         player.getPersistentData().remove(PLAYER_PHASE_TAG);
+        clearEscapePhase(player);
+    }
+
+    public static boolean tickEscapePhase(Player player, @Nullable ItemStack armor) {
+        int ticks = player.getPersistentData().getInt(PLAYER_ESCAPE_TICKS_TAG);
+        if (ticks <= 0) {
+            return false;
+        }
+        if (!player.isInWall()) {
+            clearTransientPhaseState(player);
+            return false;
+        }
+        applyTransientPhaseState(player);
+        if (armor != null && !armor.isEmpty()) {
+            OverloadArmorState.markEnergyUnpaid(armor, "phase_escape");
+        }
+        player.getPersistentData().putInt(PLAYER_ESCAPE_TICKS_TAG, ticks - 1);
+        if (ticks <= 1) {
+            clearTransientPhaseState(player);
+            return false;
+        }
+        return true;
+    }
+
+    private static void beginEscapePhase(Player player, ItemStack armor) {
+        applyTransientPhaseState(player);
+        player.getPersistentData().putInt(PLAYER_ESCAPE_TICKS_TAG, ESCAPE_PHASE_TICKS);
+        OverloadArmorState.markEnergyUnpaid(armor, "phase_escape");
+    }
+
+    private static void clearEscapePhase(Player player) {
+        player.getPersistentData().remove(PLAYER_ESCAPE_TICKS_TAG);
     }
 }

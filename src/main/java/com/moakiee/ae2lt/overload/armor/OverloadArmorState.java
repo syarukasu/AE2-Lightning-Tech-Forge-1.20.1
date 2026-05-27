@@ -568,6 +568,23 @@ public final class OverloadArmorState {
         return ArmorEnergyBuffer.receiveFe(armor, (int) Math.min(Integer.MAX_VALUE, amount), false);
     }
 
+    public static void markEnergyUnpaid(ItemStack armor, String reason) {
+        if (armor == null || armor.isEmpty()) {
+            return;
+        }
+        armorRuntime(ensureArmorId(armor)).markEnergyUnpaid(reason);
+    }
+
+    public static String getDebtReason(ItemStack armor) {
+        UUID id = getArmorId(armor);
+        return id == null ? "" : armorRuntime(id).currentDebtReason();
+    }
+
+    public static List<OverloadRuntime.LoadEvent> getRecentLoadEvents(ItemStack armor) {
+        UUID id = getArmorId(armor);
+        return id == null ? List.of() : armorRuntime(id).recentLoadEvents();
+    }
+
     public static void addPulseLoad(ItemStack armor, int load) {
         addPulseLoad(armor, "", load);
     }
@@ -576,7 +593,7 @@ public final class OverloadArmorState {
         if (armor == null || armor.isEmpty() || load <= 0) {
             return;
         }
-        armorRuntime(ensureArmorId(armor)).bucket().addPulse(submoduleId, load);
+        armorRuntime(ensureArmorId(armor)).addPulse(submoduleId, load);
     }
 
     public static void flushRuntimeToNbt(ItemStack armor) {
@@ -620,6 +637,23 @@ public final class OverloadArmorState {
         SERVER_ACTIVE_CACHE.keySet().removeIf(key -> key.startsWith(prefix));
         CLIENT_ACTIVE_CACHE.keySet().removeIf(key -> key.startsWith(prefix));
         SUBMODULE_RUNTIME_CACHE.keySet().removeIf(key -> key.startsWith(prefix));
+    }
+
+    public static void clearTransientRuntime(ItemStack armor) {
+        UUID armorId = getArmorId(armor);
+        if (armorId == null) {
+            return;
+        }
+        armorRuntime(armorId).clearTransientLoad();
+    }
+
+    public static void clearTransientRuntimeAndCaches(ItemStack armor) {
+        UUID armorId = getArmorId(armor);
+        if (armorId == null) {
+            return;
+        }
+        armorRuntime(armorId).clearTransientLoad();
+        forgetSubmoduleActiveCache(armorId);
     }
 
     private static String resolveSubmoduleId(ItemStack stack) {

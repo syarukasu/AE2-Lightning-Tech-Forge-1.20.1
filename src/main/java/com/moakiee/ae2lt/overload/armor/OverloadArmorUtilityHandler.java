@@ -42,8 +42,22 @@ public final class OverloadArmorUtilityHandler {
         if (hasActivePhaseFlight(capabilities)) {
             PhaseFlightSubmodule.applyTransientPhaseState(player);
         } else if (PhaseFlightSubmodule.hasTransientPhaseState(player)) {
-            PhaseFlightSubmodule.clearTransientPhaseState(player);
+            ItemStack escapeArmor = findPhaseFlightArmor(player);
+            if (!PhaseFlightSubmodule.tickEscapePhase(player, escapeArmor)) {
+                PhaseFlightSubmodule.clearTransientPhaseState(player);
+            }
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        clearPlayerRuntime(event.getEntity());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        clearPlayerRuntime(event.getOriginal());
+        clearPlayerRuntime(event.getEntity());
     }
 
     @SubscribeEvent
@@ -184,6 +198,37 @@ public final class OverloadArmorUtilityHandler {
             }
         }
         return false;
+    }
+
+    private static ItemStack findPhaseFlightArmor(Player player) {
+        for (EquipmentSlot slot : List.of(
+                EquipmentSlot.HEAD,
+                EquipmentSlot.CHEST,
+                EquipmentSlot.LEGS,
+                EquipmentSlot.FEET)) {
+            ItemStack armor = player.getItemBySlot(slot);
+            if (armor.isEmpty() || !(armor.getItem() instanceof BaseOverloadArmorItem)) {
+                continue;
+            }
+            if (OverloadArmorState.isSubmoduleInstalled(armor, PhaseFlightSubmodule.INSTANCE.id())) {
+                return armor;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private static void clearPlayerRuntime(Player player) {
+        PhaseFlightSubmodule.clearTransientPhaseState(player);
+        for (EquipmentSlot slot : List.of(
+                EquipmentSlot.HEAD,
+                EquipmentSlot.CHEST,
+                EquipmentSlot.LEGS,
+                EquipmentSlot.FEET)) {
+            ItemStack armor = player.getItemBySlot(slot);
+            if (!armor.isEmpty() && armor.getItem() instanceof BaseOverloadArmorItem) {
+                OverloadArmorState.clearTransientRuntimeAndCaches(armor);
+            }
+        }
     }
 
     private static List<ActiveCapability> collectActiveCapabilities(Player player) {

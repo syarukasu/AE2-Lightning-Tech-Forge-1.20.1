@@ -130,6 +130,7 @@ public final class LoadBucket {
     public void clear() {
         states.clear();
         pulses.clear();
+        currentByKey.clear();
         current = 0;
     }
 

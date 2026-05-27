@@ -22,6 +22,7 @@ public record DeviceHubSyncPacket(
         int overloadCap,
         int lockState,
         int lockValue,
+        String debtReason,
         boolean hasCore,
         boolean powered,
         boolean gridReachable,
@@ -30,12 +31,15 @@ public record DeviceHubSyncPacket(
         boolean terrainDestruction,
         boolean pvpLock,
         boolean terrainDestructionAllowed,
+        List<String> recentLoadIds,
+        List<Integer> recentLoadAmounts,
         List<String> moduleIds,
         List<String> moduleNameKeys,
         List<Integer> moduleCounts,
         List<Boolean> moduleEnabled,
         List<Boolean> moduleActive,
-        List<Integer> moduleLoads
+        List<Integer> moduleLoads,
+        List<Integer> moduleCooldowns
 ) implements CustomPacketPayload {
 
     public static final Type<DeviceHubSyncPacket> TYPE =
@@ -59,6 +63,7 @@ public record DeviceHubSyncPacket(
         int overloadCap = buf.readVarInt();
         int lockState = buf.readVarInt();
         int lockValue = buf.readVarInt();
+        String debtReason = buf.readUtf(64);
         boolean hasCore = buf.readBoolean();
         boolean powered = buf.readBoolean();
         boolean gridReachable = buf.readBoolean();
@@ -67,6 +72,13 @@ public record DeviceHubSyncPacket(
         boolean terrainDestruction = buf.readBoolean();
         boolean pvpLock = buf.readBoolean();
         boolean terrainDestructionAllowed = buf.readBoolean();
+        int recentCount = buf.readVarInt();
+        List<String> recentLoadIds = new ArrayList<>(recentCount);
+        List<Integer> recentLoadAmounts = new ArrayList<>(recentCount);
+        for (int i = 0; i < recentCount; i++) {
+            recentLoadIds.add(buf.readUtf(256));
+            recentLoadAmounts.add(buf.readVarInt());
+        }
         int count = buf.readVarInt();
         List<String> ids = new ArrayList<>(count);
         List<String> nameKeys = new ArrayList<>(count);
@@ -74,6 +86,7 @@ public record DeviceHubSyncPacket(
         List<Boolean> enabled = new ArrayList<>(count);
         List<Boolean> active = new ArrayList<>(count);
         List<Integer> loads = new ArrayList<>(count);
+        List<Integer> cooldowns = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             ids.add(buf.readUtf(256));
             nameKeys.add(buf.readUtf(256));
@@ -81,6 +94,7 @@ public record DeviceHubSyncPacket(
             enabled.add(buf.readBoolean());
             active.add(buf.readBoolean());
             loads.add(buf.readVarInt());
+            cooldowns.add(buf.readVarInt());
         }
         return new DeviceHubSyncPacket(
                 containerId,
@@ -92,6 +106,7 @@ public record DeviceHubSyncPacket(
                 overloadCap,
                 lockState,
                 lockValue,
+                debtReason,
                 hasCore,
                 powered,
                 gridReachable,
@@ -100,12 +115,15 @@ public record DeviceHubSyncPacket(
                 terrainDestruction,
                 pvpLock,
                 terrainDestructionAllowed,
+                recentLoadIds,
+                recentLoadAmounts,
                 ids,
                 nameKeys,
                 counts,
                 enabled,
                 active,
-                loads);
+                loads,
+                cooldowns);
     }
 
     public void write(RegistryFriendlyByteBuf buf) {
@@ -118,6 +136,7 @@ public record DeviceHubSyncPacket(
         buf.writeVarInt(overloadCap);
         buf.writeVarInt(lockState);
         buf.writeVarInt(lockValue);
+        buf.writeUtf(debtReason, 64);
         buf.writeBoolean(hasCore);
         buf.writeBoolean(powered);
         buf.writeBoolean(gridReachable);
@@ -126,9 +145,15 @@ public record DeviceHubSyncPacket(
         buf.writeBoolean(terrainDestruction);
         buf.writeBoolean(pvpLock);
         buf.writeBoolean(terrainDestructionAllowed);
+        int recentCount = Math.min(recentLoadIds.size(), recentLoadAmounts.size());
+        buf.writeVarInt(recentCount);
+        for (int i = 0; i < recentCount; i++) {
+            buf.writeUtf(recentLoadIds.get(i), 256);
+            buf.writeVarInt(recentLoadAmounts.get(i));
+        }
         int count = Math.min(
                 Math.min(Math.min(moduleIds.size(), moduleNameKeys.size()), moduleCounts.size()),
-                Math.min(Math.min(moduleEnabled.size(), moduleActive.size()), moduleLoads.size()));
+                Math.min(Math.min(Math.min(moduleEnabled.size(), moduleActive.size()), moduleLoads.size()), moduleCooldowns.size()));
         buf.writeVarInt(count);
         for (int i = 0; i < count; i++) {
             buf.writeUtf(moduleIds.get(i), 256);
@@ -137,6 +162,7 @@ public record DeviceHubSyncPacket(
             buf.writeBoolean(moduleEnabled.get(i));
             buf.writeBoolean(moduleActive.get(i));
             buf.writeVarInt(moduleLoads.get(i));
+            buf.writeVarInt(moduleCooldowns.get(i));
         }
     }
 
@@ -153,6 +179,7 @@ public record DeviceHubSyncPacket(
                         pkt.overloadCap(),
                         pkt.lockState(),
                         pkt.lockValue(),
+                        pkt.debtReason(),
                         pkt.hasCore(),
                         pkt.powered(),
                         pkt.gridReachable(),
@@ -161,12 +188,15 @@ public record DeviceHubSyncPacket(
                         pkt.terrainDestruction(),
                         pkt.pvpLock(),
                         pkt.terrainDestructionAllowed(),
+                        pkt.recentLoadIds(),
+                        pkt.recentLoadAmounts(),
                         pkt.moduleIds(),
                         pkt.moduleNameKeys(),
                         pkt.moduleCounts(),
                         pkt.moduleEnabled(),
                         pkt.moduleActive(),
-                        pkt.moduleLoads());
+                        pkt.moduleLoads(),
+                        pkt.moduleCooldowns());
             }
         });
     }

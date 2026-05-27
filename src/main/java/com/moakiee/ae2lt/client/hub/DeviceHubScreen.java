@@ -47,7 +47,8 @@ public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
     private static final int ENERGY_BAR_Y = 64;
     private static final int LOAD_BAR_Y = 84;
     private static final int STATE_LINE_Y = 100;
-    private static final int MODULES_Y = 116;
+    private static final int DIAGNOSTICS_Y = 112;
+    private static final int MODULES_Y = 132;
     private static final int MODULE_ROW_H = 14;
     private static final int BAR_WIDTH = 180;
     private static final int BAR_HEIGHT = 8;
@@ -199,6 +200,11 @@ public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
         }
         gfx.drawString(font, Component.translatable("ae2lt.device_hub.status.line", statusText), x, topPos + statusLineY, statusColor, false);
 
+        if (!railgunTab) {
+            gfx.drawString(font, debtReasonLine(lockState, menu.getDebtReason()), x, topPos + DIAGNOSTICS_Y, TEXT_SECONDARY, false);
+            gfx.drawString(font, recentLoadLine(), x, topPos + DIAGNOSTICS_Y + 10, TEXT_SECONDARY, false);
+        }
+
         // ── Separator ──
         gfx.fill(leftPos + 6, topPos + modulesY - 4, leftPos + imageWidth - 6, topPos + modulesY - 3, BG_DEEP);
 
@@ -206,6 +212,7 @@ public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
         List<String> moduleNameKeys = menu.getModuleNameKeys();
         List<Integer> moduleCounts = menu.getModuleCounts();
         List<Integer> moduleLoads = menu.getModuleLoads();
+        List<Integer> moduleCooldowns = menu.getModuleCooldowns();
         List<Boolean> moduleEnabled = menu.getModuleEnabled();
         List<Boolean> moduleActive = menu.getModuleActive();
         int moduleCount = DeviceHubDisplayRules.countModuleUnits(moduleCounts);
@@ -233,7 +240,14 @@ public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
             // Toggle button (only for armor modules, not railgun)
             if (!railgunTab) {
                 Component stateLabel = Component.translatable(DeviceHubDisplayRules.moduleStateKey(enabled, active));
-                Component loadLabel = Component.translatable("ae2lt.device_hub.module.state_load", stateLabel, moduleLoad);
+                int cooldown = idx < moduleCooldowns.size() ? moduleCooldowns.get(idx) : 0;
+                Component loadLabel = cooldown > 0
+                        ? Component.translatable(
+                                "ae2lt.device_hub.module.state_load_cooldown",
+                                stateLabel,
+                                moduleLoad,
+                                (cooldown + 19) / 20)
+                        : Component.translatable("ae2lt.device_hub.module.state_load", stateLabel, moduleLoad);
                 int loadTextX = leftPos + imageWidth - 56 - font.width(loadLabel);
                 gfx.drawString(font, loadLabel, loadTextX, rowY, moduleLoad > 0 ? LOAD_GOLD : TEXT_SECONDARY, false);
                 int toggleX = leftPos + imageWidth - 48;
@@ -482,6 +496,54 @@ public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
             minecraft.getSoundManager().play(
                     SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0F));
         }
+    }
+
+    private Component debtReasonLine(int lockState, String reason) {
+        String normalized = reason == null || reason.isBlank()
+                ? (lockState == 1 ? "overloaded" : "none")
+                : reason;
+        String key = switch (normalized) {
+            case "energy" -> "ae2lt.device_hub.debt_reason.energy";
+            case "phase_escape" -> "ae2lt.device_hub.debt_reason.phase_escape";
+            case "locked" -> "ae2lt.device_hub.debt_reason.locked";
+            case "overloaded" -> "ae2lt.device_hub.debt_reason.overloaded";
+            default -> "ae2lt.device_hub.debt_reason.none";
+        };
+        return Component.translatable("ae2lt.device_hub.debt_reason", Component.translatable(key));
+    }
+
+    private Component recentLoadLine() {
+        List<String> ids = menu.getRecentLoadIds();
+        List<Integer> amounts = menu.getRecentLoadAmounts();
+        int count = Math.min(ids.size(), amounts.size());
+        if (count <= 0) {
+            return Component.translatable("ae2lt.device_hub.recent_load.none");
+        }
+        var events = Component.empty();
+        for (int i = 0; i < count; i++) {
+            if (i > 0) {
+                events.append(Component.literal(", "));
+            }
+            events.append(loadEventName(ids.get(i)))
+                    .append(Component.literal(" +"))
+                    .append(Component.literal(String.valueOf(amounts.get(i))));
+        }
+        return Component.translatable("ae2lt.device_hub.recent_load", events);
+    }
+
+    private static Component loadEventName(String id) {
+        String key = switch (id) {
+            case "resistance" -> "ae2lt.overload_armor.feature.resistance.name";
+            case "reflect" -> "ae2lt.overload_armor.feature.reflect.name";
+            case "dash" -> "ae2lt.overload_armor.feature.dash.name";
+            case "flight" -> "ae2lt.overload_armor.feature.flight.name";
+            case "cleanse" -> "ae2lt.overload_armor.feature.cleanse.name";
+            case "auto_feed" -> "ae2lt.overload_armor.feature.auto_feed.name";
+            case "dig_affinity" -> "ae2lt.overload_armor.feature.dig_affinity.name";
+            case "phase_flight" -> "ae2lt.overload_armor.feature.phase_flight.name";
+            default -> "";
+        };
+        return key.isEmpty() ? Component.literal(id == null ? "" : id) : Component.translatable(key);
     }
 
     private static int statusColor(String statusKey) {

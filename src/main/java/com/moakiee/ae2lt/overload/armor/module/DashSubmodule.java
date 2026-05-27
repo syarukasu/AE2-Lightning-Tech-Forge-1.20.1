@@ -79,6 +79,7 @@ public final class DashSubmodule extends AbstractOverloadArmorSubmodule {
                 player,
                 Math.max(0L, feCost - ArmorEnergyBuffer.read(armor)));
         if (!ArmorEnergyBuffer.tryConsume(armor, player, feCost)) {
+            OverloadArmorState.markEnergyUnpaid(armor, "energy");
             player.displayClientMessage(Component.translatable("ae2lt.overload_armor.fail.no_fe"), true);
             return;
         }
@@ -94,7 +95,7 @@ public final class DashSubmodule extends AbstractOverloadArmorSubmodule {
         setCooldown(armor, COOLDOWN_TICKS);
     }
 
-    private static int getCooldown(ItemStack armor) {
+    public static int getCooldown(ItemStack armor) {
         var data = OverloadArmorState.getSubmoduleData(armor, INSTANCE);
         return data.contains(TAG_COOLDOWN, CompoundTag.TAG_INT) ? data.getInt(TAG_COOLDOWN) : 0;
     }

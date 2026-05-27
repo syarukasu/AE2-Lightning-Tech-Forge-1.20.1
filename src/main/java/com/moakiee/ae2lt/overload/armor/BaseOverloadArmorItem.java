@@ -114,6 +114,7 @@ public abstract class BaseOverloadArmorItem extends ArmorItem implements DeviceI
         var registries = player.level().registryAccess();
         OverloadArmorState.syncSubmoduleActiveState(player, stack, registries, equipped, dist);
         if (!equipped) {
+            OverloadArmorState.clearTransientRuntime(stack);
             return;
         }
         if (player instanceof ServerPlayer serverPlayer) {
@@ -167,7 +168,11 @@ public abstract class BaseOverloadArmorItem extends ArmorItem implements DeviceI
                 armor,
                 player,
                 Math.max(0L, adjusted - ArmorEnergyBuffer.read(armor)));
-        return ArmorEnergyBuffer.tryConsume(armor, player, adjusted);
+        boolean paid = ArmorEnergyBuffer.tryConsume(armor, player, adjusted);
+        if (!paid) {
+            OverloadArmorState.markEnergyUnpaid(armor, "energy");
+        }
+        return paid;
     }
 
     private static void consumeOverloadDemand(
@@ -186,7 +191,9 @@ public abstract class BaseOverloadArmorItem extends ArmorItem implements DeviceI
                 armor,
                 player,
                 Math.max(0L, demand - ArmorEnergyBuffer.read(armor)));
-        ArmorEnergyBuffer.tryConsume(armor, player, demand);
+        if (!ArmorEnergyBuffer.tryConsume(armor, player, demand)) {
+            OverloadArmorState.markEnergyUnpaid(armor, "energy");
+        }
     }
 
     private static boolean moduleRuntimeActive(ItemStack armor, ItemStack module) {
