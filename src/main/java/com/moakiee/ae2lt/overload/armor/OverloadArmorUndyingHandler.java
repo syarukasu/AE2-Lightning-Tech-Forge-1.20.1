@@ -24,8 +24,10 @@ import com.moakiee.ae2lt.overload.armor.service.ArmorLightningService;
 @EventBusSubscriber(modid = AE2LightningTech.MODID)
 public final class OverloadArmorUndyingHandler {
     private static final String TAG_PROTECTED_TICK = "ae2lt.undying_protected_tick";
+    private static final String TAG_PROTECTED_UNTIL = "ae2lt.undying_protected_until";
     private static final float RESTORE_HEALTH = 4.0F;
     private static final int CLEANSING_LIMIT = 3;
+    private static final int PROTECTION_WINDOW_TICKS = 20;
 
     private OverloadArmorUndyingHandler() {
     }
@@ -39,7 +41,10 @@ public final class OverloadArmorUndyingHandler {
         if (damage <= 0.0F || damage < player.getHealth() + player.getAbsorptionAmount()) {
             return;
         }
-        if (tryTrigger(player)) {
+        long now = player.level().getGameTime();
+        if (tryProtectWithinWindow(player, now)) {
+            event.setNewDamage(0.0F);
+        } else if (tryTrigger(player, now)) {
             event.setNewDamage(0.0F);
         }
     }
@@ -72,7 +77,11 @@ public final class OverloadArmorUndyingHandler {
             restoreSurvivalState(player);
             return true;
         }
-        return tryTrigger(player);
+        long now = player.level().getGameTime();
+        if (tryProtectWithinWindow(player, now)) {
+            return true;
+        }
+        return tryTrigger(player, now);
     }
 
     public static boolean wasProtectedThisTick(LivingEntity entity) {
@@ -82,11 +91,19 @@ public final class OverloadArmorUndyingHandler {
         return player.getPersistentData().getLong(TAG_PROTECTED_TICK) == player.level().getGameTime();
     }
 
-    private static boolean tryTrigger(ServerPlayer player) {
+    private static boolean tryProtectWithinWindow(ServerPlayer player, long now) {
+        if (hasActiveProtectionWindow(player, now)) {
+            recordProtectedTick(player, now);
+            restoreSurvivalState(player);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean tryTrigger(ServerPlayer player, long now) {
         if (player.isSpectator()) {
             return false;
         }
-        long now = player.level().getGameTime();
         for (var active : collectActiveLastStand(player)) {
             int comboIndex = UndyingSubmodule.nextComboIndex(active.armor(), now);
             long cost = scaledCost(active.tuning().feCost(), comboIndex);
@@ -107,7 +124,7 @@ public final class OverloadArmorUndyingHandler {
                     now,
                     Math.max(1, active.tuning().comboWindowTicks()),
                     comboIndex);
-            player.getPersistentData().putLong(TAG_PROTECTED_TICK, now);
+            recordProtectionWindow(player, now);
             restoreSurvivalState(player);
             cleanseHarmfulEffects(player, CLEANSING_LIMIT);
             return true;
@@ -120,6 +137,30 @@ public final class OverloadArmorUndyingHandler {
             return true;
         }
         return ArmorEnergyService.consumeActiveCost(player, armor, cost);
+    }
+
+    private static boolean hasActiveProtectionWindow(ServerPlayer player, long now) {
+        long protectedUntil = player.getPersistentData().getLong(TAG_PROTECTED_UNTIL);
+        return protectedUntil > now;
+    }
+
+    private static void recordProtectedTick(ServerPlayer player, long now) {
+        player.getPersistentData().putLong(TAG_PROTECTED_TICK, now);
+    }
+
+    private static void recordProtectionWindow(ServerPlayer player, long now) {
+        recordProtectedTick(player, now);
+        player.getPersistentData().putLong(TAG_PROTECTED_UNTIL, saturatingAdd(now, PROTECTION_WINDOW_TICKS));
+    }
+
+    private static long saturatingAdd(long left, long right) {
+        if (right <= 0L) {
+            return left;
+        }
+        if (left > Long.MAX_VALUE - right) {
+            return Long.MAX_VALUE;
+        }
+        return left + right;
     }
 
     private static void restoreSurvivalState(ServerPlayer player) {
