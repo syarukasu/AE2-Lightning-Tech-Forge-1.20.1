@@ -75,7 +75,8 @@ public final class DashSubmodule extends AbstractOverloadArmorSubmodule {
             return;
         }
         long feCost = ArmorOverloadRules.DASH_ACTIVE_COST_FE;
-        if (!ArmorEnergyService.consumeActiveCost(player, armor, feCost)) {
+        var payment = ArmorEnergyService.consumeActiveCostPayment(player, armor, feCost);
+        if (!payment.paid()) {
             player.displayClientMessage(Component.translatable("ae2lt.overload_armor.fail.no_fe"), true);
             return;
         }
@@ -84,7 +85,7 @@ public final class DashSubmodule extends AbstractOverloadArmorSubmodule {
                 armor,
                 com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
                 AE2LTCommonConfig.overloadArmorDashHvCost())) {
-            ArmorEnergyService.refundCost(player, armor, feCost);
+            payment.refund();
             player.displayClientMessage(Component.translatable("ae2lt.overload_armor.fail.no_lightning"), true);
             return;
         }

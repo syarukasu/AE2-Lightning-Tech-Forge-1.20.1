@@ -171,10 +171,12 @@ public final class OverloadArmorDamageHandler {
                 continue;
             }
             long cost = (long) Math.ceil(amount * Math.max(0L, reflect.fePerDamage()));
-            if (cost > 0L) {
-                if (!ArmorEnergyService.consumeActiveCost(serverPlayer, active.armor(), cost)) {
-                    continue;
-                }
+            ArmorEnergyService.EnergyPayment payment = ArmorEnergyService.consumeActiveCostPayment(
+                    serverPlayer,
+                    active.armor(),
+                    cost);
+            if (!payment.paid()) {
+                continue;
             }
             long lightningCost = (long) Math.ceil(amount * AE2LTCommonConfig.overloadArmorReflectHvPerDamage());
             if (!ArmorLightningService.consume(
@@ -182,7 +184,7 @@ public final class OverloadArmorDamageHandler {
                     active.armor(),
                     com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
                     lightningCost)) {
-                ArmorEnergyService.refundCost(serverPlayer, active.armor(), cost);
+                payment.refund();
                 continue;
             }
             reflected += amount;

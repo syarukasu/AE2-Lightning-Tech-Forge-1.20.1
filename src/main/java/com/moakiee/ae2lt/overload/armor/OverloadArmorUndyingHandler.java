@@ -107,7 +107,11 @@ public final class OverloadArmorUndyingHandler {
         for (var active : collectActiveLastStand(player)) {
             int comboIndex = UndyingSubmodule.nextComboIndex(active.armor(), now);
             long cost = scaledCost(active.tuning().feCost(), comboIndex);
-            if (!payCost(player, active.armor(), cost)) {
+            ArmorEnergyService.EnergyPayment payment = ArmorEnergyService.consumeActiveCostPayment(
+                    player,
+                    active.armor(),
+                    cost);
+            if (!payment.paid()) {
                 continue;
             }
             long lightningCost = scaledCost(AE2LTCommonConfig.overloadArmorUndyingEhvCost(), comboIndex);
@@ -116,7 +120,7 @@ public final class OverloadArmorUndyingHandler {
                     active.armor(),
                     com.moakiee.ae2lt.me.key.LightningKey.EXTREME_HIGH_VOLTAGE,
                     lightningCost)) {
-                ArmorEnergyService.refundCost(player, active.armor(), cost);
+                payment.refund();
                 continue;
             }
             UndyingSubmodule.recordTrigger(
@@ -130,13 +134,6 @@ public final class OverloadArmorUndyingHandler {
             return true;
         }
         return false;
-    }
-
-    private static boolean payCost(ServerPlayer player, ItemStack armor, long cost) {
-        if (cost <= 0L) {
-            return true;
-        }
-        return ArmorEnergyService.consumeActiveCost(player, armor, cost);
     }
 
     private static boolean hasActiveProtectionWindow(ServerPlayer player, long now) {
