@@ -62,6 +62,11 @@ public final class PhaseFlightSubmodule extends AbstractOverloadArmorSubmodule {
     }
 
     @Override
+    public String installGroupId() {
+        return FlightSubmodule.INSTALL_GROUP;
+    }
+
+    @Override
     public void onActivated(@Nullable Player player, Dist dist, ItemStack armor) {
         if (player != null && dist == Dist.DEDICATED_SERVER) {
             grantPhaseFlight(player, armor);

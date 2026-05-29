@@ -41,6 +41,11 @@ public final class WaterBreathingSubmodule extends AbstractOverloadArmorSubmodul
     }
 
     @Override
+    public int getMaxInstallAmount() {
+        return 1;
+    }
+
+    @Override
     public int getIdleOverloaded(@Nullable Player player, Dist dist, ItemStack armor) {
         return 0;
     }

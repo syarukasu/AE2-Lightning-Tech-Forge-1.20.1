@@ -22,6 +22,7 @@ public final class FlightSubmodule extends AbstractOverloadArmorSubmodule {
 
     public static final FlightSubmodule INSTANCE = new FlightSubmodule();
 
+    public static final String INSTALL_GROUP = "flight";
     public static final String INERTIA_CONFIG_KEY = "flight_inertia";
 
     private static final String TAG_HAD_MAYFLY = "FlightHadMayfly";
@@ -49,6 +50,16 @@ public final class FlightSubmodule extends AbstractOverloadArmorSubmodule {
     @Override
     public boolean defaultEnabled() {
         return true;
+    }
+
+    @Override
+    public int getMaxInstallAmount() {
+        return 1;
+    }
+
+    @Override
+    public String installGroupId() {
+        return INSTALL_GROUP;
     }
 
     @Override
