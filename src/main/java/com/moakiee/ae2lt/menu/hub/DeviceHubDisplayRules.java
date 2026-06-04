@@ -22,15 +22,6 @@ public final class DeviceHubDisplayRules {
         return "ae2lt.device_hub.status.normal";
     }
 
-    public static String moduleStateKey(boolean enabled, boolean active) {
-        if (!enabled) {
-            return "ae2lt.device_hub.module.state.disabled";
-        }
-        return active
-                ? "ae2lt.device_hub.module.state.active"
-                : "ae2lt.device_hub.module.state.offline";
-    }
-
     public static int clampScrollOffset(int requested, int itemCount, int visibleRows) {
         int max = Math.max(0, itemCount - Math.max(0, visibleRows));
         return Math.max(0, Math.min(requested, max));

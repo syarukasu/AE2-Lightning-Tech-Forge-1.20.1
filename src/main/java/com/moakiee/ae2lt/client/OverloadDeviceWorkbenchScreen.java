@@ -18,21 +18,13 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
             AE2LightningTech.MODID, "textures/gui/overload_workplace_gui.png");
 
-    private static final int TEXTURE_SIZE = 256;
+    private static final int TEXTURE_WIDTH = 320;
+    private static final int TEXTURE_HEIGHT = 256;
     private static final int GUI_WIDTH = 176;
     private static final int GUI_HEIGHT = 245;
 
-    private static final int TEXT_PRIMARY = 0xFF6E748C;
-    private static final int TEXT_SECONDARY = 0xFF7D839B;
-    private static final int TEXT_OK = 0xFF5F8F78;
-    private static final int TEXT_WARN = 0xFF9A8064;
-    private static final int TEXT_ACCENT = 0xFF9A8A5B;
-    private static final int ROW_HOVER = 0x304D4D67;
-    private static final int REMOVE_RED = 0xFF87545E;
-    private static final int REMOVE_RED_HOVER = 0xFFA96A72;
-    private static final int REMOVE_TEXT = 0xFFCCD2DE;
-    private static final int SCROLL_TRACK = 0x80373B72;
-    private static final int SCROLL_THUMB = 0xFFADB0C4;
+    private static final int TEXT_ON_LIGHT_BG = 0xFF6E748C;
+    private static final int TEXT_ON_DARK_BG = 0xFFFFFFFF;
 
     private static final int STATUS_X = 44;
     private static final int STATUS_Y = 22;
@@ -40,24 +32,48 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
 
     private static final int MODULE_HEADER_X = 42;
     private static final int MODULE_HEADER_Y = 49;
-    private static final int MODULE_LIST_X = 42;
-    private static final int MODULE_CONTENT_X = 54;
-    private static final int MODULE_LIST_Y = 60;
-    private static final int MODULE_LIST_WIDTH = 125;
-    private static final int MODULE_CONTENT_WIDTH = 112;
-    private static final int MODULE_ROW_HEIGHT = 18;
-    private static final int VISIBLE_ROWS = 4;
+    private static final int MODULE_ROW_X = 42;
+    private static final int MODULE_ROW_Y = 60;
+    private static final int MODULE_ROW_WIDTH = 118;
+    private static final int MODULE_ROW_HEIGHT = 17;
+    private static final int MODULE_ICON_X = 44;
+    private static final int MODULE_NAME_X = 67;
+    private static final int MODULE_ITEM_Y_OFFSET = 1;
+    private static final int MODULE_TEXT_Y_OFFSET = 5;
+    private static final int VISIBLE_ROWS = 5;
+    private static final int MODULE_ROW_SRC_X = 180;
+    private static final int MODULE_ROW_SRC_Y = 90;
+    private static final int MODULE_ROW_SELECTED_SRC_Y = 111;
 
     private static final int REMOVE_BUTTON_SIZE = 10;
-    private static final int REMOVE_BUTTON_X = 155;
+    private static final int REMOVE_BUTTON_X = 148;
+    private static final int REMOVE_BUTTON_Y_OFFSET = 3;
+    private static final int REMOVE_BUTTON_SRC_X = 191;
+    private static final int REMOVE_BUTTON_SRC_Y = 5;
+    private static final int REMOVE_BUTTON_HOVER_SRC_X = 202;
+    private static final int REMOVE_BUTTON_HOVER_SRC_Y = 6;
+    private static final int REMOVE_BUTTON_WIDTH = 9;
+    private static final int REMOVE_BUTTON_HEIGHT = 10;
+    private static final int REMOVE_BUTTON_HOVER_HEIGHT = 9;
 
-    private static final int PROGRESS_X = 43;
-    private static final int PROGRESS_Y = 143;
-    private static final int PROGRESS_WIDTH = 123;
-    private static final int PROGRESS_HEIGHT = 6;
-    private static final int PROGRESS_SRC_X = 180;
-    private static final int PROGRESS_SRC_Y = 35;
-    private static final int PROGRESS_SRC_WIDTH = 72;
+    private static final int SCROLLBAR_X = 164;
+    private static final int SCROLLBAR_Y = 61;
+    private static final int SCROLLBAR_WIDTH = 7;
+    private static final int SCROLLBAR_HEIGHT = 82;
+    private static final int SCROLLBAR_THUMB_SRC_X = 180;
+    private static final int SCROLLBAR_THUMB_SRC_Y = 0;
+    private static final int SCROLLBAR_THUMB_HOVER_SRC_Y = 17;
+    private static final int SCROLLBAR_THUMB_HEIGHT = 15;
+    private static final int SCROLLBAR_THUMB_HOVER_HEIGHT = 14;
+
+    private static final int ARROW_PROGRESS_X = 8;
+    private static final int ARROW_PROGRESS_Y = 97;
+    private static final int ARROW_PROGRESS_WIDTH = 28;
+    private static final int ARROW_PROGRESS_HEIGHT = 38;
+    private static final int ARROW_PROGRESS_SRC_X = 180;
+    private static final int ARROW_PROGRESS_SRC_Y = 48;
+    private static final int ARROW_PROGRESS_VISIBLE_OFFSET_X = 9;
+    private static final int ARROW_PROGRESS_VISIBLE_WIDTH = 16;
 
     private int scrollOffset = 0;
 
@@ -71,7 +87,7 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
 
     @Override
     protected void renderBg(GuiGraphics gfx, float partialTick, int mouseX, int mouseY) {
-        gfx.blit(TEXTURE, leftPos, topPos, 0, 0, GUI_WIDTH, GUI_HEIGHT, TEXTURE_SIZE, TEXTURE_SIZE);
+        gfx.blit(TEXTURE, leftPos, topPos, 0, 0, GUI_WIDTH, GUI_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         renderStatusArea(gfx);
         renderInstallProgress(gfx);
         renderModuleList(gfx, mouseX, mouseY);
@@ -83,17 +99,17 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
 
         if (!menu.hasDeviceInserted()) {
             gfx.drawString(font, Component.translatable("ae2lt.overload_device_workbench.status.no_device"),
-                    x, y + 7, TEXT_SECONDARY, false);
+                    x, y + 7, TEXT_ON_DARK_BG, false);
             return;
         }
 
-        gfx.drawString(font, menu.getStatusText(), x, y, TEXT_PRIMARY, false);
+        gfx.drawString(font, menu.getStatusText(), x, y, TEXT_ON_DARK_BG, false);
 
         boolean grid = menu.gridConnected != 0;
         Component gridText = grid
                 ? Component.translatable("ae2lt.overload_device_workbench.screen.network.online")
                 : Component.translatable("ae2lt.overload_device_workbench.screen.network.offline");
-        gfx.drawString(font, gridText, x, y + STATUS_SECOND_LINE_Y, grid ? TEXT_OK : TEXT_WARN, false);
+        gfx.drawString(font, gridText, x, y + STATUS_SECOND_LINE_Y, TEXT_ON_DARK_BG, false);
     }
 
     private void renderInstallProgress(GuiGraphics gfx) {
@@ -102,35 +118,26 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
         }
 
         double ratio = (double) menu.installProgress / OverloadDeviceWorkbenchMenu.INSTALL_TICKS;
-        int filled = Math.min(PROGRESS_WIDTH, Math.max(0, (int) Math.round(PROGRESS_WIDTH * ratio)));
-        int destX = leftPos + PROGRESS_X;
-        int remaining = filled;
-        while (remaining > 0) {
-            int slice = Math.min(remaining, PROGRESS_SRC_WIDTH);
-            gfx.blit(TEXTURE, destX, topPos + PROGRESS_Y,
-                    PROGRESS_SRC_X, PROGRESS_SRC_Y,
-                    slice, PROGRESS_HEIGHT,
-                    TEXTURE_SIZE, TEXTURE_SIZE);
-            remaining -= slice;
-            destX += slice;
-        }
+        int visible = Math.max(1, (int) Math.ceil(ARROW_PROGRESS_VISIBLE_WIDTH * ratio));
+        int filled = Math.min(ARROW_PROGRESS_WIDTH, ARROW_PROGRESS_VISIBLE_OFFSET_X + visible);
+        gfx.blit(TEXTURE, leftPos + ARROW_PROGRESS_X, topPos + ARROW_PROGRESS_Y,
+                ARROW_PROGRESS_SRC_X, ARROW_PROGRESS_SRC_Y,
+                filled, ARROW_PROGRESS_HEIGHT,
+                TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
     private void renderModuleList(GuiGraphics gfx, int mouseX, int mouseY) {
         List<ItemStack> modules = menu.getInstalledModuleList();
-        int listLeft = leftPos + MODULE_CONTENT_X;
-        int listTop = topPos + MODULE_LIST_Y;
-        int listRight = listLeft + MODULE_CONTENT_WIDTH;
+        int listLeft = leftPos + MODULE_ROW_X;
+        int listTop = topPos + MODULE_ROW_Y;
+        int listRight = listLeft + MODULE_ROW_WIDTH;
 
         scrollOffset = Math.max(0, Math.min(scrollOffset, Math.max(0, modules.size() - VISIBLE_ROWS)));
 
-        Component header = menu.isRailgunDevice()
-                ? Component.translatable("ae2lt.overload_device_workbench.screen.module_types", modules.size())
-                : Component.translatable(
-                        "ae2lt.overload_device_workbench.screen.module_units",
-                        menu.moduleUnitCount,
-                        menu.moduleSlotCount);
-        gfx.drawString(font, header, leftPos + MODULE_HEADER_X, topPos + MODULE_HEADER_Y, TEXT_PRIMARY, false);
+        Component header = Component.translatable(
+                "ae2lt.overload_device_workbench.screen.module_types",
+                modules.size());
+        gfx.drawString(font, header, leftPos + MODULE_HEADER_X, topPos + MODULE_HEADER_Y, TEXT_ON_LIGHT_BG, false);
 
         for (int row = 0; row < VISIBLE_ROWS; row++) {
             int moduleIndex = scrollOffset + row;
@@ -143,30 +150,37 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
                     && mouseX < listRight
                     && mouseY >= rowY
                     && mouseY < rowY + MODULE_ROW_HEIGHT;
-            if (hovered) {
-                gfx.fill(listLeft, rowY, listRight, rowY + MODULE_ROW_HEIGHT - 1, ROW_HOVER);
-            }
+            renderModuleRowFrame(gfx, rowY, hovered);
 
             ItemStack stack = modules.get(moduleIndex);
-            gfx.renderItem(stack, listLeft + 2, rowY + 1);
+            gfx.renderItem(stack, leftPos + MODULE_ICON_X, rowY + MODULE_ITEM_Y_OFFSET);
 
             int cap = menu.getModuleMaxInstallAmount(stack);
             String amount = cap > 0 ? "x" + stack.getCount() + "/" + cap : "x" + stack.getCount();
             int amountWidth = font.width(amount);
             int amountX = REMOVE_BUTTON_X - amountWidth - 4;
-            gfx.drawString(font, Component.literal(amount), leftPos + amountX, rowY + 5, TEXT_ACCENT, false);
+            int rowTextColor = hovered ? TEXT_ON_LIGHT_BG : TEXT_ON_DARK_BG;
+            gfx.drawString(font, Component.literal(amount),
+                    leftPos + amountX, rowY + MODULE_TEXT_Y_OFFSET, rowTextColor, false);
 
-            int nameX = listLeft + 21;
+            int nameX = leftPos + MODULE_NAME_X;
             int nameMaxWidth = leftPos + amountX - nameX - 3;
             gfx.drawString(font, Component.literal(truncate(font, stack.getHoverName().getString(), nameMaxWidth)),
-                    nameX, rowY + 5, TEXT_PRIMARY, false);
+                    nameX, rowY + MODULE_TEXT_Y_OFFSET, rowTextColor, false);
 
-            renderRemoveButton(gfx, leftPos + REMOVE_BUTTON_X, rowY + 4, mouseX, mouseY);
+            renderRemoveButton(gfx, leftPos + REMOVE_BUTTON_X, rowY + REMOVE_BUTTON_Y_OFFSET, mouseX, mouseY);
         }
 
         if (modules.size() > VISIBLE_ROWS) {
-            renderScrollBar(gfx, modules.size());
+            renderScrollBar(gfx, modules.size(), mouseX, mouseY);
         }
+    }
+
+    private void renderModuleRowFrame(GuiGraphics gfx, int rowY, boolean selected) {
+        gfx.blit(TEXTURE, leftPos + MODULE_ROW_X, rowY,
+                MODULE_ROW_SRC_X, selected ? MODULE_ROW_SELECTED_SRC_Y : MODULE_ROW_SRC_Y,
+                MODULE_ROW_WIDTH, MODULE_ROW_HEIGHT,
+                TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
     private void renderRemoveButton(GuiGraphics gfx, int x, int y, int mouseX, int mouseY) {
@@ -174,19 +188,29 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
                 && mouseX < x + REMOVE_BUTTON_SIZE
                 && mouseY >= y
                 && mouseY < y + REMOVE_BUTTON_SIZE;
-        gfx.fill(x, y, x + REMOVE_BUTTON_SIZE, y + REMOVE_BUTTON_SIZE,
-                hovered ? REMOVE_RED_HOVER : REMOVE_RED);
-        gfx.drawString(font, Component.literal("x"), x + 3, y + 1, REMOVE_TEXT, false);
+        gfx.blit(TEXTURE, x, y,
+                hovered ? REMOVE_BUTTON_HOVER_SRC_X : REMOVE_BUTTON_SRC_X,
+                hovered ? REMOVE_BUTTON_HOVER_SRC_Y : REMOVE_BUTTON_SRC_Y,
+                REMOVE_BUTTON_WIDTH,
+                hovered ? REMOVE_BUTTON_HOVER_HEIGHT : REMOVE_BUTTON_HEIGHT,
+                TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
-    private void renderScrollBar(GuiGraphics gfx, int moduleCount) {
-        int barX = leftPos + MODULE_LIST_X - 6;
-        int barTop = topPos + MODULE_LIST_Y + 1;
-        int barHeight = MODULE_ROW_HEIGHT * VISIBLE_ROWS - 2;
-        gfx.fill(barX, barTop, barX + 3, barTop + barHeight, SCROLL_TRACK);
-        int thumbHeight = Math.max(10, barHeight * VISIBLE_ROWS / moduleCount);
-        int thumbY = barTop + (barHeight - thumbHeight) * scrollOffset / Math.max(1, moduleCount - VISIBLE_ROWS);
-        gfx.fill(barX, thumbY, barX + 3, thumbY + thumbHeight, SCROLL_THUMB);
+    private void renderScrollBar(GuiGraphics gfx, int moduleCount, int mouseX, int mouseY) {
+        int barX = leftPos + SCROLLBAR_X;
+        int barTop = topPos + SCROLLBAR_Y;
+        int thumbSpace = SCROLLBAR_HEIGHT - SCROLLBAR_THUMB_HEIGHT;
+        int thumbY = barTop + thumbSpace * scrollOffset / Math.max(1, moduleCount - VISIBLE_ROWS);
+        boolean hovered = mouseX >= barX
+                && mouseX < barX + SCROLLBAR_WIDTH
+                && mouseY >= thumbY
+                && mouseY < thumbY + SCROLLBAR_THUMB_HEIGHT;
+        gfx.blit(TEXTURE, barX, thumbY,
+                SCROLLBAR_THUMB_SRC_X,
+                hovered ? SCROLLBAR_THUMB_HOVER_SRC_Y : SCROLLBAR_THUMB_SRC_Y,
+                SCROLLBAR_WIDTH,
+                hovered ? SCROLLBAR_THUMB_HOVER_HEIGHT : SCROLLBAR_THUMB_HEIGHT,
+                TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
     private static String truncate(Font font, String text, int maxWidth) {
@@ -211,8 +235,8 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
     @Override
     protected void renderLabels(GuiGraphics gfx, int mouseX, int mouseY) {
         gfx.drawString(font, Component.translatable("block.ae2lt.overload_device_workbench"),
-                42, 6, TEXT_PRIMARY, false);
-        gfx.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, TEXT_PRIMARY, false);
+                42, 6, TEXT_ON_LIGHT_BG, false);
+        gfx.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, TEXT_ON_LIGHT_BG, false);
     }
 
     @Override
@@ -230,7 +254,7 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
             if (moduleIndex >= modules.size()) {
                 break;
             }
-            int rowY = topPos + MODULE_LIST_Y + row * MODULE_ROW_HEIGHT + 4;
+            int rowY = topPos + MODULE_ROW_Y + row * MODULE_ROW_HEIGHT + REMOVE_BUTTON_Y_OFFSET;
             int buttonX = leftPos + REMOVE_BUTTON_X;
             if (mouseX >= buttonX
                     && mouseX < buttonX + REMOVE_BUTTON_SIZE
@@ -245,9 +269,9 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        int listLeft = leftPos + MODULE_LIST_X - 8;
-        int listTop = topPos + MODULE_LIST_Y;
-        int listRight = leftPos + MODULE_CONTENT_X + MODULE_CONTENT_WIDTH;
+        int listLeft = leftPos + MODULE_ROW_X;
+        int listTop = topPos + MODULE_ROW_Y;
+        int listRight = leftPos + SCROLLBAR_X + SCROLLBAR_WIDTH;
         int listBottom = listTop + MODULE_ROW_HEIGHT * VISIBLE_ROWS;
         if (mouseX >= listLeft
                 && mouseX < listRight
@@ -266,9 +290,9 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
 
     private void renderModuleRowTooltip(GuiGraphics gfx, int mouseX, int mouseY) {
         List<ItemStack> modules = menu.getInstalledModuleList();
-        int listLeft = leftPos + MODULE_CONTENT_X;
-        int listTop = topPos + MODULE_LIST_Y;
-        int listRight = listLeft + MODULE_CONTENT_WIDTH;
+        int listLeft = leftPos + MODULE_ROW_X;
+        int listTop = topPos + MODULE_ROW_Y;
+        int listRight = listLeft + MODULE_ROW_WIDTH;
         for (int row = 0; row < VISIBLE_ROWS; row++) {
             int moduleIndex = scrollOffset + row;
             if (moduleIndex >= modules.size()) {
@@ -276,7 +300,7 @@ public class OverloadDeviceWorkbenchScreen extends AbstractContainerScreen<Overl
             }
             int rowY = listTop + row * MODULE_ROW_HEIGHT;
             int buttonX = leftPos + REMOVE_BUTTON_X;
-            int buttonY = rowY + 4;
+            int buttonY = rowY + REMOVE_BUTTON_Y_OFFSET;
             if (mouseX >= buttonX
                     && mouseX < buttonX + REMOVE_BUTTON_SIZE
                     && mouseY >= buttonY
