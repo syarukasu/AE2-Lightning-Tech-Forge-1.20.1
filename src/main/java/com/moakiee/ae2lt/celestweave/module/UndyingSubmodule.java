@@ -1,16 +1,8 @@
 package com.moakiee.ae2lt.celestweave.module;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
-
-import com.moakiee.ae2lt.celestweave.CelestweaveArmorState;
-
 public final class UndyingSubmodule extends AbstractCelestweaveArmorSubmodule {
 
     public static final UndyingSubmodule INSTANCE = new UndyingSubmodule();
-
-    private static final String TAG_COMBO_UNTIL = "UndyingComboUntil";
-    private static final String TAG_COMBO_COUNT = "UndyingComboCount";
 
     private UndyingSubmodule() {
     }
@@ -38,27 +30,6 @@ public final class UndyingSubmodule extends AbstractCelestweaveArmorSubmodule {
     @Override
     public int getMaxInstallAmount() {
         return 1;
-    }
-
-    public static int nextComboIndex(ItemStack armor, long gameTime) {
-        return getComboUntil(armor) >= gameTime ? Math.max(1, getComboCount(armor) + 1) : 1;
-    }
-
-    public static void recordTrigger(ItemStack armor, long gameTime, int comboWindowTicks, int comboIndex) {
-        var data = CelestweaveArmorState.getSubmoduleData(armor, INSTANCE);
-        data.putLong(TAG_COMBO_UNTIL, gameTime + Math.max(1, comboWindowTicks));
-        data.putInt(TAG_COMBO_COUNT, Math.max(1, comboIndex));
-        CelestweaveArmorState.setSubmoduleData(armor, INSTANCE, data);
-    }
-
-    private static int getComboCount(ItemStack armor) {
-        var data = CelestweaveArmorState.getSubmoduleData(armor, INSTANCE);
-        return data.contains(TAG_COMBO_COUNT, CompoundTag.TAG_INT) ? data.getInt(TAG_COMBO_COUNT) : 0;
-    }
-
-    private static long getComboUntil(ItemStack armor) {
-        var data = CelestweaveArmorState.getSubmoduleData(armor, INSTANCE);
-        return data.contains(TAG_COMBO_UNTIL, CompoundTag.TAG_LONG) ? data.getLong(TAG_COMBO_UNTIL) : -1L;
     }
 
 }

@@ -139,8 +139,8 @@ public final class CelestweaveArmorUndyingHandler {
             return false;
         }
         for (var active : collectActiveLastStand(player)) {
-            int comboIndex = UndyingSubmodule.nextComboIndex(active.armor(), now);
-            long cost = scaledCost(active.tuning().feCost(), comboIndex);
+            int comboIndex = ArmorOverloadCombo.nextComboIndex(active.armor(), UndyingSubmodule.INSTANCE, now);
+            long cost = ArmorOverloadCombo.scaledCost(active.tuning().feCost(), comboIndex);
             ArmorEnergyService.EnergyPayment payment = ArmorEnergyService.consumeActiveCostPayment(
                     player,
                     active.armor(),
@@ -148,7 +148,9 @@ public final class CelestweaveArmorUndyingHandler {
             if (!payment.paid()) {
                 continue;
             }
-            long lightningCost = scaledCost(AE2LTCommonConfig.overloadArmorUndyingEhvCost(), comboIndex);
+            long lightningCost = ArmorOverloadCombo.scaledCost(
+                    AE2LTCommonConfig.overloadArmorUndyingEhvCost(),
+                    comboIndex);
             if (!ArmorLightningService.consume(
                     player,
                     active.armor(),
@@ -157,8 +159,9 @@ public final class CelestweaveArmorUndyingHandler {
                 payment.refund();
                 continue;
             }
-            UndyingSubmodule.recordTrigger(
+            ArmorOverloadCombo.recordTrigger(
                     active.armor(),
+                    UndyingSubmodule.INSTANCE,
                     now,
                     Math.max(1, active.tuning().comboWindowTicks()),
                     comboIndex);
@@ -239,17 +242,6 @@ public final class CelestweaveArmorUndyingHandler {
                     return java.util.stream.Stream.empty();
                 })
                 .toList();
-    }
-
-    private static long scaledCost(long baseCost, int comboIndex) {
-        int safeCombo = Math.max(1, comboIndex);
-        if (baseCost <= 0L) {
-            return 0L;
-        }
-        if (baseCost > Long.MAX_VALUE / safeCombo) {
-            return Long.MAX_VALUE;
-        }
-        return baseCost * safeCombo;
     }
 
     private record ActiveLastStand(

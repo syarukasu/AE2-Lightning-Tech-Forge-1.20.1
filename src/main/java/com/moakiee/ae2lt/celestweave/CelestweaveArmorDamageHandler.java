@@ -14,10 +14,12 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import com.moakiee.ae2lt.AE2LightningTech;
 import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
+import com.moakiee.ae2lt.celestweave.module.ResistanceSubmodule;
 import com.moakiee.ae2lt.celestweave.service.ArmorCapabilityCollector;
 import com.moakiee.ae2lt.celestweave.service.ArmorCapabilityCollector.ActiveCapability;
 import com.moakiee.ae2lt.celestweave.service.ArmorEnergyService;
 import com.moakiee.ae2lt.celestweave.service.ArmorLightningService;
+import com.moakiee.ae2lt.me.key.LightningKey;
 import com.moakiee.ae2lt.registry.ModDamageTypes;
 
 /**
@@ -118,16 +120,35 @@ public final class CelestweaveArmorDamageHandler {
         if (amount <= 0L) {
             return true;
         }
-        var key = "phase_shield".equals(staged.stage())
-                ? com.moakiee.ae2lt.me.key.LightningKey.EXTREME_HIGH_VOLTAGE
-                : com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE;
-        return ArmorLightningService.consume(serverPlayer, mitigation.armor(), key, amount);
+        var submodule = mitigationSubmoduleForStage(staged.stage());
+        int comboIndex = ArmorOverloadCombo.nextComboIndex(
+                mitigation.armor(),
+                submodule,
+                serverPlayer.level().getGameTime());
+        long finalAmount = ArmorOverloadCombo.scaledCost(amount, comboIndex);
+        LightningKey key = "phase_shield".equals(staged.stage())
+                ? LightningKey.EXTREME_HIGH_VOLTAGE
+                : LightningKey.HIGH_VOLTAGE;
+        if (!ArmorLightningService.consume(serverPlayer, mitigation.armor(), key, finalAmount)) {
+            return false;
+        }
+        ArmorOverloadCombo.recordTrigger(
+                mitigation.armor(),
+                submodule,
+                serverPlayer.level().getGameTime(),
+                AE2LTCommonConfig.overloadArmorShieldComboWindowTicks(),
+                comboIndex);
+        return true;
     }
 
     private static long mitigationLightningPerDamage(String stage) {
         return "phase_shield".equals(stage)
                 ? AE2LTCommonConfig.overloadArmorPhaseShieldEhvPerDamage()
                 : AE2LTCommonConfig.overloadArmorMitigationHvPerDamage();
+    }
+
+    private static ResistanceSubmodule mitigationSubmoduleForStage(String stage) {
+        return "phase_shield".equals(stage) ? ResistanceSubmodule.T2 : ResistanceSubmodule.T1;
     }
 
     private static void reflectIncomingDamage(Player player, DamageSource source, float incomingDamage) {

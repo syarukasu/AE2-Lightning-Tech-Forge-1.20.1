@@ -15,8 +15,7 @@ public final class ArmorOverloadRules {
     public static final long REACH_EXTENSION_PASSIVE_DRAIN_FE = 250L;
     public static final long PHASE_FLIGHT_PASSIVE_DRAIN_FE = 40_000L;
     public static final long UNDYING_PASSIVE_DRAIN_FE = 2_000L;
-    public static final long UNDYING_TRIGGER_COST_FE = 50_000_000L;
-    public static final int UNDYING_COMBO_WINDOW_TICKS = 200;
+    public static final long UNDYING_TRIGGER_COST_FE = 1_000_000_000L;
     public static final int UNDYING_PULSE_LOAD = 180;
 
     private ArmorOverloadRules() {

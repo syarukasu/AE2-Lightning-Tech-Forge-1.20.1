@@ -3,7 +3,7 @@ package com.moakiee.ae2lt.config;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public final class AE2LTCommonConfig {
-    public static final int CURRENT_CONFIG_VERSION = 2;
+    public static final int CURRENT_CONFIG_VERSION = 3;
 
     public static final ModConfigSpec SPEC;
 
@@ -178,6 +178,9 @@ public final class AE2LTCommonConfig {
     public static long overloadArmorSaturationHvCost() { return VALUES.overloadArmorSaturationHvCost.get(); }
     public static long overloadArmorDigAffinityHvPerUse() { return VALUES.overloadArmorDigAffinityHvPerUse.get(); }
     public static long overloadArmorUndyingEhvCost() { return VALUES.overloadArmorUndyingEhvCost.get(); }
+    public static int overloadArmorShieldComboWindowTicks() { return VALUES.overloadArmorShieldComboWindowTicks.get(); }
+    public static int overloadArmorPurificationComboWindowTicks() { return VALUES.overloadArmorPurificationComboWindowTicks.get(); }
+    public static int overloadArmorUndyingComboWindowTicks() { return VALUES.overloadArmorUndyingComboWindowTicks.get(); }
 
     // ── Railgun: damage (per-tier base + beam settle, HV/EHV beam split) ──────
     public static int railgunBeamHvDamagePerSettle() { return VALUES.railgunBeamHvDamagePerSettle.get(); }
@@ -272,6 +275,9 @@ public final class AE2LTCommonConfig {
         private final ModConfigSpec.LongValue overloadArmorSaturationHvCost;
         private final ModConfigSpec.LongValue overloadArmorDigAffinityHvPerUse;
         private final ModConfigSpec.LongValue overloadArmorUndyingEhvCost;
+        private final ModConfigSpec.IntValue overloadArmorShieldComboWindowTicks;
+        private final ModConfigSpec.IntValue overloadArmorPurificationComboWindowTicks;
+        private final ModConfigSpec.IntValue overloadArmorUndyingComboWindowTicks;
 
         // ── Railgun fields ────────────────────────────────────────────────
         private final ModConfigSpec.IntValue railgunBeamHvDamagePerSettle;
@@ -497,28 +503,40 @@ public final class AE2LTCommonConfig {
                     .defineInRange("phaseFlightEhvPerTick", 1L, 0L, Long.MAX_VALUE);
             overloadArmorDashHvCost = builder
                     .comment("HV lightning consumed when dash triggers.")
-                    .defineInRange("dashHvCost", 16L, 0L, Long.MAX_VALUE);
+                    .defineInRange("dashHvCost", 256L, 0L, Long.MAX_VALUE);
             overloadArmorReflectHvPerDamage = builder
                     .comment("HV lightning consumed per reflected damage point.")
-                    .defineInRange("reflectHvPerDamage", 2L, 0L, Long.MAX_VALUE);
+                    .defineInRange("reflectHvPerDamage", 24L, 0L, Long.MAX_VALUE);
             overloadArmorMitigationHvPerDamage = builder
                     .comment("HV lightning consumed per damage point prevented by matrix shield.")
-                    .defineInRange("mitigationHvPerDamage", 1L, 0L, Long.MAX_VALUE);
+                    .defineInRange("mitigationHvPerDamage", 32L, 0L, Long.MAX_VALUE);
             overloadArmorPhaseShieldEhvPerDamage = builder
                     .comment("EHV lightning consumed per damage point prevented by phase shield.")
-                    .defineInRange("phaseShieldEhvPerDamage", 1L, 0L, Long.MAX_VALUE);
+                    .defineInRange("phaseShieldEhvPerDamage", 8L, 0L, Long.MAX_VALUE);
             overloadArmorPurificationHvPerEffect = builder
                     .comment("HV lightning consumed per purified status effect.")
-                    .defineInRange("purificationHvPerEffect", 8L, 0L, Long.MAX_VALUE);
+                    .defineInRange("purificationHvPerEffect", 512L, 0L, Long.MAX_VALUE);
             overloadArmorSaturationHvCost = builder
                     .comment("HV lightning consumed when saturation sustain restores hunger or saturation.")
-                    .defineInRange("saturationHvCost", 4L, 0L, Long.MAX_VALUE);
+                    .defineInRange("saturationHvCost", 64L, 0L, Long.MAX_VALUE);
             overloadArmorDigAffinityHvPerUse = builder
                     .comment("HV lightning consumed when dig affinity corrects mining speed for one tick.")
-                    .defineInRange("digAffinityHvPerUse", 1L, 0L, Long.MAX_VALUE);
+                    .defineInRange("digAffinityHvPerUse", 4L, 0L, Long.MAX_VALUE);
             overloadArmorUndyingEhvCost = builder
                     .comment("EHV lightning consumed by undying trigger before combo scaling.")
-                    .defineInRange("undyingEhvCost", 32L, 0L, Long.MAX_VALUE);
+                    .defineInRange("undyingEhvCost", 2048L, 0L, Long.MAX_VALUE);
+            builder.pop();
+
+            builder.push("penalty");
+            overloadArmorShieldComboWindowTicks = builder
+                    .comment("Ticks in the linear combo window for matrix and phase shield lightning cost scaling.")
+                    .defineInRange("shieldComboWindowTicks", 200, 1, 20 * 60 * 60);
+            overloadArmorPurificationComboWindowTicks = builder
+                    .comment("Ticks in the linear combo window for purification lightning cost scaling.")
+                    .defineInRange("purificationComboWindowTicks", 200, 1, 20 * 60 * 60);
+            overloadArmorUndyingComboWindowTicks = builder
+                    .comment("Ticks in the linear combo window for undying FE and EHV cost scaling.")
+                    .defineInRange("undyingComboWindowTicks", 200, 1, 20 * 60 * 60);
             builder.pop();
             builder.pop();
 

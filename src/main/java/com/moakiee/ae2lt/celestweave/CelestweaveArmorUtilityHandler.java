@@ -18,6 +18,7 @@ import com.moakiee.ae2lt.AE2LightningTech;
 import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
 import com.moakiee.ae2lt.celestweave.module.PhaseFlightSubmodule;
+import com.moakiee.ae2lt.celestweave.module.PurificationSubmodule;
 import com.moakiee.ae2lt.celestweave.module.SaturationSubmodule;
 import com.moakiee.ae2lt.celestweave.service.ArmorCapabilityCollector;
 import com.moakiee.ae2lt.celestweave.service.ArmorCapabilityCollector.ActiveCapability;
@@ -110,7 +111,26 @@ public final class CelestweaveArmorUtilityHandler {
         }
         for (var active : ArmorCapabilityCollector.collectPerInstalledStack(player)) {
             if (active.capability() instanceof DeviceCapability.PurificationTuning) {
+                long baseCost = AE2LTCommonConfig.overloadArmorPurificationHvPerEffect();
+                int comboIndex = ArmorOverloadCombo.nextComboIndex(
+                        active.armor(),
+                        PurificationSubmodule.INSTANCE,
+                        player.level().getGameTime());
+                long finalCost = ArmorOverloadCombo.scaledCost(baseCost, comboIndex);
+                if (!ArmorLightningService.consume(
+                        player,
+                        active.armor(),
+                        com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
+                        finalCost)) {
+                    continue;
+                }
                 event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+                ArmorOverloadCombo.recordTrigger(
+                        active.armor(),
+                        PurificationSubmodule.INSTANCE,
+                        player.level().getGameTime(),
+                        AE2LTCommonConfig.overloadArmorPurificationComboWindowTicks(),
+                        comboIndex);
                 return;
             }
         }
@@ -127,12 +147,31 @@ public final class CelestweaveArmorUtilityHandler {
             }
             int limit = Math.max(1, purification.strength());
             int removable = countPurifiableEffects(player, limit);
-            if (removable > 0 && !ArmorLightningService.consume(
-                    player,
-                    active.armor(),
-                    com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
-                    AE2LTCommonConfig.overloadArmorPurificationHvPerEffect() * removable)) {
-                return;
+            if (removable > 0) {
+                long baseCost = ArmorOverloadCombo.scaledCost(
+                        AE2LTCommonConfig.overloadArmorPurificationHvPerEffect(),
+                        removable);
+                int comboIndex = ArmorOverloadCombo.nextComboIndex(
+                        active.armor(),
+                        PurificationSubmodule.INSTANCE,
+                        player.level().getGameTime());
+                long finalCost = ArmorOverloadCombo.scaledCost(baseCost, comboIndex);
+                if (!ArmorLightningService.consume(
+                        player,
+                        active.armor(),
+                        com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
+                        finalCost)) {
+                    return;
+                }
+                if (purifyEffects(player, limit) > 0) {
+                    ArmorOverloadCombo.recordTrigger(
+                            active.armor(),
+                            PurificationSubmodule.INSTANCE,
+                            player.level().getGameTime(),
+                            AE2LTCommonConfig.overloadArmorPurificationComboWindowTicks(),
+                            comboIndex);
+                }
+                continue;
             }
             purifyEffects(player, limit);
         }
