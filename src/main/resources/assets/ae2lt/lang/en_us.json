@@ -725,7 +725,7 @@
   "item.ae2lt.module_dig_affinity.tooltip": "Improves underwater and airborne mining",
   "item.ae2lt.module_phase_flight": "Phase Flight Module",
   "item.ae2lt.module_phase_flight.tooltip": "Allows phase movement through blocks",
-  "ae2lt.module.tooltip.installable_on": "Installable on: %s",
+  "ae2lt.module.tooltip.installable_on": "Installable on:",
   "ae2lt.module.device.railgun": "Electromagnetic Railgun",
   "ae2lt.module.device.celestweave_oculus": "Celestweave Oculus",
   "ae2lt.module.device.celestweave_core": "Celestweave Core",

@@ -1,6 +1,5 @@
 package com.moakiee.ae2lt.device.module;
 
-import java.util.Comparator;
 import java.util.List;
 
 import net.minecraft.ChatFormatting;
@@ -17,24 +16,15 @@ public final class ModuleTooltip {
         if (module == null) {
             return;
         }
-        tooltip.add(Component.translatable(
-                "ae2lt.module.tooltip.installable_on",
-                deviceList(module)).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("ae2lt.module.tooltip.installable_on")
+                .withStyle(ChatFormatting.GRAY));
+        module.acceptableDevices().stream()
+                .sorted(java.util.Comparator.comparing(DeviceKind::name))
+                .forEach(kind -> tooltip.add(deviceLine(kind).withStyle(ChatFormatting.GRAY)));
     }
 
-    private static Component deviceList(OverloadDeviceModuleItem module) {
-        MutableComponent out = Component.empty();
-        boolean[] first = {true};
-        module.acceptableDevices().stream()
-                .sorted(Comparator.comparing(DeviceKind::name))
-                .forEach(kind -> {
-                    if (!first[0]) {
-                        out.append(Component.literal(", "));
-                    }
-                    out.append(Component.translatable(deviceKey(kind)));
-                    first[0] = false;
-                });
-        return out;
+    private static MutableComponent deviceLine(DeviceKind kind) {
+        return Component.literal(" - ").append(Component.translatable(deviceKey(kind)));
     }
 
     private static String deviceKey(DeviceKind kind) {

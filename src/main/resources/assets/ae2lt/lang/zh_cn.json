@@ -725,7 +725,7 @@
   "item.ae2lt.module_dig_affinity.tooltip": "改善水下与空中挖掘速度",
   "item.ae2lt.module_phase_flight": "相位飞行模块",
   "item.ae2lt.module_phase_flight.tooltip": "允许相位穿过方块移动",
-  "ae2lt.module.tooltip.installable_on": "可安装于：%s",
+  "ae2lt.module.tooltip.installable_on": "可安装于：",
   "ae2lt.module.device.railgun": "电磁炮",
   "ae2lt.module.device.celestweave_oculus": "苍穹织雷·瞳",
   "ae2lt.module.device.celestweave_core": "苍穹织雷·心",
