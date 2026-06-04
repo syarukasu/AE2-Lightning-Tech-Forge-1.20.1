@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "ae2lt:item/overload_module_base"
+    "layer0": "ae2lt:item/module_dash"
   }
 }
