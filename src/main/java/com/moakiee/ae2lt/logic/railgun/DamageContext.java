@@ -5,7 +5,6 @@ import com.moakiee.ae2lt.config.RailgunDefaults;
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
 import com.moakiee.ae2lt.item.railgun.RailgunChargeTier;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleEntries;
-import com.moakiee.ae2lt.item.railgun.RailgunSettings;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -38,16 +37,11 @@ public record DamageContext(
     }
 
     public static DamageContext buildBeam(Player player, RailgunModuleEntries mods, Level level,
-                                          boolean pvpLock, RailgunSettings.BeamMode beamMode) {
+                                          boolean pvpLock) {
         boolean storm = isStorming(level, player);
         int compute = countChainTuning(mods);
-        // HV/EHV split: HV = low base, no bypass; EHV = high base, strong bypass.
-        double base = (beamMode == RailgunSettings.BeamMode.EHV)
-                ? AE2LTCommonConfig.railgunBeamEhvDamagePerSettle()
-                : AE2LTCommonConfig.railgunBeamHvDamagePerSettle();
-        double bypass = (beamMode == RailgunSettings.BeamMode.EHV)
-                ? AE2LTCommonConfig.railgunBeamEhvBypass()
-                : AE2LTCommonConfig.railgunBeamHvBypass();
+        double base = AE2LTCommonConfig.railgunBeamDamagePerSettle();
+        double bypass = AE2LTCommonConfig.railgunBeamBypass();
         if (storm) {
             base *= RailgunDefaults.STORM_DAMAGE_MUL;
         }

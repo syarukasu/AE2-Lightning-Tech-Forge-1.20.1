@@ -5,7 +5,6 @@ import com.moakiee.ae2lt.network.hub.DeviceHubActionPacket;
 import com.moakiee.ae2lt.network.hub.DeviceHubSyncPacket;
 import com.moakiee.ae2lt.network.hub.OpenDeviceHubPacket;
 import com.moakiee.ae2lt.network.railgun.RailgunBeamChainFxPacket;
-import com.moakiee.ae2lt.network.railgun.RailgunBeamModePacket;
 import com.moakiee.ae2lt.network.railgun.RailgunBeamTogglePacket;
 import com.moakiee.ae2lt.network.railgun.RailgunBeamUpdatePacket;
 import com.moakiee.ae2lt.network.railgun.RailgunFirePacket;
@@ -90,10 +89,6 @@ public final class NetworkInit {
                 RailgunBeamTogglePacket.TYPE,
                 RailgunBeamTogglePacket.STREAM_CODEC,
                 RailgunBeamTogglePacket::handle);
-        registrar.playToServer(
-                RailgunBeamModePacket.TYPE,
-                RailgunBeamModePacket.STREAM_CODEC,
-                RailgunBeamModePacket::handle);
         // Railgun: S→C
         registrar.playToClient(
                 RailgunFirePacket.TYPE,

@@ -153,50 +153,21 @@ public final class RailgunBeamService {
 
         long feCost = AmmoCost.beamFeCost(mods);
         IActionSource src = IActionSource.ofPlayer(player);
-        RailgunSettings.BeamMode beamMode = settings.beamMode();
 
-        // Resolve lightning ammunition cost for this settle.
-        //  HV mode  : 1 HV every N settles (configurable interval).
-        //  EHV mode : N EHV per settle (config; default 1). If EHV is short and the
-        //             CORE module is installed, fall back to 16:1 HV compensation —
-        //             same semantics as the charged-fire path.
-        LightningKey primaryKey;
-        long primaryNeeded;
-        String failKey;
-        boolean allowCoreCompensation;
-        if (beamMode == RailgunSettings.BeamMode.EHV) {
-            primaryKey = LightningKey.EXTREME_HIGH_VOLTAGE;
-            primaryNeeded = AE2LTCommonConfig.railgunBeamEhvCostPerSettle();
-            failKey = "ae2lt.railgun.fail.no_ehv";
-            allowCoreCompensation = mods.hasCore();
-        } else {
-            primaryKey = LightningKey.HIGH_VOLTAGE;
-            int interval = AmmoCost.beamHvCostInterval(mods);
-            primaryNeeded = (s.settleCount % interval == 0) ? 1L : 0L;
-            failKey = "ae2lt.railgun.fail.no_hv";
-            allowCoreCompensation = false;
-        }
+        LightningKey primaryKey = LightningKey.HIGH_VOLTAGE;
+        int interval = AmmoCost.beamHvCostInterval(mods);
+        long primaryNeeded = (s.settleCount % interval == 0) ? 1L : 0L;
+        String failKey = "ae2lt.railgun.fail.no_hv";
 
         // SIMULATE phase: prove we can afford the shot, without committing anything,
         // so a later failure cannot leave FE deducted but ammo missing.
         long primaryAvail = 0L;
-        long compensationHvNeeded = 0L;
         if (primaryNeeded > 0L) {
             primaryAvail = grid.getStorageService().getInventory().extract(
                     primaryKey, primaryNeeded, Actionable.SIMULATE, src);
             if (primaryAvail < primaryNeeded) {
-                if (!allowCoreCompensation) {
-                    RailgunFireService.sendFail(player, failKey);
-                    return false;
-                }
-                long ehvShort = primaryNeeded - primaryAvail;
-                compensationHvNeeded = ehvShort * RailgunDefaults.COMPENSATION_RATIO;
-                long hvAvail = grid.getStorageService().getInventory().extract(
-                        LightningKey.HIGH_VOLTAGE, compensationHvNeeded, Actionable.SIMULATE, src);
-                if (hvAvail < compensationHvNeeded) {
-                    RailgunFireService.sendFail(player, "ae2lt.railgun.fail.no_compensation_hv");
-                    return false;
-                }
+                RailgunFireService.sendFail(player, failKey);
+                return false;
             }
         }
 
@@ -222,23 +193,6 @@ public final class RailgunBeamService {
                 RailgunFireService.sendFail(player, failKey);
                 return false;
             }
-            if (compensationHvNeeded > 0L) {
-                long gotHv = grid.getStorageService().getInventory().extract(
-                        LightningKey.HIGH_VOLTAGE, compensationHvNeeded, Actionable.MODULATE, src);
-                if (gotHv < compensationHvNeeded) {
-                    // Defensive rollback: undo primary + FE so the player isn't half-charged.
-                    if (gotPrimary > 0L) {
-                        grid.getStorageService().getInventory().insert(primaryKey, gotPrimary, Actionable.MODULATE, src);
-                    }
-                    if (gotHv > 0L) {
-                        grid.getStorageService().getInventory().insert(
-                                LightningKey.HIGH_VOLTAGE, gotHv, Actionable.MODULATE, src);
-                    }
-                    RailgunEnergyBuffer.refund(stack, feCost);
-                    RailgunFireService.sendFail(player, "ae2lt.railgun.fail.no_compensation_hv");
-                    return false;
-                }
-            }
         }
 
         // Raycast & damage
@@ -246,7 +200,7 @@ public final class RailgunBeamService {
         EntityHitResult ehr = trace.entityHit();
 
         if (ehr != null && ehr.getEntity() instanceof LivingEntity primary) {
-            DamageContext ctx = DamageContext.buildBeam(player, mods, level, settings.pvpLock(), beamMode);
+            DamageContext ctx = DamageContext.buildBeam(player, mods, level, settings.pvpLock());
             // Primary hit
             DamageSource ds = beamDamageSource(level, player);
             double armorReduction = DamageContext.effectiveArmorReduction(primary);

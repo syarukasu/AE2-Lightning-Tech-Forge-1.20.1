@@ -182,11 +182,9 @@ public final class AE2LTCommonConfig {
     public static int overloadArmorPurificationComboWindowTicks() { return VALUES.overloadArmorPurificationComboWindowTicks.get(); }
     public static int overloadArmorUndyingComboWindowTicks() { return VALUES.overloadArmorUndyingComboWindowTicks.get(); }
 
-    // ── Railgun: damage (per-tier base + beam settle, HV/EHV beam split) ──────
-    public static int railgunBeamHvDamagePerSettle() { return VALUES.railgunBeamHvDamagePerSettle.get(); }
-    public static int railgunBeamEhvDamagePerSettle() { return VALUES.railgunBeamEhvDamagePerSettle.get(); }
-    public static double railgunBeamHvBypass() { return VALUES.railgunBeamHvBypass.get(); }
-    public static double railgunBeamEhvBypass() { return VALUES.railgunBeamEhvBypass.get(); }
+    // ── Railgun: damage (per-tier base + beam settle) ────────────────────────
+    public static int railgunBeamDamagePerSettle() { return VALUES.railgunBeamDamagePerSettle.get(); }
+    public static double railgunBeamBypass() { return VALUES.railgunBeamBypass.get(); }
     public static int railgunBaseDamageEhv1() { return VALUES.railgunBaseDamageEhv1.get(); }
     public static int railgunBaseDamageEhv2() { return VALUES.railgunBaseDamageEhv2.get(); }
     public static int railgunBaseDamageEhv3() { return VALUES.railgunBaseDamageEhv3.get(); }
@@ -198,7 +196,6 @@ public final class AE2LTCommonConfig {
     public static long railgunFeCostTier2() { return VALUES.railgunFeCostTier2.get(); }
     public static long railgunFeCostTier3() { return VALUES.railgunFeCostTier3.get(); }
     public static int railgunBeamHvCostInterval() { return VALUES.railgunBeamHvCostInterval.get(); }
-    public static long railgunBeamEhvCostPerSettle() { return VALUES.railgunBeamEhvCostPerSettle.get(); }
     public static long railgunEhvCostTier1() { return VALUES.railgunEhvCostTier1.get(); }
     public static long railgunEhvCostTier2() { return VALUES.railgunEhvCostTier2.get(); }
     public static long railgunEhvCostTier3() { return VALUES.railgunEhvCostTier3.get(); }
@@ -280,10 +277,8 @@ public final class AE2LTCommonConfig {
         private final ModConfigSpec.IntValue overloadArmorUndyingComboWindowTicks;
 
         // ── Railgun fields ────────────────────────────────────────────────
-        private final ModConfigSpec.IntValue railgunBeamHvDamagePerSettle;
-        private final ModConfigSpec.IntValue railgunBeamEhvDamagePerSettle;
-        private final ModConfigSpec.DoubleValue railgunBeamHvBypass;
-        private final ModConfigSpec.DoubleValue railgunBeamEhvBypass;
+        private final ModConfigSpec.IntValue railgunBeamDamagePerSettle;
+        private final ModConfigSpec.DoubleValue railgunBeamBypass;
         private final ModConfigSpec.IntValue railgunBaseDamageEhv1;
         private final ModConfigSpec.IntValue railgunBaseDamageEhv2;
         private final ModConfigSpec.IntValue railgunBaseDamageEhv3;
@@ -293,7 +288,6 @@ public final class AE2LTCommonConfig {
         private final ModConfigSpec.LongValue railgunFeCostTier2;
         private final ModConfigSpec.LongValue railgunFeCostTier3;
         private final ModConfigSpec.IntValue railgunBeamHvCostInterval;
-        private final ModConfigSpec.LongValue railgunBeamEhvCostPerSettle;
         private final ModConfigSpec.LongValue railgunEhvCostTier1;
         private final ModConfigSpec.LongValue railgunEhvCostTier2;
         private final ModConfigSpec.LongValue railgunEhvCostTier3;
@@ -542,18 +536,12 @@ public final class AE2LTCommonConfig {
 
             builder.push("railgun");
             builder.push("damage");
-            railgunBeamHvDamagePerSettle = builder
-                    .comment("HV beam damage per 2-tick settle. Low base, no armor bypass — basic DPS ammo.")
-                    .defineInRange("beamHvDamagePerSettle", 10, 0, Integer.MAX_VALUE);
-            railgunBeamEhvDamagePerSettle = builder
-                    .comment("EHV beam damage per 2-tick settle. Higher base + strong armor bypass — anti-armor ammo.")
-                    .defineInRange("beamEhvDamagePerSettle", 30, 0, Integer.MAX_VALUE);
-            railgunBeamHvBypass = builder
-                    .comment("HV beam armor bypass (0.0 = fully blocked by armor, 1.0 = ignore armor).")
-                    .defineInRange("beamHvBypass", 0.0D, 0.0D, 1.0D);
-            railgunBeamEhvBypass = builder
-                    .comment("EHV beam armor bypass (0.0 = fully blocked by armor, 1.0 = ignore armor).")
-                    .defineInRange("beamEhvBypass", 0.8D, 0.0D, 1.0D);
+            railgunBeamDamagePerSettle = builder
+                    .comment("High Voltage beam damage per 2-tick settle.")
+                    .defineInRange("beamDamagePerSettle", 20, 0, Integer.MAX_VALUE);
+            railgunBeamBypass = builder
+                    .comment("High Voltage beam armor bypass (0.0 = fully blocked by armor, 1.0 = ignore armor).")
+                    .defineInRange("beamBypass", 0.4D, 0.0D, 1.0D);
             railgunBaseDamageEhv1 = builder
                     .comment("Charge tier 1 base damage.")
                     .defineInRange("baseDamageEhv1", 100, 0, Integer.MAX_VALUE);
@@ -584,9 +572,6 @@ public final class AE2LTCommonConfig {
             railgunBeamHvCostInterval = builder
                     .comment("HV beam consumes 1 HV every N settles (settle = 2 ticks). N=8 means ~1.25 HV/sec.")
                     .defineInRange("beamHvCostInterval", 8, 1, 64);
-            railgunBeamEhvCostPerSettle = builder
-                    .comment("EHV beam: EHV consumed per settle (each settle = 2 ticks). 1 = 10 EHV/sec sustained.")
-                    .defineInRange("beamEhvCostPerSettle", 1L, 0L, Long.MAX_VALUE);
             railgunEhvCostTier1 = builder
                     .comment("EHV consumed per tier-1 charged shot.")
                     .defineInRange("ehvCostTier1", 32L, 0L, Long.MAX_VALUE);
