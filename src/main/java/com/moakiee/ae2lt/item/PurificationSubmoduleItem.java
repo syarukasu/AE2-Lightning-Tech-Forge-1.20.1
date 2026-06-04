@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
-import com.moakiee.ae2lt.overload.armor.ArmorOverloadRules;
-import com.moakiee.ae2lt.overload.armor.ArmorPart;
-import com.moakiee.ae2lt.overload.armor.module.PurificationSubmodule;
+import com.moakiee.ae2lt.celestweave.ArmorOverloadRules;
+import com.moakiee.ae2lt.celestweave.ArmorPart;
+import com.moakiee.ae2lt.celestweave.module.PurificationSubmodule;
 
 public final class PurificationSubmoduleItem extends AbstractSingleArmorSubmoduleItem {
 

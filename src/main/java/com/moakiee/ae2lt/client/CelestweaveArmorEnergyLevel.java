@@ -7,8 +7,8 @@ import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
-import com.moakiee.ae2lt.overload.armor.ArmorEnergyBuffer;
-import com.moakiee.ae2lt.overload.armor.BaseOverloadArmorItem;
+import com.moakiee.ae2lt.celestweave.ArmorEnergyBuffer;
+import com.moakiee.ae2lt.celestweave.BaseCelestweaveArmorItem;
 
 public final class CelestweaveArmorEnergyLevel implements LayeredDraw.Layer {
     public static final CelestweaveArmorEnergyLevel INSTANCE = new CelestweaveArmorEnergyLevel();
@@ -37,7 +37,7 @@ public final class CelestweaveArmorEnergyLevel implements LayeredDraw.Layer {
         long capacity = 0L;
         long stored = 0L;
         for (ItemStack stack : minecraft.player.getArmorSlots()) {
-            if (stack.getItem() instanceof BaseOverloadArmorItem) {
+            if (stack.getItem() instanceof BaseCelestweaveArmorItem) {
                 capacity = addClamped(capacity, ArmorEnergyBuffer.capacity(stack));
                 stored = addClamped(stored, ArmorEnergyBuffer.read(stack));
             }

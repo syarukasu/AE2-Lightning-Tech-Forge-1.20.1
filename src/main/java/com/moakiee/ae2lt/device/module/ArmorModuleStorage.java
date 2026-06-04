@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import net.minecraft.world.item.ItemStack;
 
 import com.moakiee.ae2lt.device.DeviceKind;
-import com.moakiee.ae2lt.overload.armor.ArmorPart;
+import com.moakiee.ae2lt.celestweave.ArmorPart;
 
 public final class ArmorModuleStorage implements DeviceModuleStorage {
     public static final ArmorModuleStorage HEAD = new ArmorModuleStorage(ArmorPart.HEAD);

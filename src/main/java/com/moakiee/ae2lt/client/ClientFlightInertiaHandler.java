@@ -10,7 +10,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import com.moakiee.ae2lt.AE2LightningTech;
-import com.moakiee.ae2lt.overload.armor.OverloadArmorState;
+import com.moakiee.ae2lt.celestweave.CelestweaveArmorState;
 
 @EventBusSubscriber(modid = AE2LightningTech.MODID, value = Dist.CLIENT)
 public final class ClientFlightInertiaHandler {
@@ -29,7 +29,7 @@ public final class ClientFlightInertiaHandler {
         if (!player.getAbilities().flying) {
             return;
         }
-        if (OverloadArmorState.getClientFlightInertia()) {
+        if (CelestweaveArmorState.getClientFlightInertia()) {
             return;
         }
 

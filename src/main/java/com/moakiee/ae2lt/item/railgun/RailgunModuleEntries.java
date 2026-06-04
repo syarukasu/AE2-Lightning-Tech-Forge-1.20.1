@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
 import com.moakiee.ae2lt.device.module.OverloadDeviceModuleItem;
-import com.moakiee.ae2lt.overload.armor.ArmorEnergyModuleItem;
+import com.moakiee.ae2lt.celestweave.ArmorEnergyModuleItem;
 
 /**
  * Dynamic per-stack railgun module list. Each entry is one module type, and

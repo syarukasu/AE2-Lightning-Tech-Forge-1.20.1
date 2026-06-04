@@ -7,7 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import com.moakiee.ae2lt.overload.armor.OverloadArmorState;
+import com.moakiee.ae2lt.celestweave.CelestweaveArmorState;
 
 public record FlightInertiaSyncPacket(UUID armorId, boolean inertiaEnabled)
         implements CustomPacketPayload {
@@ -35,7 +35,7 @@ public record FlightInertiaSyncPacket(UUID armorId, boolean inertiaEnabled)
     }
 
     public static void handle(FlightInertiaSyncPacket payload, IPayloadContext context) {
-        context.enqueueWork(() -> OverloadArmorState.setClientFlightInertia(
+        context.enqueueWork(() -> CelestweaveArmorState.setClientFlightInertia(
                 payload.armorId(),
                 payload.inertiaEnabled()));
     }

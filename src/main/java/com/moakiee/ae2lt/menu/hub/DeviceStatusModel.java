@@ -13,11 +13,11 @@ import com.moakiee.ae2lt.item.railgun.RailgunStructuralCore;
 import com.moakiee.ae2lt.logic.energy.AppFluxBridge;
 import com.moakiee.ae2lt.logic.railgun.RailgunBinding;
 import com.moakiee.ae2lt.logic.railgun.RailgunEnergyBuffer;
-import com.moakiee.ae2lt.overload.armor.ArmorEnergyBuffer;
-import com.moakiee.ae2lt.overload.armor.BaseOverloadArmorItem;
-import com.moakiee.ae2lt.overload.armor.OverloadArmorState;
-import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmoduleOptionUi;
-import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmoduleItem;
+import com.moakiee.ae2lt.celestweave.ArmorEnergyBuffer;
+import com.moakiee.ae2lt.celestweave.BaseCelestweaveArmorItem;
+import com.moakiee.ae2lt.celestweave.CelestweaveArmorState;
+import com.moakiee.ae2lt.celestweave.module.CelestweaveArmorSubmoduleOptionUi;
+import com.moakiee.ae2lt.celestweave.module.CelestweaveArmorSubmoduleItem;
 import com.moakiee.ae2lt.device.network.ArmorNetworkBinding;
 import com.moakiee.ae2lt.registry.ModDataComponents;
 
@@ -48,7 +48,7 @@ public record DeviceStatusModel(
 
     /** Build status snapshot from an armor stack worn by the player. */
     public static DeviceStatusModel fromArmorStack(ItemStack armor, ServerPlayer player, int selectedModuleIndex) {
-        if (armor == null || armor.isEmpty() || !(armor.getItem() instanceof BaseOverloadArmorItem armorItem)) {
+        if (armor == null || armor.isEmpty() || !(armor.getItem() instanceof BaseCelestweaveArmorItem armorItem)) {
             return EMPTY;
         }
         String name = armor.getHoverName().getString();
@@ -59,17 +59,17 @@ public record DeviceStatusModel(
 
         long stored = ArmorEnergyBuffer.read(armor, player.registryAccess());
 
-        var snapshot = OverloadArmorState.snapshot(player, armor, player.registryAccess(), true);
+        var snapshot = CelestweaveArmorState.snapshot(player, armor, player.registryAccess(), true);
         boolean powered = DeviceHubDisplayRules.powerAvailable(stored, gridReachable, appFlux);
 
         List<ModuleInfo> modules = new ArrayList<>();
-        for (var stack : OverloadArmorState.loadModuleStacks(armor, player.registryAccess())) {
-            if (!(stack.getItem() instanceof OverloadArmorSubmoduleItem provider)) {
+        for (var stack : CelestweaveArmorState.loadModuleStacks(armor, player.registryAccess())) {
+            if (!(stack.getItem() instanceof CelestweaveArmorSubmoduleItem provider)) {
                 continue;
             }
             int count = Math.max(1, stack.getCount());
             provider.collectSubmodules(stack, sub -> {
-                boolean enabled = OverloadArmorState.isSubmoduleEnabled(armor, sub);
+                boolean enabled = CelestweaveArmorState.isSubmoduleEnabled(armor, sub);
                 modules.add(new ModuleInfo(sub.nameKey(), count, enabled));
             });
         }
@@ -131,7 +131,7 @@ public record DeviceStatusModel(
     }
 
     private static List<ModuleConfigInfo> moduleConfigs(ItemStack armor, ServerPlayer player, int selectedModuleIndex) {
-        var submodules = OverloadArmorState.collectSubmodules(armor, player.registryAccess());
+        var submodules = CelestweaveArmorState.collectSubmodules(armor, player.registryAccess());
         if (selectedModuleIndex < 0 || selectedModuleIndex >= submodules.size()) {
             return List.of();
         }
@@ -140,7 +140,7 @@ public record DeviceStatusModel(
                 .toList();
     }
 
-    private static ModuleConfigInfo moduleConfigInfo(OverloadArmorSubmoduleOptionUi option) {
+    private static ModuleConfigInfo moduleConfigInfo(CelestweaveArmorSubmoduleOptionUi option) {
         return new ModuleConfigInfo(
                 option.key(),
                 option.label().getString(),

@@ -13,7 +13,7 @@ Overload Devices are a family of high-end equipment that share a unified **modul
 ## Available Devices
 
 * [Electromagnetic Railgun](electromagnetic-railgun.md) — A charged energy weapon that draws power from your ME network
-* [Overload Armor](overload-armor.md) — Chestplate with swappable modules for passive abilities and effects
+* [Celestweave](celestweave.md) — Modular suit with swappable modules for passive abilities and effects
 
 ## Shared Concepts
 

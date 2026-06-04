@@ -33,9 +33,9 @@ import com.moakiee.ae2lt.item.WeatherCondensateItem;
 import com.moakiee.ae2lt.item.railgun.ElectromagneticRailgunItem;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleItem;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleType;
-import com.moakiee.ae2lt.overload.armor.ArmorEnergyModuleItem;
-import com.moakiee.ae2lt.overload.armor.ArmorEnergyRules;
-import com.moakiee.ae2lt.overload.armor.module.ResistanceSubmodule;
+import com.moakiee.ae2lt.celestweave.ArmorEnergyModuleItem;
+import com.moakiee.ae2lt.celestweave.ArmorEnergyRules;
+import com.moakiee.ae2lt.celestweave.module.ResistanceSubmodule;
 import com.moakiee.ae2lt.part.OverloadedCablePart;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -179,7 +179,7 @@ public final class ModItems {
             OverloadedFilterComponentItem::new,
             new Item.Properties().stacksTo(1));
 
-    // ── Overload Armor ──────────────────────────────────────────────────────
+    // ── Celestweave Armor ──────────────────────────────────────────────────────
     public static final DeferredItem<CelestweaveOculusItem> CELESTWEAVE_OCULUS = ITEMS.registerItem(
             "celestweave_oculus",
             CelestweaveOculusItem::new,
@@ -200,22 +200,22 @@ public final class ModItems {
             CelestweaveStrideItem::new,
             new Item.Properties().rarity(Rarity.EPIC));
 
-    public static final DeferredItem<NightVisionSubmoduleItem> ARMOR_SUBMODULE_NIGHT_VISION = ITEMS.registerItem(
+    public static final DeferredItem<NightVisionSubmoduleItem> CELESTWEAVE_SUBMODULE_NIGHT_VISION = ITEMS.registerItem(
             "module_night_vision",
             NightVisionSubmoduleItem::new,
             new Item.Properties());
 
-    public static final DeferredItem<WaterBreathingSubmoduleItem> ARMOR_SUBMODULE_WATER_BREATHING = ITEMS.registerItem(
+    public static final DeferredItem<WaterBreathingSubmoduleItem> CELESTWEAVE_SUBMODULE_WATER_BREATHING = ITEMS.registerItem(
             "module_water_breathing",
             WaterBreathingSubmoduleItem::new,
             new Item.Properties());
 
-    public static final DeferredItem<ReachSubmoduleItem> ARMOR_SUBMODULE_REACH_EXTENSION = ITEMS.registerItem(
+    public static final DeferredItem<ReachSubmoduleItem> CELESTWEAVE_SUBMODULE_REACH_EXTENSION = ITEMS.registerItem(
             "module_reach_extension",
             ReachSubmoduleItem::new,
             new Item.Properties().stacksTo(1));
 
-    public static final DeferredItem<ResistanceSubmoduleItem> ARMOR_SUBMODULE_MATRIX_SHIELD = ITEMS.registerItem(
+    public static final DeferredItem<ResistanceSubmoduleItem> CELESTWEAVE_SUBMODULE_MATRIX_SHIELD = ITEMS.registerItem(
             "module_matrix_shield",
             properties -> new ResistanceSubmoduleItem(
                     properties,
@@ -223,7 +223,7 @@ public final class ModItems {
                     "item.ae2lt.module_matrix_shield.tooltip"),
             new Item.Properties());
 
-    public static final DeferredItem<ResistanceSubmoduleItem> ARMOR_SUBMODULE_PHASE_SHIELD = ITEMS.registerItem(
+    public static final DeferredItem<ResistanceSubmoduleItem> CELESTWEAVE_SUBMODULE_PHASE_SHIELD = ITEMS.registerItem(
             "module_phase_shield",
             properties -> new ResistanceSubmoduleItem(
                     properties,
@@ -231,42 +231,42 @@ public final class ModItems {
                     "item.ae2lt.module_phase_shield.tooltip"),
             new Item.Properties());
 
-    public static final DeferredItem<ReflectSubmoduleItem> ARMOR_SUBMODULE_REFLECT = ITEMS.registerItem(
+    public static final DeferredItem<ReflectSubmoduleItem> CELESTWEAVE_SUBMODULE_REFLECT = ITEMS.registerItem(
             "module_reflect",
             ReflectSubmoduleItem::new,
             new Item.Properties());
 
-    public static final DeferredItem<UndyingSubmoduleItem> ARMOR_SUBMODULE_UNDYING = ITEMS.registerItem(
+    public static final DeferredItem<UndyingSubmoduleItem> CELESTWEAVE_SUBMODULE_UNDYING = ITEMS.registerItem(
             "module_undying",
             UndyingSubmoduleItem::new,
             new Item.Properties().rarity(Rarity.EPIC));
 
-    public static final DeferredItem<DashSubmoduleItem> ARMOR_SUBMODULE_DASH = ITEMS.registerItem(
+    public static final DeferredItem<DashSubmoduleItem> CELESTWEAVE_SUBMODULE_DASH = ITEMS.registerItem(
             "module_dash",
             DashSubmoduleItem::new,
             new Item.Properties());
 
-    public static final DeferredItem<FlightSubmoduleItem> ARMOR_SUBMODULE_FLIGHT = ITEMS.registerItem(
+    public static final DeferredItem<FlightSubmoduleItem> CELESTWEAVE_SUBMODULE_FLIGHT = ITEMS.registerItem(
             "module_creative_flight",
             FlightSubmoduleItem::new,
             new Item.Properties().stacksTo(1));
 
-    public static final DeferredItem<PurificationSubmoduleItem> ARMOR_SUBMODULE_PURIFICATION = ITEMS.registerItem(
+    public static final DeferredItem<PurificationSubmoduleItem> CELESTWEAVE_SUBMODULE_PURIFICATION = ITEMS.registerItem(
             "module_purification",
             PurificationSubmoduleItem::new,
             new Item.Properties().stacksTo(1));
 
-    public static final DeferredItem<SaturationSubmoduleItem> ARMOR_SUBMODULE_SATURATION = ITEMS.registerItem(
+    public static final DeferredItem<SaturationSubmoduleItem> CELESTWEAVE_SUBMODULE_SATURATION = ITEMS.registerItem(
             "module_saturation",
             SaturationSubmoduleItem::new,
             new Item.Properties().stacksTo(1));
 
-    public static final DeferredItem<DigAffinitySubmoduleItem> ARMOR_SUBMODULE_DIG_AFFINITY = ITEMS.registerItem(
+    public static final DeferredItem<DigAffinitySubmoduleItem> CELESTWEAVE_SUBMODULE_DIG_AFFINITY = ITEMS.registerItem(
             "module_dig_affinity",
             DigAffinitySubmoduleItem::new,
             new Item.Properties().stacksTo(1));
 
-    public static final DeferredItem<PhaseFlightSubmoduleItem> ARMOR_SUBMODULE_PHASE_FLIGHT = ITEMS.registerItem(
+    public static final DeferredItem<PhaseFlightSubmoduleItem> CELESTWEAVE_SUBMODULE_PHASE_FLIGHT = ITEMS.registerItem(
             "module_phase_flight",
             PhaseFlightSubmoduleItem::new,
             new Item.Properties().stacksTo(1));

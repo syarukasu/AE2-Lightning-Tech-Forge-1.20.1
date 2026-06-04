@@ -77,9 +77,9 @@ public final class NetworkInit {
                 FrequencyResponsePacket.STREAM_CODEC,
                 FrequencyResponsePacket::handle);
         registrar.playToClient(
-                ArmorSubmoduleActivePacket.TYPE,
-                ArmorSubmoduleActivePacket.STREAM_CODEC,
-                ArmorSubmoduleActivePacket::handle);
+                CelestweaveSubmoduleActivePacket.TYPE,
+                CelestweaveSubmoduleActivePacket.STREAM_CODEC,
+                CelestweaveSubmoduleActivePacket::handle);
         registrar.playToClient(
                 FlightInertiaSyncPacket.TYPE,
                 FlightInertiaSyncPacket.STREAM_CODEC,

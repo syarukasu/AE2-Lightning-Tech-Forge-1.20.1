@@ -83,18 +83,18 @@ public final class ModDataComponents {
                             .persistent(Codec.LONG)
                             .networkSynchronized(ByteBufCodecs.VAR_LONG));
 
-    /** Structural core installed in one overload armor piece. */
+    /** Structural core installed in one Celestweave armor piece. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ItemStack>>
-            ARMOR_STRUCTURAL_CORE = DATA_COMPONENTS.registerComponentType(
-                    "armor_structural_core",
+            CELESTWEAVE_STRUCTURAL_CORE = DATA_COMPONENTS.registerComponentType(
+                    "celestweave_structural_core",
                     builder -> builder
                             .persistent(ItemStack.OPTIONAL_CODEC)
                             .networkSynchronized(ItemStack.OPTIONAL_STREAM_CODEC));
 
-    /** Per-stack FE energy buffer for v4 overload armor pieces. */
+    /** Per-stack FE energy buffer for v4 Celestweave armor pieces. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>>
-            ARMOR_ENERGY_BUFFER = DATA_COMPONENTS.registerComponentType(
-                    "armor_energy_buffer",
+            CELESTWEAVE_ENERGY_BUFFER = DATA_COMPONENTS.registerComponentType(
+                    "celestweave_energy_buffer",
                     builder -> builder
                             .persistent(Codec.LONG)
                             .networkSynchronized(ByteBufCodecs.VAR_LONG));

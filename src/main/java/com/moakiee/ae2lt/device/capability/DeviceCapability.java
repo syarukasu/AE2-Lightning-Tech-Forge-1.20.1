@@ -4,7 +4,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.effect.MobEffect;
 
-import com.moakiee.ae2lt.overload.armor.ArmorPart;
+import com.moakiee.ae2lt.celestweave.ArmorPart;
 
 /**
  * Capability records emitted by device modules and consumed by device services.

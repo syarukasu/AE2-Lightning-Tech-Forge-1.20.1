@@ -9,9 +9,9 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import com.moakiee.ae2lt.AE2LightningTech;
 import com.moakiee.ae2lt.config.AE2LTCommonConfig;
-import com.moakiee.ae2lt.overload.armor.ArmorPhaseFlightRules;
-import com.moakiee.ae2lt.overload.armor.OverloadArmorState;
-import com.moakiee.ae2lt.overload.armor.module.PhaseFlightSubmodule;
+import com.moakiee.ae2lt.celestweave.ArmorPhaseFlightRules;
+import com.moakiee.ae2lt.celestweave.CelestweaveArmorState;
+import com.moakiee.ae2lt.celestweave.module.PhaseFlightSubmodule;
 
 @EventBusSubscriber(modid = AE2LightningTech.MODID, value = Dist.CLIENT)
 public final class ClientPhaseFlightHandler {
@@ -39,7 +39,7 @@ public final class ClientPhaseFlightHandler {
 
     @SubscribeEvent
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
-        OverloadArmorState.clearClientActiveCache();
+        CelestweaveArmorState.clearClientActiveCache();
         if (event.getPlayer() != null && PhaseFlightSubmodule.hasTransientPhaseState(event.getPlayer())) {
             PhaseFlightSubmodule.clearTransientPhaseState(event.getPlayer());
         }
@@ -47,7 +47,7 @@ public final class ClientPhaseFlightHandler {
 
     @SubscribeEvent
     public static void onPlayerClone(ClientPlayerNetworkEvent.Clone event) {
-        OverloadArmorState.clearClientActiveCache();
+        CelestweaveArmorState.clearClientActiveCache();
         if (PhaseFlightSubmodule.hasTransientPhaseState(event.getOldPlayer())) {
             PhaseFlightSubmodule.clearTransientPhaseState(event.getOldPlayer());
         }
@@ -58,7 +58,7 @@ public final class ClientPhaseFlightHandler {
 
     private static boolean isClientPhaseActive() {
         return ArmorPhaseFlightRules.clientPhaseStateActive(
-                OverloadArmorState.isAnyClientSubmoduleActive(PhaseFlightSubmodule.INSTANCE.id()),
+                CelestweaveArmorState.isAnyClientSubmoduleActive(PhaseFlightSubmodule.INSTANCE.id()),
                 true,
                 true,
                 true,

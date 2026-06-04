@@ -20,7 +20,7 @@ import com.moakiee.ae2lt.item.railgun.ElectromagneticRailgunItem;
 import com.moakiee.ae2lt.menu.hub.DeviceHubDisplayRules;
 import com.moakiee.ae2lt.menu.hub.DeviceHubMenu;
 import com.moakiee.ae2lt.network.hub.DeviceHubActionPacket;
-import com.moakiee.ae2lt.overload.armor.BaseOverloadArmorItem;
+import com.moakiee.ae2lt.celestweave.BaseCelestweaveArmorItem;
 import com.moakiee.ae2lt.registry.ModItems;
 
 public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
@@ -302,7 +302,7 @@ public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
     private void renderModuleConfig(GuiGraphics gfx, int mouseX, int mouseY) {
         int x = leftPos + CONFIG_X;
         int y = topPos + CONFIG_Y;
-        gfx.drawString(font, Component.translatable("ae2lt.overload_armor.screen.module_options"),
+        gfx.drawString(font, Component.translatable("ae2lt.celestweave.screen.module_options"),
                 x, topPos + CONFIG_HEADER_Y, TEXT_ON_LIGHT_BG, false);
         int count = moduleConfigCount();
         if (count <= 0) {
@@ -403,7 +403,7 @@ public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
     private Component moduleConfigLabel(int index) {
         String key = menu.getModuleConfigKeys().get(index);
         if (key != null && !key.isBlank()) {
-            return Component.translatable("ae2lt.overload_armor.config." + key);
+            return Component.translatable("ae2lt.celestweave.config." + key);
         }
         return Component.literal(menu.getModuleConfigLabels().get(index));
     }
@@ -632,7 +632,7 @@ public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
 
     private static ItemStack armorStack(Player player, EquipmentSlot slot) {
         ItemStack stack = player.getItemBySlot(slot);
-        return stack.getItem() instanceof BaseOverloadArmorItem ? stack : ItemStack.EMPTY;
+        return stack.getItem() instanceof BaseCelestweaveArmorItem ? stack : ItemStack.EMPTY;
     }
 
     private static ItemStack railgunStack(Player player) {

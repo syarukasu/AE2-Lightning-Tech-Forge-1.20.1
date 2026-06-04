@@ -3,9 +3,9 @@ package com.moakiee.ae2lt.item;
 import java.util.List;
 
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
-import com.moakiee.ae2lt.overload.armor.ArmorOverloadRules;
-import com.moakiee.ae2lt.overload.armor.ArmorPart;
-import com.moakiee.ae2lt.overload.armor.module.DashSubmodule;
+import com.moakiee.ae2lt.celestweave.ArmorOverloadRules;
+import com.moakiee.ae2lt.celestweave.ArmorPart;
+import com.moakiee.ae2lt.celestweave.module.DashSubmodule;
 
 public final class DashSubmoduleItem extends AbstractSingleArmorSubmoduleItem {
 

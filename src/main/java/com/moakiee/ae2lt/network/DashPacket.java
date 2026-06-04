@@ -28,7 +28,7 @@ public record DashPacket() implements CustomPacketPayload {
     public static void handle(DashPacket payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (context.player() instanceof ServerPlayer player) {
-                com.moakiee.ae2lt.overload.armor.module.DashSubmodule.applyDash(
+                com.moakiee.ae2lt.celestweave.module.DashSubmodule.applyDash(
                         player,
                         player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET));
             }

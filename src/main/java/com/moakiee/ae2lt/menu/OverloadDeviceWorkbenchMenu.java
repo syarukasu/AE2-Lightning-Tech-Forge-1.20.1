@@ -27,7 +27,7 @@ import com.moakiee.ae2lt.device.DeviceItem;
 import com.moakiee.ae2lt.device.DeviceKind;
 import com.moakiee.ae2lt.device.DeviceSlotType;
 import com.moakiee.ae2lt.menu.hub.DeviceHubDisplayRules;
-import com.moakiee.ae2lt.overload.armor.BaseOverloadArmorItem;
+import com.moakiee.ae2lt.celestweave.BaseCelestweaveArmorItem;
 
 public class OverloadDeviceWorkbenchMenu extends AEBaseMenu {
     public static final MenuType<OverloadDeviceWorkbenchMenu> TYPE = MenuTypeBuilder
@@ -210,7 +210,7 @@ public class OverloadDeviceWorkbenchMenu extends AEBaseMenu {
             return Component.translatable("ae2lt.overload_device_workbench.status.no_device");
         }
         if (!hasCoreInstalled()) {
-            return Component.translatable("ae2lt.overload_armor.status.missing_core");
+            return Component.translatable("ae2lt.celestweave.status.missing_core");
         }
         return Component.translatable("ae2lt.overload_device_workbench.status.ready");
     }
@@ -316,7 +316,7 @@ public class OverloadDeviceWorkbenchMenu extends AEBaseMenu {
     }
 
     private static int armorModuleSlotCount(ItemStack device) {
-        return device.getItem() instanceof BaseOverloadArmorItem armorItem
+        return device.getItem() instanceof BaseCelestweaveArmorItem armorItem
                 ? armorItem.armorPart().moduleSlotCount()
                 : 0;
     }

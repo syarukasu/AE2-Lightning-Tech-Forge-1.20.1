@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.world.entity.player.Player;
 
-import com.moakiee.ae2lt.overload.armor.ArmorPhaseFlightRules;
-import com.moakiee.ae2lt.overload.armor.module.PhaseFlightSubmodule;
+import com.moakiee.ae2lt.celestweave.ArmorPhaseFlightRules;
+import com.moakiee.ae2lt.celestweave.module.PhaseFlightSubmodule;
 
 @Mixin(Player.class)
 public abstract class PlayerPhaseFlightMixin {

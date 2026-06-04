@@ -17,11 +17,11 @@ import com.moakiee.ae2lt.device.module.ArmorModuleStorage;
 import com.moakiee.ae2lt.device.module.DeviceModuleStorage;
 import com.moakiee.ae2lt.device.network.ArmorNetworkBinding;
 import com.moakiee.ae2lt.device.network.DeviceNetworkBinding;
-import com.moakiee.ae2lt.overload.armor.ArmorDeviceEnergyBuffer;
-import com.moakiee.ae2lt.overload.armor.ArmorEnergyModuleItem;
-import com.moakiee.ae2lt.overload.armor.ArmorPart;
-import com.moakiee.ae2lt.overload.armor.OverloadArmorState;
-import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmoduleItem;
+import com.moakiee.ae2lt.celestweave.ArmorDeviceEnergyBuffer;
+import com.moakiee.ae2lt.celestweave.ArmorEnergyModuleItem;
+import com.moakiee.ae2lt.celestweave.ArmorPart;
+import com.moakiee.ae2lt.celestweave.CelestweaveArmorState;
+import com.moakiee.ae2lt.celestweave.module.CelestweaveArmorSubmoduleItem;
 import com.moakiee.ae2lt.registry.ModItems;
 
 public final class ArmorWorkbenchAdapter implements DeviceWorkbenchAdapter {
@@ -68,49 +68,49 @@ public final class ArmorWorkbenchAdapter implements DeviceWorkbenchAdapter {
 
     @Override
     public Predicate<ItemStack> moduleInputValidator(ItemStack device, HolderLookup.Provider registries) {
-        return stack -> (stack.getItem() instanceof OverloadArmorSubmoduleItem
+        return stack -> (stack.getItem() instanceof CelestweaveArmorSubmoduleItem
                 || stack.getItem() instanceof ArmorEnergyModuleItem)
-                && OverloadArmorState.canInstallModule(device, registries, stack);
+                && CelestweaveArmorState.canInstallModule(device, registries, stack);
     }
 
     @Override
     public List<ItemStack> listModuleEntries(ItemStack device, HolderLookup.Provider registries) {
-        return OverloadArmorState.loadModuleStacks(device, registries);
+        return CelestweaveArmorState.loadModuleStacks(device, registries);
     }
 
     @Override
     public boolean canInstallOne(ItemStack device, HolderLookup.Provider registries, ItemStack candidate) {
-        return OverloadArmorState.canInstallModule(device, registries, candidate);
+        return CelestweaveArmorState.canInstallModule(device, registries, candidate);
     }
 
     @Override
     public boolean installOne(ItemStack device, HolderLookup.Provider registries, ItemStack candidate) {
-        return OverloadArmorState.installOneModule(device, registries, candidate);
+        return CelestweaveArmorState.installOneModule(device, registries, candidate);
     }
 
     @Override
     public ItemStack uninstallOne(ItemStack device, HolderLookup.Provider registries, String typeId) {
-        return OverloadArmorState.uninstallOneModule(device, registries, typeId);
+        return CelestweaveArmorState.uninstallOneModule(device, registries, typeId);
     }
 
     @Override
     public ItemStack uninstallAll(ItemStack device, HolderLookup.Provider registries, String typeId) {
-        return OverloadArmorState.uninstallAllOfType(device, registries, typeId);
+        return CelestweaveArmorState.uninstallAllOfType(device, registries, typeId);
     }
 
     @Override
     public String moduleTypeId(ItemStack stack) {
-        return OverloadArmorState.moduleTypeId(stack);
+        return CelestweaveArmorState.moduleTypeId(stack);
     }
 
     @Override
     public int maxInstallAmount(ItemStack stack) {
-        return OverloadArmorState.getSubmoduleMaxInstallAmountForStack(stack);
+        return CelestweaveArmorState.getSubmoduleMaxInstallAmountForStack(stack);
     }
 
     @Override
     public ItemStack getStructuralSlot(ItemStack device, HolderLookup.Provider registries, StructuralSlotSpec spec) {
-        return OverloadArmorState.getSlot(device, registries, toArmorSlot(spec));
+        return CelestweaveArmorState.getSlot(device, registries, toArmorSlot(spec));
     }
 
     @Override
@@ -122,11 +122,11 @@ public final class ArmorWorkbenchAdapter implements DeviceWorkbenchAdapter {
         if (stack != null
                 && !stack.isEmpty()
                 && spec.slotType() == DeviceSlotType.CORE
-                && !OverloadArmorState.canInstallCore(device, registries, stack)) {
+                && !CelestweaveArmorState.canInstallCore(device, registries, stack)) {
             return;
         }
-        OverloadArmorState.ensureArmorId(device);
-        OverloadArmorState.setSlot(device, registries, toArmorSlot(spec), stack.copy());
+        CelestweaveArmorState.ensureArmorId(device);
+        CelestweaveArmorState.setSlot(device, registries, toArmorSlot(spec), stack.copy());
     }
 
     @Override
@@ -163,7 +163,7 @@ public final class ArmorWorkbenchAdapter implements DeviceWorkbenchAdapter {
         }
         return switch (spec.slotType()) {
             case CORE -> stack.is(ModItems.ULTIMATE_OVERLOAD_CORE.get())
-                    && OverloadArmorState.canInstallCore(device, registries, stack);
+                    && CelestweaveArmorState.canInstallCore(device, registries, stack);
             default -> false;
         };
     }
@@ -183,13 +183,13 @@ public final class ArmorWorkbenchAdapter implements DeviceWorkbenchAdapter {
 
     @Override
     public void onDeviceInserted(ItemStack device) {
-        OverloadArmorState.ensureArmorId(device);
+        CelestweaveArmorState.ensureArmorId(device);
     }
 
     @Override
     public void onModulesChanged(ItemStack device, HolderLookup.Provider registries, Dist dist) {
-        OverloadArmorState.ensureArmorId(device);
-        OverloadArmorState.reconcileInstalledSubmodules(null, device, registries, dist);
+        CelestweaveArmorState.ensureArmorId(device);
+        CelestweaveArmorState.reconcileInstalledSubmodules(null, device, registries, dist);
     }
 
     private static StructuralSlotSpec slot(int index, DeviceSlotType type, SlotSemantic semantic) {
@@ -198,7 +198,7 @@ public final class ArmorWorkbenchAdapter implements DeviceWorkbenchAdapter {
 
     private static int toArmorSlot(StructuralSlotSpec spec) {
         return switch (spec.slotType()) {
-            case CORE -> OverloadArmorState.SLOT_CORE;
+            case CORE -> CelestweaveArmorState.SLOT_CORE;
             default -> -1;
         };
     }

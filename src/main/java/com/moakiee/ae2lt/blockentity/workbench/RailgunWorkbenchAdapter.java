@@ -19,7 +19,7 @@ import com.moakiee.ae2lt.item.railgun.RailgunModuleEntries;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleItem;
 import com.moakiee.ae2lt.item.railgun.RailgunModuleStorage;
 import com.moakiee.ae2lt.item.railgun.RailgunStructuralCore;
-import com.moakiee.ae2lt.overload.armor.ArmorEnergyModuleItem;
+import com.moakiee.ae2lt.celestweave.ArmorEnergyModuleItem;
 import com.moakiee.ae2lt.registry.ModItems;
 
 public final class RailgunWorkbenchAdapter implements DeviceWorkbenchAdapter {

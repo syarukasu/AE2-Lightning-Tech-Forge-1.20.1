@@ -12,20 +12,20 @@ import net.minecraft.world.item.TooltipFlag;
 
 import com.moakiee.ae2lt.device.capability.DeviceCapability;
 import com.moakiee.ae2lt.device.module.ModuleTooltip;
-import com.moakiee.ae2lt.overload.armor.ArmorPart;
-import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmodule;
-import com.moakiee.ae2lt.overload.armor.module.OverloadArmorSubmoduleItem;
+import com.moakiee.ae2lt.celestweave.ArmorPart;
+import com.moakiee.ae2lt.celestweave.module.CelestweaveArmorSubmodule;
+import com.moakiee.ae2lt.celestweave.module.CelestweaveArmorSubmoduleItem;
 
-public abstract class AbstractSingleArmorSubmoduleItem extends Item implements OverloadArmorSubmoduleItem {
+public abstract class AbstractSingleArmorSubmoduleItem extends Item implements CelestweaveArmorSubmoduleItem {
     private final ArmorPart armorPart;
-    private final OverloadArmorSubmodule submodule;
+    private final CelestweaveArmorSubmodule submodule;
     private final String tooltipKey;
     private final Function<ItemStack, List<DeviceCapability>> capabilityFactory;
 
     protected AbstractSingleArmorSubmoduleItem(
             Properties properties,
             ArmorPart armorPart,
-            OverloadArmorSubmodule submodule,
+            CelestweaveArmorSubmodule submodule,
             String tooltipKey,
             Function<ItemStack, List<DeviceCapability>> capabilityFactory) {
         super(properties);
@@ -41,7 +41,7 @@ public abstract class AbstractSingleArmorSubmoduleItem extends Item implements O
     }
 
     @Override
-    public void collectSubmodules(ItemStack stack, Consumer<OverloadArmorSubmodule> output) {
+    public void collectSubmodules(ItemStack stack, Consumer<CelestweaveArmorSubmodule> output) {
         output.accept(submodule);
     }
 

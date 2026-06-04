@@ -21,9 +21,9 @@ import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.item.railgun.ElectromagneticRailgunItem;
 import com.moakiee.ae2lt.item.railgun.RailgunSettings;
 import com.moakiee.ae2lt.network.hub.DeviceHubSyncPacket;
-import com.moakiee.ae2lt.overload.armor.BaseOverloadArmorItem;
-import com.moakiee.ae2lt.overload.armor.OverloadArmorState;
-import com.moakiee.ae2lt.overload.armor.module.FlightSpeedOption;
+import com.moakiee.ae2lt.celestweave.BaseCelestweaveArmorItem;
+import com.moakiee.ae2lt.celestweave.CelestweaveArmorState;
+import com.moakiee.ae2lt.celestweave.module.FlightSpeedOption;
 import com.moakiee.ae2lt.registry.ModDataComponents;
 
 /**
@@ -313,11 +313,11 @@ public class DeviceHubMenu extends AbstractContainerMenu {
             return;
         }
         // Armor: toggle submodule
-        var submodules = OverloadArmorState.collectSubmodules(deviceStack, player.registryAccess());
+        var submodules = CelestweaveArmorState.collectSubmodules(deviceStack, player.registryAccess());
         if (moduleIndex < 0 || moduleIndex >= submodules.size()) return;
         var sub = submodules.get(moduleIndex);
-        boolean current = OverloadArmorState.isSubmoduleEnabled(deviceStack, sub);
-        OverloadArmorState.setSubmoduleEnabled(deviceStack, sub, !current);
+        boolean current = CelestweaveArmorState.isSubmoduleEnabled(deviceStack, sub);
+        CelestweaveArmorState.setSubmoduleEnabled(deviceStack, sub, !current);
     }
 
     public void toggleRailgunTerrain() {
@@ -342,7 +342,7 @@ public class DeviceHubMenu extends AbstractContainerMenu {
         if (selectedTab == TAB_RAILGUN) return;
         ItemStack deviceStack = findDevice(player, selectedTab);
         if (deviceStack.isEmpty()) return;
-        var submodules = OverloadArmorState.collectSubmodules(deviceStack, player.registryAccess());
+        var submodules = CelestweaveArmorState.collectSubmodules(deviceStack, player.registryAccess());
         if (selectedModuleIndex < 0 || selectedModuleIndex >= submodules.size()) return;
         var submodule = submodules.get(selectedModuleIndex);
         var configs = submodule.getConfigs(deviceStack);
@@ -354,7 +354,7 @@ public class DeviceHubMenu extends AbstractContainerMenu {
         // sync inertia to client when flight module config changes
         if ("flight_inertia".equals(config.key())
                 || FlightSpeedOption.CONFIG_KEY.equals(config.key())) {
-            OverloadArmorState.syncFlightInertiaToClientIfFlight(player, deviceStack);
+            CelestweaveArmorState.syncFlightInertiaToClientIfFlight(player, deviceStack);
         }
     }
 
@@ -372,7 +372,7 @@ public class DeviceHubMenu extends AbstractContainerMenu {
 
     private static ItemStack findArmor(Player player, EquipmentSlot slot) {
         ItemStack stack = player.getItemBySlot(slot);
-        return stack.getItem() instanceof BaseOverloadArmorItem ? stack : ItemStack.EMPTY;
+        return stack.getItem() instanceof BaseCelestweaveArmorItem ? stack : ItemStack.EMPTY;
     }
 
     private static ItemStack findRailgun(Player player) {
