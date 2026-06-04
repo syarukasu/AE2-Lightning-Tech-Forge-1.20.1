@@ -1,5 +1,6 @@
 package com.moakiee.ae2lt.client;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,9 +18,10 @@ public final class CelestweaveArmorEnergyLevel implements LayeredDraw.Layer {
     private static final int BAR_HEIGHT = 6;
     private static final int INNER_WIDTH = 79;
     private static final int INNER_HEIGHT = 4;
-    private static final int FRAME_COLOR = 0xAA000000;
-    private static final int EMPTY_COLOR = 0xCC1B2430;
-    private static final int ENERGY_COLOR = 0xFF38D7FF;
+    private static final ResourceLocation BAR_BASE = ResourceLocation.fromNamespaceAndPath(
+            "ae2lt", "textures/gui/hud/base.png");
+    private static final ResourceLocation BAR_FILL = ResourceLocation.fromNamespaceAndPath(
+            "ae2lt", "textures/gui/hud/horizontal_power_long.png");
 
     private CelestweaveArmorEnergyLevel() {
     }
@@ -51,10 +53,9 @@ public final class CelestweaveArmorEnergyLevel implements LayeredDraw.Layer {
         int length = Mth.clamp((int) Math.round(((double) Math.min(stored, capacity) / capacity) * INNER_WIDTH),
                 0, INNER_WIDTH);
 
-        graphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, FRAME_COLOR);
-        graphics.fill(x + 1, y + 1, x + 1 + INNER_WIDTH, y + 1 + INNER_HEIGHT, EMPTY_COLOR);
+        graphics.blit(BAR_BASE, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
         if (length > 0) {
-            graphics.fill(x + 1, y + 1, x + 1 + length, y + 1 + INNER_HEIGHT, ENERGY_COLOR);
+            graphics.blit(BAR_FILL, x + 1, y + 1, length, INNER_HEIGHT, 0, 0, length, INNER_HEIGHT, INNER_WIDTH, INNER_HEIGHT);
         }
         minecraft.gui.leftHeight += 8;
     }

@@ -39,6 +39,7 @@ public final class CelestweaveArmorDamageHandler {
     public static void onPre(LivingDamageEvent.Pre event) {
         if (!(event.getEntity() instanceof Player player) || player.level().isClientSide()) return;
         float incoming = event.getNewDamage();
+        float originalIncoming = event.getOriginalDamage();
         var capabilities = ArmorCapabilityCollector.collectPerInstalledUnit(player);
         ActiveCapability mitigation = collectMitigation(capabilities);
         if (mitigation != null
@@ -52,7 +53,7 @@ public final class CelestweaveArmorDamageHandler {
             }
         }
         if (!isReflectingDamage()) {
-            reflectIncomingDamage(player, event.getSource(), incoming);
+            reflectIncomingDamage(player, event.getSource(), originalIncoming);
         }
     }
 
