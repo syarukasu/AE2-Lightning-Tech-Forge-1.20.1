@@ -52,28 +52,17 @@ public class DeviceHubMenu extends AbstractContainerMenu {
 
     // ── Client-side synced status data ──
     private String deviceName = "";
-    private String boundDim = "";
-    private long energyStored;
-    private long energyCapacity;
     private boolean hasCore;
     private boolean powered;
-    private boolean gridReachable;
-    private boolean appFluxOnline;
-    private int moduleSlotCount;
     private boolean terrainDestruction;
     private boolean pvpLock;
-    private boolean terrainDestructionAllowed;
-    private List<String> moduleIds = List.of();
     private List<String> moduleNameKeys = List.of();
     private List<Integer> moduleCounts = List.of();
     private List<Boolean> moduleEnabled = List.of();
-    private List<Boolean> moduleActive = List.of();
-    private List<Integer> moduleCooldowns = List.of();
     private int selectedModuleIndex = -1;
     private List<String> moduleConfigKeys = List.of();
     private List<String> moduleConfigLabels = List.of();
     private List<String> moduleConfigValues = List.of();
-    private List<String> moduleConfigKinds = List.of();
     private List<Boolean> moduleConfigEditable = List.of();
 
     // ── Server-side state ──
@@ -163,42 +152,27 @@ public class DeviceHubMenu extends AbstractContainerMenu {
     }
 
     private DeviceHubSyncPacket toSyncPacket(DeviceStatusModel status) {
-        List<String> ids = status.modules().stream().map(DeviceStatusModel.ModuleInfo::id).toList();
         List<String> nameKeys = status.modules().stream().map(DeviceStatusModel.ModuleInfo::nameKey).toList();
         List<Integer> counts = status.modules().stream().map(DeviceStatusModel.ModuleInfo::count).toList();
         List<Boolean> enabled = status.modules().stream().map(DeviceStatusModel.ModuleInfo::enabled).toList();
-        List<Boolean> active = status.modules().stream().map(DeviceStatusModel.ModuleInfo::active).toList();
-        List<Integer> cooldowns = status.modules().stream().map(DeviceStatusModel.ModuleInfo::cooldownTicks).toList();
         List<String> moduleConfigKeys = status.moduleConfigs().stream().map(DeviceStatusModel.ModuleConfigInfo::key).toList();
         List<String> moduleConfigLabels = status.moduleConfigs().stream().map(DeviceStatusModel.ModuleConfigInfo::label).toList();
         List<String> moduleConfigValues = status.moduleConfigs().stream().map(DeviceStatusModel.ModuleConfigInfo::value).toList();
-        List<String> moduleConfigKinds = status.moduleConfigs().stream().map(DeviceStatusModel.ModuleConfigInfo::kind).toList();
         List<Boolean> moduleConfigEditable = status.moduleConfigs().stream().map(DeviceStatusModel.ModuleConfigInfo::editable).toList();
         return new DeviceHubSyncPacket(
                 containerId,
                 status.displayName(),
-                status.boundDim(),
-                status.storedFe(),
-                status.capacityFe(),
                 status.hasCore(),
                 status.powered(),
-                status.gridReachable(),
-                status.appFluxOnline(),
-                status.moduleSlotCount(),
                 status.terrainDestruction(),
                 status.pvpLock(),
-                status.terrainDestructionAllowed(),
-                ids,
                 nameKeys,
                 counts,
                 enabled,
-                active,
-                cooldowns,
                 status.selectedModuleIndex(),
                 moduleConfigKeys,
                 moduleConfigLabels,
                 moduleConfigValues,
-                moduleConfigKinds,
                 moduleConfigEditable);
     }
 
@@ -225,52 +199,30 @@ public class DeviceHubMenu extends AbstractContainerMenu {
     // ── Client-side: receive sync packet ──
     public void receiveSync(
             String name,
-            String dim,
-            long storedFe,
-            long capacityFe,
             boolean hasCore,
             boolean powered,
-            boolean gridReachable,
-            boolean appFluxOnline,
-            int moduleSlotCount,
             boolean terrainDestruction,
             boolean pvpLock,
-            boolean terrainDestructionAllowed,
-            List<String> ids,
             List<String> nameKeys,
             List<Integer> counts,
             List<Boolean> enabled,
-            List<Boolean> active,
-            List<Integer> cooldowns,
             int selectedModuleIndex,
             List<String> moduleConfigKeys,
             List<String> moduleConfigLabels,
             List<String> moduleConfigValues,
-            List<String> moduleConfigKinds,
             List<Boolean> moduleConfigEditable) {
         this.deviceName = name;
-        this.boundDim = dim;
-        this.energyStored = storedFe;
-        this.energyCapacity = capacityFe;
         this.hasCore = hasCore;
         this.powered = powered;
-        this.gridReachable = gridReachable;
-        this.appFluxOnline = appFluxOnline;
-        this.moduleSlotCount = moduleSlotCount;
         this.terrainDestruction = terrainDestruction;
         this.pvpLock = pvpLock;
-        this.terrainDestructionAllowed = terrainDestructionAllowed;
-        this.moduleIds = List.copyOf(ids);
         this.moduleNameKeys = List.copyOf(nameKeys);
         this.moduleCounts = List.copyOf(counts);
         this.moduleEnabled = List.copyOf(enabled);
-        this.moduleActive = List.copyOf(active);
-        this.moduleCooldowns = List.copyOf(cooldowns);
         this.selectedModuleIndex = selectedModuleIndex;
         this.moduleConfigKeys = List.copyOf(moduleConfigKeys);
         this.moduleConfigLabels = List.copyOf(moduleConfigLabels);
         this.moduleConfigValues = List.copyOf(moduleConfigValues);
-        this.moduleConfigKinds = List.copyOf(moduleConfigKinds);
         this.moduleConfigEditable = List.copyOf(moduleConfigEditable);
     }
 
@@ -283,28 +235,8 @@ public class DeviceHubMenu extends AbstractContainerMenu {
         return data.get(DATA_TAB_AVAILABILITY);
     }
 
-    public long getEnergyStored() {
-        return energyStored;
-    }
-
-    public long getEnergyCapacity() {
-        return energyCapacity;
-    }
-
     public String getDeviceName() {
         return deviceName;
-    }
-
-    public String getBoundDim() {
-        return boundDim;
-    }
-
-    public List<String> getModuleIds() {
-        return moduleIds;
-    }
-
-    public List<String> getModuleNames() {
-        return moduleNameKeys;
     }
 
     public List<String> getModuleNameKeys() {
@@ -319,10 +251,6 @@ public class DeviceHubMenu extends AbstractContainerMenu {
         return moduleEnabled;
     }
 
-    public List<Boolean> getModuleActive() {
-        return moduleActive;
-    }
-
     public boolean hasCore() {
         return hasCore;
     }
@@ -331,32 +259,12 @@ public class DeviceHubMenu extends AbstractContainerMenu {
         return powered;
     }
 
-    public boolean isGridReachable() {
-        return gridReachable;
-    }
-
-    public boolean isAppFluxOnline() {
-        return appFluxOnline;
-    }
-
-    public int getModuleSlotCount() {
-        return moduleSlotCount;
-    }
-
     public boolean isTerrainDestruction() {
         return terrainDestruction;
     }
 
     public boolean isPvpLock() {
         return pvpLock;
-    }
-
-    public boolean isTerrainDestructionAllowed() {
-        return terrainDestructionAllowed;
-    }
-
-    public List<Integer> getModuleCooldowns() {
-        return moduleCooldowns;
     }
 
     public int getSelectedModuleIndex() {
@@ -373,10 +281,6 @@ public class DeviceHubMenu extends AbstractContainerMenu {
 
     public List<String> getModuleConfigValues() {
         return moduleConfigValues;
-    }
-
-    public List<String> getModuleConfigKinds() {
-        return moduleConfigKinds;
     }
 
     public List<Boolean> getModuleConfigEditable() {

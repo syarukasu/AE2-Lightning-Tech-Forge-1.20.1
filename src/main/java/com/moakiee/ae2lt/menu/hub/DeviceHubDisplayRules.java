@@ -3,8 +3,6 @@ package com.moakiee.ae2lt.menu.hub;
 import java.util.List;
 
 public final class DeviceHubDisplayRules {
-    private static final int RAILGUN_MODULE_SLOT_COUNT = 6;
-
     private DeviceHubDisplayRules() {
     }
 
@@ -33,9 +31,5 @@ public final class DeviceHubDisplayRules {
             total += Math.max(0, count);
         }
         return total;
-    }
-
-    public static int railgunModuleSlotCount() {
-        return RAILGUN_MODULE_SLOT_COUNT;
     }
 }

@@ -397,7 +397,7 @@ public class DeviceHubScreen extends AbstractContainerScreen<DeviceHubMenu> {
         return Math.min(
                 Math.min(Math.min(menu.getModuleConfigKeys().size(), menu.getModuleConfigLabels().size()),
                         menu.getModuleConfigValues().size()),
-                Math.min(menu.getModuleConfigKinds().size(), menu.getModuleConfigEditable().size()));
+                menu.getModuleConfigEditable().size());
     }
 
     private Component moduleConfigLabel(int index) {

@@ -16,7 +16,7 @@ final class DeviceHubModuleConfigContractTest {
 
         assertTrue(sync.contains("selectedModuleIndex"));
         assertTrue(sync.contains("moduleConfigKeys"));
-        assertTrue(sync.contains("moduleConfigKinds"));
+        assertTrue(sync.contains("moduleConfigEditable"));
     }
 
     @Test
