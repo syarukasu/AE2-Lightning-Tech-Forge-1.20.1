@@ -19,6 +19,7 @@ import com.moakiee.ae2lt.celestweave.service.ArmorCapabilityCollector;
 import com.moakiee.ae2lt.celestweave.service.ArmorCapabilityCollector.ActiveCapability;
 import com.moakiee.ae2lt.celestweave.service.ArmorEnergyService;
 import com.moakiee.ae2lt.celestweave.service.ArmorLightningService;
+import com.moakiee.ae2lt.celestweave.service.ArmorResourceFeedback;
 import com.moakiee.ae2lt.me.key.LightningKey;
 import com.moakiee.ae2lt.registry.ModDamageTypes;
 
@@ -131,6 +132,11 @@ public final class CelestweaveArmorDamageHandler {
                 ? LightningKey.EXTREME_HIGH_VOLTAGE
                 : LightningKey.HIGH_VOLTAGE;
         if (!ArmorLightningService.consume(serverPlayer, mitigation.armor(), key, finalAmount)) {
+            if (key == LightningKey.EXTREME_HIGH_VOLTAGE) {
+                ArmorResourceFeedback.noExtremeHighVoltage(serverPlayer);
+            } else {
+                ArmorResourceFeedback.noHighVoltage(serverPlayer);
+            }
             return false;
         }
         ArmorOverloadCombo.recordTrigger(
@@ -198,6 +204,7 @@ public final class CelestweaveArmorDamageHandler {
                     active.armor(),
                     cost);
             if (!payment.paid()) {
+                ArmorResourceFeedback.noFe(serverPlayer);
                 continue;
             }
             long lightningCost = (long) Math.ceil(amount * AE2LTCommonConfig.overloadArmorReflectHvPerDamage());
@@ -207,6 +214,7 @@ public final class CelestweaveArmorDamageHandler {
                     com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
                     lightningCost)) {
                 payment.refund();
+                ArmorResourceFeedback.noHighVoltage(serverPlayer);
                 continue;
             }
             reflected += amount;

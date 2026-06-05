@@ -24,6 +24,7 @@ import com.moakiee.ae2lt.celestweave.module.UndyingSubmodule;
 import com.moakiee.ae2lt.celestweave.service.ArmorCapabilityCollector;
 import com.moakiee.ae2lt.celestweave.service.ArmorEnergyService;
 import com.moakiee.ae2lt.celestweave.service.ArmorLightningService;
+import com.moakiee.ae2lt.celestweave.service.ArmorResourceFeedback;
 import com.moakiee.ae2lt.registry.ModDamageTypes;
 
 @EventBusSubscriber(modid = AE2LightningTech.MODID)
@@ -146,6 +147,7 @@ public final class CelestweaveArmorUndyingHandler {
                     active.armor(),
                     cost);
             if (!payment.paid()) {
+                ArmorResourceFeedback.noFe(player);
                 continue;
             }
             long lightningCost = ArmorOverloadCombo.scaledCost(
@@ -157,6 +159,7 @@ public final class CelestweaveArmorUndyingHandler {
                     com.moakiee.ae2lt.me.key.LightningKey.EXTREME_HIGH_VOLTAGE,
                     lightningCost)) {
                 payment.refund();
+                ArmorResourceFeedback.noExtremeHighVoltage(player);
                 continue;
             }
             ArmorOverloadCombo.recordTrigger(

@@ -24,6 +24,7 @@ import com.moakiee.ae2lt.celestweave.service.ArmorCapabilityCollector;
 import com.moakiee.ae2lt.celestweave.service.ArmorCapabilityCollector.ActiveCapability;
 import com.moakiee.ae2lt.celestweave.service.ArmorInteractionRangeService;
 import com.moakiee.ae2lt.celestweave.service.ArmorLightningService;
+import com.moakiee.ae2lt.celestweave.service.ArmorResourceFeedback;
 
 @EventBusSubscriber(modid = AE2LightningTech.MODID)
 public final class CelestweaveArmorUtilityHandler {
@@ -98,6 +99,7 @@ public final class CelestweaveArmorUtilityHandler {
                 pulseSource.armor(),
                 com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
                 AE2LTCommonConfig.overloadArmorDigAffinityHvPerUse())) {
+            ArmorResourceFeedback.noHighVoltage(serverPlayer);
             return;
         }
         event.setNewSpeed((float) (event.getNewSpeed() * multiplier));
@@ -122,6 +124,7 @@ public final class CelestweaveArmorUtilityHandler {
                         active.armor(),
                         com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
                         finalCost)) {
+                    ArmorResourceFeedback.noHighVoltage(player);
                     continue;
                 }
                 event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
@@ -161,6 +164,7 @@ public final class CelestweaveArmorUtilityHandler {
                         active.armor(),
                         com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
                         finalCost)) {
+                    ArmorResourceFeedback.noHighVoltage(player);
                     return;
                 }
                 if (purifyEffects(player, limit) > 0) {
@@ -232,6 +236,7 @@ public final class CelestweaveArmorUtilityHandler {
                     active.armor(),
                     com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
                     AE2LTCommonConfig.overloadArmorSaturationHvCost())) {
+                ArmorResourceFeedback.noHighVoltage(player);
                 SaturationSubmodule.setCooldown(active.armor(), intervalTicks);
                 return;
             }

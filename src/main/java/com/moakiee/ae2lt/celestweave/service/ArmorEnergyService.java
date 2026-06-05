@@ -50,15 +50,18 @@ public final class ArmorEnergyService {
         }
         var cost = computePassiveCost(serverPlayer, armor, registries);
         if (!ArmorLightningService.hasCost(serverPlayer, armor, cost.lightning())) {
+            ArmorResourceFeedback.noLightning(serverPlayer, armor, cost.lightning());
             return false;
         }
         EnergyPayment payment = consumeBufferedCost(serverPlayer, armor, cost.fe());
         if (!payment.paid()) {
+            ArmorResourceFeedback.noFe(serverPlayer);
             return false;
         }
         if (ArmorLightningService.consume(serverPlayer, armor, cost.lightning())) {
             return true;
         }
+        ArmorResourceFeedback.noLightning(serverPlayer, armor, cost.lightning());
         payment.refund();
         return false;
     }

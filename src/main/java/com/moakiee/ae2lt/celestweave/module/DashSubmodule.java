@@ -15,6 +15,7 @@ import com.moakiee.ae2lt.celestweave.ArmorOverloadRules;
 import com.moakiee.ae2lt.celestweave.CelestweaveArmorState;
 import com.moakiee.ae2lt.celestweave.service.ArmorEnergyService;
 import com.moakiee.ae2lt.celestweave.service.ArmorLightningService;
+import com.moakiee.ae2lt.celestweave.service.ArmorResourceFeedback;
 
 public final class DashSubmodule extends AbstractCelestweaveArmorSubmodule {
 
@@ -77,7 +78,7 @@ public final class DashSubmodule extends AbstractCelestweaveArmorSubmodule {
         long feCost = ArmorOverloadRules.DASH_ACTIVE_COST_FE;
         var payment = ArmorEnergyService.consumeActiveCostPayment(player, armor, feCost);
         if (!payment.paid()) {
-            player.displayClientMessage(Component.translatable("ae2lt.celestweave.fail.no_fe"), true);
+            ArmorResourceFeedback.noFe(player);
             return;
         }
         if (!ArmorLightningService.consume(
@@ -86,7 +87,7 @@ public final class DashSubmodule extends AbstractCelestweaveArmorSubmodule {
                 com.moakiee.ae2lt.me.key.LightningKey.HIGH_VOLTAGE,
                 AE2LTCommonConfig.overloadArmorDashHvCost())) {
             payment.refund();
-            player.displayClientMessage(Component.translatable("ae2lt.celestweave.fail.no_lightning"), true);
+            ArmorResourceFeedback.noHighVoltage(player);
             return;
         }
 
