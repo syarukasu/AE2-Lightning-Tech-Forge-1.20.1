@@ -11,6 +11,7 @@ import com.moakiee.ae2lt.registry.ModMenuTypes;
 import com.moakiee.ae2lt.registry.ModMobEffects;
 import com.moakiee.ae2lt.registry.ModRecipeTypes;
 import com.moakiee.ae2lt.registry.ModSounds;
+import com.moakiee.ae2lt.registry.ModStructureTypes;
 import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.config.AE2LTConfigMigration;
 import com.moakiee.ae2lt.blockentity.AtmosphericIonizerBlockEntity;
@@ -234,6 +235,8 @@ public class AE2LightningTech {
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         ModMobEffects.EFFECTS.register(modEventBus);
         ModSounds.SOUND_EVENTS.register(modEventBus);
+        ModStructureTypes.STRUCTURE_TYPES.register(modEventBus);
+        ModStructureTypes.STRUCTURE_PIECES.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         modEventBus.addListener(ModAEKeyTypes::register);
         modEventBus.addListener(this::registerCapabilities);
