@@ -297,14 +297,6 @@ public class OverloadedPatternProviderMenu extends PatternProviderMenu implement
         sendClientAction("prevPage");
     }
 
-    @Override
-    public net.minecraft.core.BlockPos getFrequencyBindingBlockPos() {
-        if (host instanceof net.minecraft.world.level.block.entity.BlockEntity be) {
-            return be.getBlockPos();
-        }
-        throw new IllegalStateException("Frequency binding host is not a block entity: " + host);
-    }
-
     public int getCurrentPage() {
         return currentPage;
     }

@@ -118,11 +118,6 @@ public class LightningCollectorMenu extends AEBaseMenu implements IProgressProvi
     }
 
     @Override
-    public net.minecraft.core.BlockPos getFrequencyBindingBlockPos() {
-        return host.getBlockPos();
-    }
-
-    @Override
     public int getCurrentProgress() {
         ItemStack crystal = host.getInstalledCrystal();
         if (crystal.is(ModItems.PERFECT_ELECTRO_CHIME_CRYSTAL.get())) {

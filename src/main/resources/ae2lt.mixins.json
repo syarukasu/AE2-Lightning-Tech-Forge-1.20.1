@@ -33,7 +33,9 @@
     "client.CableBusContainerRenderMixin",
     "client.CableBusBakedModelMixin",
     "client.PatternProviderScreenAccessor",
-    "client.RailgunHumanoidModelMixin"
+    "client.RailgunHumanoidModelMixin",
+    "client.AEBaseScreenAccessor",
+    "client.AEBaseScreenFrequencyTerminalButtonMixin"
   ],
   "injectors": {
     "defaultRequire": 1

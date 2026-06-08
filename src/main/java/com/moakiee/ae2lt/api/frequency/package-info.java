@@ -53,8 +53,10 @@
  *
  * <h2>Opening the binding UI from a custom screen</h2>
  * <pre>
- * public class MyMachineMenu extends AbstractContainerMenu implements FrequencyBindingMenuHost {
- *     &#64;Override public BlockPos getFrequencyBindingBlockPos() { return host.getBlockPos(); }
+ * public class MyMachineMenu extends AEBaseMenu implements FrequencyBindingMenuHost {
+ *     // Open the menu with MenuOpener / MenuHostLocator so the server can resolve
+ *     // the frequency host from the currently open menu instead of trusting
+ *     // client-supplied positions.
  * }
  *
  * // inside MyMachineScreen:

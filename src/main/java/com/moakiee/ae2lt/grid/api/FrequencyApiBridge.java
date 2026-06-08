@@ -11,7 +11,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import com.moakiee.ae2lt.api.frequency.FrequencyApiProvider;
 import com.moakiee.ae2lt.api.frequency.FrequencyBindingAccess;
 import com.moakiee.ae2lt.api.frequency.FrequencyBindingHost;
-import com.moakiee.ae2lt.api.frequency.FrequencyBindingMenuHost;
 import com.moakiee.ae2lt.api.frequency.FrequencyInfo;
 import com.moakiee.ae2lt.api.frequency.FrequencySecurity;
 import com.moakiee.ae2lt.api.frequency.TransmitterInfo;
@@ -76,11 +75,7 @@ public final class FrequencyApiBridge implements FrequencyApiProvider {
 
     @Override
     public void openBindingScreen(AbstractContainerMenu menu) {
-        // Cast is safe: FrequencyApi.openBindingScreen verifies the marker before delegating.
-        FrequencyBindingMenuHost host = (FrequencyBindingMenuHost) menu;
-        PacketDistributor.sendToServer(new OpenFrequencyMenuPacket(
-                host.getFrequencyBindingToken(),
-                host.getFrequencyBindingBlockPos()));
+        PacketDistributor.sendToServer(OpenFrequencyMenuPacket.forBlock());
     }
 
     private static FrequencySecurity toApiSecurity(FrequencySecurityLevel level) {
