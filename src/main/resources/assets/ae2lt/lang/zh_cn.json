@@ -461,6 +461,7 @@
   "ae2lt.gui.button.auto_link_on": "自动链接：开",
   "ae2lt.gui.button.auto_link_off": "自动链接：关",
   "ae2lt.gui.button.return_to_terminal": "返回无线终端",
+  "ae2lt.gui.button.back": "返回",
   "ae2lt.gui.button.leave": "退出",
   "ae2lt.gui.button.submit": "提交",
   "ae2lt.gui.connection.none": "该频率下暂无设备",

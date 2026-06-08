@@ -461,6 +461,7 @@
   "ae2lt.gui.button.auto_link_on": "Auto Link: ON",
   "ae2lt.gui.button.auto_link_off": "Auto Link: OFF",
   "ae2lt.gui.button.return_to_terminal": "Return to Wireless Terminal",
+  "ae2lt.gui.button.back": "Back",
   "ae2lt.gui.button.leave": "Leave",
   "ae2lt.gui.button.submit": "Submit",
   "ae2lt.gui.connection.none": "No devices on this frequency",

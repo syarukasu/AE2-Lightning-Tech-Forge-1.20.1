@@ -126,11 +126,6 @@ public class OverloadedPowerSupplyMenu extends AEBaseMenu implements FrequencyBi
         sendClientAction("cycleMode");
     }
 
-    @Override
-    public net.minecraft.core.BlockPos getFrequencyBindingBlockPos() {
-        return host.getBlockPos();
-    }
-
     public Component getModeButtonMessage() {
         return getMode() == OverloadedPowerSupplyBlockEntity.PowerMode.OVERLOAD
                 ? Component.translatable("ae2lt.gui.overloaded_power_supply.mode.overload")

@@ -17,7 +17,6 @@ import appeng.core.network.serverbound.SwitchGuisPacket;
 
 import com.moakiee.ae2lt.AE2LightningTech;
 import com.moakiee.ae2lt.client.ClientFrequencyCache;
-import com.moakiee.ae2lt.client.FrequencyBindingClient;
 import com.moakiee.ae2lt.grid.FrequencyAccessLevel;
 import com.moakiee.ae2lt.grid.FrequencySecurityLevel;
 import com.moakiee.ae2lt.grid.WirelessFrequency;
@@ -310,7 +309,6 @@ public class FrequencyScreen extends AbstractContainerScreen<FrequencyMenu> {
     @Override
     protected void init() {
         super.init();
-        FrequencyBindingClient.restoreCursorPositionIfNeeded(freqMenu().getBlockPos());
         lastCacheRevision = ClientFrequencyCache.revision();
         lastFreqId = freqMenu().getCurrentFrequencyId();
         lastAutoConnect = freqMenu().isAutoConnect();
@@ -456,13 +454,18 @@ public class FrequencyScreen extends AbstractContainerScreen<FrequencyMenu> {
 
         buildTopTabs(x0, y0, false);
 
-        // Card mode is opened from a wireless terminal; offer a back button at
-        // the top-left (mirroring the create "+" tab on the right) that reopens
-        // the terminal instead of forcing the player to close the whole GUI.
-        // Styled like AE2's native sub-menu back button: a BOX-style TabButton
-        // carrying the engine's BACK glyph, so it matches the tab row exactly.
-        if (freqMenu().isCardMode()) {
-            Component backTooltip = Component.translatable("ae2lt.gui.button.return_to_terminal");
+        // A back button is shown whenever this screen was opened as a sub-menu of
+        // a parent GUI: card mode (from a wireless terminal) or device mode opened
+        // from a machine's frequency config button. It reopens the parent via
+        // AE2's native SwitchGuisPacket instead of forcing the player to close the
+        // whole GUI. Controller/receiver blocks opened directly have no parent, so
+        // no back button is shown (ESC closes). Styled like AE2's native sub-menu
+        // back button: a BOX-style TabButton carrying the engine's BACK glyph.
+        if (freqMenu().hasParentMenu()) {
+            Component backTooltip = Component.translatable(
+                    freqMenu().isCardMode()
+                            ? "ae2lt.gui.button.return_to_terminal"
+                            : "ae2lt.gui.button.back");
             HoverableTabButton backButton = new HoverableTabButton(
                     Icon.BACK, null, backTooltip,
                     btn -> PacketDistributor.sendToServer(SwitchGuisPacket.returnToParentMenu()));
@@ -822,8 +825,7 @@ public class FrequencyScreen extends AbstractContainerScreen<FrequencyMenu> {
                     Component.translatable(auto
                             ? "ae2lt.gui.button.auto_link_on"
                             : "ae2lt.gui.button.auto_link_off"),
-                    btn -> PacketDistributor.sendToServer(
-                            new ToggleFrequencyCardMenuAutoConnectPacket(token()))));
+                    btn -> freqMenu().clientToggleAutoConnect()));
             addRenderableWidget(new AE2Button(
                     x0 + 99, y0 + 124, 88, 18,
                     Component.translatable("ae2lt.gui.button.disconnect"),
