@@ -64,6 +64,18 @@ public final class ModItems {
     public static final DeferredItem<RisingItem> FIRMAMENT_DUST =
             ITEMS.registerItem("firmament_dust", RisingItem::new, new Item.Properties());
 
+    public static final DeferredItem<RisingItem> FIRMAMENT_MIXTURE =
+            ITEMS.registerItem("firmament_mixture", RisingItem::new, new Item.Properties());
+
+    public static final DeferredItem<RisingItem> FIRMAMENT_ALLOY_INGOT =
+            ITEMS.registerItem("firmament_alloy_ingot", RisingItem::new, new Item.Properties());
+
+    public static final DeferredItem<RisingItem> FIRMAMENT_ESSENCE =
+            ITEMS.registerItem("firmament_essence", RisingItem::new, new Item.Properties());
+
+    public static final DeferredItem<RisingItem> FIRMAMENT_SUPERCONDUCTING_WIRE =
+            ITEMS.registerItem("firmament_superconducting_wire", RisingItem::new, new Item.Properties());
+
     public static final DeferredItem<Item> UNOVERLOADED_CIRCUIT_BOARD =
             ITEMS.registerSimpleItem("unoverloaded_circuit_board", new Item.Properties());
 
