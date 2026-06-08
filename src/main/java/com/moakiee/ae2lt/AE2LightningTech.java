@@ -100,6 +100,7 @@ public class AE2LightningTech {
                         output.accept(ModBlocks.SILICON_BLOCK);
                         output.accept(ModBlocks.OVERLOAD_CRYSTAL_BLOCK);
                         output.accept(ModBlocks.OVERLOAD_MACHINE_FRAME);
+                        output.accept(ModBlocks.FIRMAMENT_CONVERSION_CORE);
                         output.accept(ModBlocks.OVERLOAD_TNT);
                         // 机器
                         output.accept(ModBlocks.LIGHTNING_COLLECTOR);

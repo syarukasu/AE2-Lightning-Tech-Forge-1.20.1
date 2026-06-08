@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "ae2lt:block/firmament_conversion_core",
+    "particle": "ae2lt:block/firmament_conversion_core"
+  }
+}
