@@ -23,6 +23,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
+import com.moakiee.ae2lt.machine.firmament.FirmamentConversionInventory;
 import com.moakiee.ae2lt.registry.ModRecipeTypes;
 
 public final class FirmamentConversionRecipe implements Recipe<FirmamentConversionRecipeInput> {
@@ -40,12 +41,26 @@ public final class FirmamentConversionRecipe implements Recipe<FirmamentConversi
                     });
     private static final Codec<Integer> POSITIVE_PROCESS_TIME_CODEC =
             Codec.intRange(1, Integer.MAX_VALUE);
+    private static final Codec<List<ItemStack>> OUTPUTS_CODEC = ItemStack.STRICT_CODEC.listOf().validate(results -> {
+        if (results.isEmpty()) {
+            return DataResult.error(() -> "firmament conversion recipe results cannot be empty");
+        }
+        if (results.size() > FirmamentConversionInventory.OUTPUT_SLOT_COUNT) {
+            return DataResult.error(() -> "firmament conversion supports at most 4 results");
+        }
+        if (results.stream().anyMatch(ItemStack::isEmpty)) {
+            return DataResult.error(() -> "firmament conversion results cannot contain empty stacks");
+        }
+        return DataResult.success(List.copyOf(results));
+    });
     private static final StreamCodec<RegistryFriendlyByteBuf, List<FirmamentConversionIngredient>> INPUTS_STREAM_CODEC =
             FirmamentConversionIngredient.STREAM_CODEC.apply(ByteBufCodecs.list());
+    private static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> OUTPUTS_STREAM_CODEC =
+            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list());
 
     private final int priority;
     private final List<FirmamentConversionIngredient> inputs;
-    private final ItemStack result;
+    private final List<ItemStack> results;
     private final int processTime;
     private final int totalInputCount;
 
@@ -54,13 +69,24 @@ public final class FirmamentConversionRecipe implements Recipe<FirmamentConversi
             List<FirmamentConversionIngredient> inputs,
             ItemStack result,
             int processTime) {
+        this(priority, inputs, List.of(result), processTime);
+    }
+
+    public FirmamentConversionRecipe(
+            int priority,
+            List<FirmamentConversionIngredient> inputs,
+            List<ItemStack> results,
+            int processTime) {
         Objects.requireNonNull(inputs, "inputs");
-        Objects.requireNonNull(result, "result");
+        Objects.requireNonNull(results, "results");
         if (inputs.isEmpty() || inputs.size() > 3) {
             throw new IllegalArgumentException("inputs must contain 1 to 3 entries");
         }
-        if (result.isEmpty()) {
-            throw new IllegalArgumentException("result cannot be empty");
+        if (results.isEmpty() || results.size() > FirmamentConversionInventory.OUTPUT_SLOT_COUNT) {
+            throw new IllegalArgumentException("results must contain 1 to 4 entries");
+        }
+        if (results.stream().anyMatch(ItemStack::isEmpty)) {
+            throw new IllegalArgumentException("results cannot contain empty stacks");
         }
         if (processTime <= 0) {
             throw new IllegalArgumentException("processTime must be positive");
@@ -68,7 +94,7 @@ public final class FirmamentConversionRecipe implements Recipe<FirmamentConversi
 
         this.priority = priority;
         this.inputs = List.copyOf(inputs);
-        this.result = result.copy();
+        this.results = results.stream().map(ItemStack::copy).toList();
         this.processTime = processTime;
         this.totalInputCount = this.inputs.stream().mapToInt(FirmamentConversionIngredient::count).sum();
     }
@@ -82,7 +108,11 @@ public final class FirmamentConversionRecipe implements Recipe<FirmamentConversi
     }
 
     public ItemStack getResultStack() {
-        return result.copy();
+        return results.getFirst().copy();
+    }
+
+    public List<ItemStack> getResultStacks() {
+        return results.stream().map(ItemStack::copy).toList();
     }
 
     public int processTime() {
@@ -158,7 +188,7 @@ public final class FirmamentConversionRecipe implements Recipe<FirmamentConversi
 
     @Override
     public ItemStack assemble(FirmamentConversionRecipeInput input, HolderLookup.Provider registries) {
-        return result.copy();
+        return getResultStack();
     }
 
     @Override
@@ -168,7 +198,7 @@ public final class FirmamentConversionRecipe implements Recipe<FirmamentConversi
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return result.copy();
+        return getResultStack();
     }
 
     @Override
@@ -193,13 +223,14 @@ public final class FirmamentConversionRecipe implements Recipe<FirmamentConversi
     @Override
     public boolean isIncomplete() {
         return inputs.isEmpty()
-                || result.isEmpty()
+                || results.isEmpty()
+                || results.stream().anyMatch(ItemStack::isEmpty)
                 || processTime <= 0
                 || inputs.stream().anyMatch(input -> input.ingredient().hasNoItems());
     }
 
-    private ItemStack rawResult() {
-        return result;
+    private List<ItemStack> rawResults() {
+        return results;
     }
 
     private boolean allocateRequirement(
@@ -304,7 +335,7 @@ public final class FirmamentConversionRecipe implements Recipe<FirmamentConversi
         private static final MapCodec<FirmamentConversionRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                         Codec.INT.optionalFieldOf("priority", 0).forGetter(FirmamentConversionRecipe::priority),
                         INPUTS_CODEC.fieldOf("inputs").forGetter(FirmamentConversionRecipe::inputs),
-                        ItemStack.STRICT_CODEC.fieldOf("result").forGetter(FirmamentConversionRecipe::rawResult),
+                        OUTPUTS_CODEC.fieldOf("results").forGetter(FirmamentConversionRecipe::rawResults),
                         POSITIVE_PROCESS_TIME_CODEC.fieldOf("processTime").forGetter(FirmamentConversionRecipe::processTime))
                 .apply(instance, FirmamentConversionRecipe::new));
 
@@ -314,8 +345,8 @@ public final class FirmamentConversionRecipe implements Recipe<FirmamentConversi
                         FirmamentConversionRecipe::priority,
                         INPUTS_STREAM_CODEC,
                         FirmamentConversionRecipe::inputs,
-                        ItemStack.STREAM_CODEC,
-                        FirmamentConversionRecipe::rawResult,
+                        OUTPUTS_STREAM_CODEC,
+                        FirmamentConversionRecipe::rawResults,
                         ByteBufCodecs.VAR_INT,
                         FirmamentConversionRecipe::processTime,
                         FirmamentConversionRecipe::new);

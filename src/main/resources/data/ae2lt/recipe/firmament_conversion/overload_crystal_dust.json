@@ -8,9 +8,11 @@
       "count": 1
     }
   ],
-  "result": {
-    "id": "ae2lt:firmament_dust",
-    "count": 1
-  },
+  "results": [
+    {
+      "id": "ae2lt:firmament_dust",
+      "count": 1
+    }
+  ],
   "processTime": 40
 }

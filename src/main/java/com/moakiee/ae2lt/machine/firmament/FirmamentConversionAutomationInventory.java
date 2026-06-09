@@ -64,8 +64,8 @@ public class FirmamentConversionAutomationInventory implements IItemHandlerModif
 
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (slot != FirmamentConversionInventory.SLOT_OUTPUT) {
-            validateSlotIndex(slot);
+        validateSlotIndex(slot);
+        if (!inventory.isOutputSlot(slot)) {
             return ItemStack.EMPTY;
         }
         return inventory.extractItem(slot, amount, simulate);

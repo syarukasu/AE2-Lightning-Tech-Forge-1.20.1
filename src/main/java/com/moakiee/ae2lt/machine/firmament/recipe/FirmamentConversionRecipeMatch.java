@@ -1,6 +1,7 @@
 package com.moakiee.ae2lt.machine.firmament.recipe;
 
 import java.util.Arrays;
+import java.util.List;
 
 import net.minecraft.world.item.ItemStack;
 
@@ -30,5 +31,9 @@ public final class FirmamentConversionRecipeMatch {
 
     public boolean canFitResult(FirmamentConversionInventory inventory, ItemStack result) {
         return inventory.canAcceptRecipeOutput(result);
+    }
+
+    public boolean canFitResults(FirmamentConversionInventory inventory, List<ItemStack> results) {
+        return inventory.canAcceptRecipeOutputs(results);
     }
 }

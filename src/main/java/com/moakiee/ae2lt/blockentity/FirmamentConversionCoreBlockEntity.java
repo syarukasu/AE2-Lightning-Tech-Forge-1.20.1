@@ -91,8 +91,15 @@ public class FirmamentConversionCoreBlockEntity extends BlockEntity {
     }
 
     public boolean extractToPlayer(Player player) {
-        ItemStack extracted = inventory.extractItem(FirmamentConversionInventory.SLOT_OUTPUT,
-                FirmamentConversionInventory.SLOT_LIMIT, false);
+        ItemStack extracted = ItemStack.EMPTY;
+        for (int slot = FirmamentConversionInventory.SLOT_OUTPUT_0;
+             slot <= FirmamentConversionInventory.SLOT_OUTPUT_3;
+             slot++) {
+            extracted = inventory.extractItem(slot, FirmamentConversionInventory.SLOT_LIMIT, false);
+            if (!extracted.isEmpty()) {
+                break;
+            }
+        }
         if (extracted.isEmpty()) {
             for (int slot = FirmamentConversionInventory.SLOT_INPUT_0;
                  slot <= FirmamentConversionInventory.SLOT_INPUT_2;
@@ -206,8 +213,8 @@ public class FirmamentConversionCoreBlockEntity extends BlockEntity {
     public boolean completeLockedRecipe(
             FirmamentConversionLockedRecipe lockedRecipe,
             FirmamentConversionRecipeCandidate candidate) {
-        ItemStack result = lockedRecipe.result();
-        if (!inventory.canAcceptRecipeOutput(result)) {
+        List<ItemStack> results = lockedRecipe.results();
+        if (!inventory.canAcceptRecipeOutputs(results)) {
             return false;
         }
 
@@ -230,7 +237,7 @@ public class FirmamentConversionCoreBlockEntity extends BlockEntity {
             extractedInputs[slot] = extracted;
         }
 
-        if (!inventory.insertRecipeOutput(result, false).isEmpty()) {
+        if (!inventory.insertRecipeOutputs(results)) {
             rollbackInputs(extractedInputs);
             return false;
         }

@@ -5,8 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
@@ -47,7 +47,7 @@ public final class FirmamentConversionRecipeService {
             if (match.isEmpty()) {
                 continue;
             }
-            if (!canAcceptOutput(inventory, recipe.value().getResultStack())) {
+            if (!canAcceptOutputs(inventory, recipe.value().getResultStacks())) {
                 continue;
             }
             return Optional.of(new FirmamentConversionRecipeCandidate(recipe, match.get()));
@@ -93,7 +93,7 @@ public final class FirmamentConversionRecipeService {
         if (match.isEmpty()) {
             return Optional.empty();
         }
-        if (!canAcceptOutput(inventory, recipe.get().value().getResultStack())) {
+        if (!canAcceptOutputs(inventory, recipe.get().value().getResultStacks())) {
             return Optional.empty();
         }
 
@@ -102,5 +102,9 @@ public final class FirmamentConversionRecipeService {
 
     public static boolean canAcceptOutput(FirmamentConversionInventory inventory, ItemStack result) {
         return inventory.canAcceptRecipeOutput(result);
+    }
+
+    public static boolean canAcceptOutputs(FirmamentConversionInventory inventory, List<ItemStack> results) {
+        return inventory.canAcceptRecipeOutputs(results);
     }
 }
