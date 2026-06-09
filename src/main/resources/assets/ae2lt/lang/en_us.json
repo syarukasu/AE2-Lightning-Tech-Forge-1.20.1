@@ -147,6 +147,8 @@
   "jei.ae2lt.lightning_strike.natural_only": "Requires NATURAL lightning",
   "jei.ae2lt.lightning_strike.any_lightning": "Any lightning works",
   "jei.ae2lt.lightning_strike.materials": "Materials",
+  "jei.ae2lt.firmament_conversion.title": "Firmament Conversion",
+  "jei.ae2lt.firmament_conversion.time": "Processing Time: %s",
   "jei.ae2lt.overload_growth.bud_growth": "Overload crystal buds grow on budding overload crystal.",
   "jei.ae2lt.overload_growth.bud_loot": "Buds drop overload crystal dust when not fully grown.",
   "jei.ae2lt.overload_growth.cluster_loot": "Fully grown buds drop overload crystals.",
