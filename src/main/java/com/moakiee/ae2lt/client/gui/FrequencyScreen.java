@@ -13,10 +13,10 @@ import appeng.client.gui.style.ScreenStyle;
 import appeng.client.gui.widgets.AE2Button;
 import appeng.client.gui.widgets.AETextField;
 import appeng.client.gui.widgets.TabButton;
+import appeng.core.network.serverbound.SwitchGuisPacket;
 
 import com.moakiee.ae2lt.AE2LightningTech;
 import com.moakiee.ae2lt.client.ClientFrequencyCache;
-import com.moakiee.ae2lt.client.FrequencyBindingClient;
 import com.moakiee.ae2lt.grid.FrequencyAccessLevel;
 import com.moakiee.ae2lt.grid.FrequencySecurityLevel;
 import com.moakiee.ae2lt.grid.WirelessFrequency;
@@ -250,6 +250,7 @@ public class FrequencyScreen extends AbstractContainerScreen<FrequencyMenu> {
 
     private int lastCacheRevision = -1;
     private int lastFreqId = Integer.MIN_VALUE;
+    private boolean lastAutoConnect;
 
     // popup state for Members tab
     private UUID popupMemberUUID;
@@ -308,9 +309,9 @@ public class FrequencyScreen extends AbstractContainerScreen<FrequencyMenu> {
     @Override
     protected void init() {
         super.init();
-        FrequencyBindingClient.restoreCursorPositionIfNeeded(freqMenu().getBlockPos());
         lastCacheRevision = ClientFrequencyCache.revision();
         lastFreqId = freqMenu().getCurrentFrequencyId();
+        lastAutoConnect = freqMenu().isAutoConnect();
         initTabWidgets();
     }
 
@@ -319,9 +320,11 @@ public class FrequencyScreen extends AbstractContainerScreen<FrequencyMenu> {
         super.containerTick();
         int rev = ClientFrequencyCache.revision();
         int fid = freqMenu().getCurrentFrequencyId();
-        if (rev != lastCacheRevision || fid != lastFreqId) {
+        boolean auto = freqMenu().isAutoConnect();
+        if (rev != lastCacheRevision || fid != lastFreqId || auto != lastAutoConnect) {
             lastCacheRevision = rev;
             lastFreqId = fid;
+            lastAutoConnect = auto;
             initTabWidgets();
         }
     }
@@ -450,6 +453,28 @@ public class FrequencyScreen extends AbstractContainerScreen<FrequencyMenu> {
         int y0 = topPos;
 
         buildTopTabs(x0, y0, false);
+
+        // A back button is shown whenever this screen was opened as a sub-menu of
+        // a parent GUI: card mode (from a wireless terminal) or device mode opened
+        // from a machine's frequency config button. It reopens the parent via
+        // AE2's native SwitchGuisPacket instead of forcing the player to close the
+        // whole GUI. Controller/receiver blocks opened directly have no parent, so
+        // no back button is shown (ESC closes). Styled like AE2's native sub-menu
+        // back button: a BOX-style TabButton carrying the engine's BACK glyph.
+        if (freqMenu().hasParentMenu()) {
+            Component backTooltip = Component.translatable(
+                    freqMenu().isCardMode()
+                            ? "ae2lt.gui.button.return_to_terminal"
+                            : "ae2lt.gui.button.back");
+            HoverableTabButton backButton = new HoverableTabButton(
+                    Icon.BACK, null, backTooltip,
+                    btn -> PacketDistributor.sendToServer(SwitchGuisPacket.returnToParentMenu()));
+            backButton.setStyle(TabButton.Style.BOX);
+            backButton.setX(x0 - TAB_WIDTH + 6);
+            backButton.setY(y0 - TAB_HEIGHT);
+            backButton.setTooltip(Tooltip.create(backTooltip));
+            addRenderableWidget(backButton);
+        }
 
         // Password prompt re-evaluation: if the target frequency now
         // grants us membership (server accepted our password and
@@ -791,6 +816,23 @@ public class FrequencyScreen extends AbstractContainerScreen<FrequencyMenu> {
         // (shelf y=39..111, chassis bottom y=156). Centring vertically
         // around y=132 keeps it clear of both the shelf bevel above and
         // the chassis bottom bevel below.
+        if (freqMenu().isCardMode()) {
+            // Card mode adds an auto-link toggle alongside disconnect, so the
+            // two share the strip side by side instead of one centred button.
+            boolean auto = freqMenu().isAutoConnect();
+            addRenderableWidget(new AE2Button(
+                    x0 + 8, y0 + 124, 88, 18,
+                    Component.translatable(auto
+                            ? "ae2lt.gui.button.auto_connect_on"
+                            : "ae2lt.gui.button.auto_connect_off"),
+                    btn -> freqMenu().clientToggleAutoConnect()));
+            addRenderableWidget(new AE2Button(
+                    x0 + 99, y0 + 124, 88, 18,
+                    Component.translatable("ae2lt.gui.button.disconnect"),
+                    btn -> PacketDistributor.sendToServer(
+                            new SelectFrequencyPacket(token(), freqMenu().getBlockPos(), -1, ""))));
+            return;
+        }
         addRenderableWidget(new AE2Button(
                 x0 + (GUI_WIDTH - 96) / 2, y0 + 124, 96, 18,
                 Component.translatable("ae2lt.gui.button.disconnect"),

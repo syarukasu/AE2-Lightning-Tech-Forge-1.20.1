@@ -179,11 +179,6 @@ public class CrystalCatalyzerMenu extends AEBaseMenu implements FrequencyBinding
         return host;
     }
 
-    @Override
-    public net.minecraft.core.BlockPos getFrequencyBindingBlockPos() {
-        return host.getBlockPos();
-    }
-
     public long getStoredEnergy() {
         return storedEnergy;
     }
