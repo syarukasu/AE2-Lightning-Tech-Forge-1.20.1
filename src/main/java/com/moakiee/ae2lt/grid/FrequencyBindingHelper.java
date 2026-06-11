@@ -7,14 +7,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import appeng.api.networking.IGridConnection;
+import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.IGridNodeListener;
-import appeng.me.GridConnection;
 import appeng.util.SettingsFrom;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 
 import com.moakiee.ae2lt.blockentity.OverloadedControllerBlockEntity;
+import com.moakiee.ae2lt.grid.wirelesslink.MultiblockLinkReadiness;
+import com.moakiee.ae2lt.grid.wirelesslink.WirelessLinkOps;
 import com.moakiee.ae2lt.logic.MemoryCardConfigSupport;
 
 /**
@@ -225,7 +227,7 @@ public final class FrequencyBindingHelper
         IGridNode myNode = host.getFrequencyBindingMainNode().getNode();
         if (myNode == null) return false;
         for (var conn : myNode.getConnections()) {
-            if (conn == virtualConnection) return true;
+            if (conn == virtualConnection && !conn.isInWorld()) return true;
         }
 
         return false;
@@ -335,6 +337,11 @@ public final class FrequencyBindingHelper
             scheduleRetry();
             return;
         }
+        if (!MultiblockLinkReadiness.canKeepVirtualConnection(myNode)) {
+            MultiblockLinkReadiness.refreshAfterVirtualConnectionRemoved(myNode);
+            scheduleRetry();
+            return;
+        }
 
         var manager = WirelessFrequencyManager.get();
         if (manager == null) return;  // The server registry is not ready; retrying would not help.
@@ -357,14 +364,18 @@ public final class FrequencyBindingHelper
             return;
         }
 
-        for (var conn : myNode.getConnections()) {
-            if (conn.getOtherSide(myNode) == remoteNode) {
-                return;
-            }
+        if (alreadyHasFrequencyChannel(myNode, remoteNode)) {
+            return;
+        }
+
+        if (wouldMergeControllerNetworks(myNode.getGrid(), remoteNode.getGrid())) {
+            LOG.warn("Virtual connection blocked to avoid controller-network merge: device@{} -> freq={}",
+                    be.getBlockPos(), frequencyId);
+            return;
         }
 
         try {
-            virtualConnection = GridConnection.create(myNode, remoteNode, null);
+            virtualConnection = WirelessLinkOps.createVirtualConnection(myNode, remoteNode);
             LOG.debug("Virtual connection established: device@{} -> freq={}", be.getBlockPos(), frequencyId);
         } catch (IllegalStateException e) {
             LOG.warn("Virtual connection FAILED: device@{} -> freq={}: {}",
@@ -380,10 +391,13 @@ public final class FrequencyBindingHelper
         if (myNode != null) {
             for (var conn : myNode.getConnections()) {
                 if (conn == virtualConnection) {
-                    virtualConnection.destroy();
+                    if (!conn.isInWorld()) {
+                        virtualConnection.destroy();
+                    }
                     break;
                 }
             }
+            MultiblockLinkReadiness.refreshAfterVirtualConnectionRemoved(myNode);
         }
         virtualConnection = null;
     }
@@ -395,11 +409,16 @@ public final class FrequencyBindingHelper
 
         IGridNode myNode = host.getFrequencyBindingMainNode().getNode();
         if (myNode == null) return;
+        if (!MultiblockLinkReadiness.canKeepVirtualConnection(myNode)) {
+            destroyVirtualConnection();
+            scheduleRetry();
+            return;
+        }
 
         boolean connectionAlive = false;
         IGridNode connectedTarget = null;
         for (var conn : myNode.getConnections()) {
-            if (conn == virtualConnection) {
+            if (conn == virtualConnection && !conn.isInWorld()) {
                 connectionAlive = true;
                 connectedTarget = conn.getOtherSide(myNode);
                 break;
@@ -419,5 +438,23 @@ public final class FrequencyBindingHelper
         if (currentTarget == null || connectedTarget != currentTarget) {
             destroyVirtualConnection();
         }
+    }
+
+    private static boolean isAlreadyInFrequencyGrid(IGridNode targetNode, IGridNode transmitterNode) {
+        IGrid targetGrid = targetNode.getGrid();
+        IGrid transmitterGrid = transmitterNode.getGrid();
+        return targetGrid != null && transmitterGrid != null && targetGrid == transmitterGrid;
+    }
+
+    private static boolean alreadyHasFrequencyChannel(IGridNode targetNode, IGridNode transmitterNode) {
+        return isAlreadyInFrequencyGrid(targetNode, transmitterNode)
+                && targetNode.meetsChannelRequirements();
+    }
+
+    private static boolean wouldMergeControllerNetworks(@Nullable IGrid targetGrid, @Nullable IGrid frequencyGrid) {
+        if (targetGrid == null || targetGrid == frequencyGrid) {
+            return false;
+        }
+        return !OverloadedChannelOwnerHelper.getAllControllerNodes(targetGrid).isEmpty();
     }
 }

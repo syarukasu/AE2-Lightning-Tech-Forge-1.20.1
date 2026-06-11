@@ -308,14 +308,6 @@ public class OverloadedInterfaceMenu extends InterfaceMenu implements FrequencyB
         return (unlimitedBits & (1L << slot)) != 0;
     }
 
-    @Override
-    public net.minecraft.core.BlockPos getFrequencyBindingBlockPos() {
-        if (host instanceof net.minecraft.world.level.block.entity.BlockEntity be) {
-            return be.getBlockPos();
-        }
-        throw new IllegalStateException("Frequency binding host is not a block entity: " + host);
-    }
-
     // ══════════════════════════════════════════════════════════════════════
     //  ME Terminal-style proxy slot interaction
     //  Storage slots are display-only; all click actions handled here.

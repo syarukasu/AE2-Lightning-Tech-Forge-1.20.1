@@ -257,11 +257,6 @@ public class LightningAssemblyChamberMenu extends AEBaseMenu implements Frequenc
         return host;
     }
 
-    @Override
-    public net.minecraft.core.BlockPos getFrequencyBindingBlockPos() {
-        return host.getBlockPos();
-    }
-
     public ToolboxMenu getToolbox() {
         return toolbox;
     }

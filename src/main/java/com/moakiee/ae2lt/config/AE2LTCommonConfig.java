@@ -1,14 +1,16 @@
 package com.moakiee.ae2lt.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public final class AE2LTCommonConfig {
-    public static final ForgeConfigSpec SPEC;
+    public static final int CURRENT_CONFIG_VERSION = 2;
+
+    public static final ModConfigSpec SPEC;
 
     private static final Values VALUES;
 
     static {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         VALUES = new Values(builder);
         SPEC = builder.build();
     }
@@ -160,45 +162,75 @@ public final class AE2LTCommonConfig {
         return VALUES.pigmeeFumoGiftOnFirstJoin.get();
     }
 
-    private static final class Values {
-        private final ForgeConfigSpec.IntValue lightningCollectorCooldownTicks;
-        private final ForgeConfigSpec.IntValue electroChimeMaxCatalysis;
-        private final ForgeConfigSpec.BooleanValue overloadTntEnableTerrainDamage;
-        private final ForgeConfigSpec.BooleanValue overloadTntEnableMysteriousCellEasterEgg;
-        private final ForgeConfigSpec.IntValue overloadTntGlobalBlockBudgetPerTick;
-        private final ForgeConfigSpec.IntValue overloadTntGlobalLightningBudgetPerTick;
-        private final ForgeConfigSpec.IntValue overloadedControllerChannelsPerController;
-        private final ForgeConfigSpec.DoubleValue overloadedControllerPassiveAePerTick;
-        private final ForgeConfigSpec.IntValue wirelessConnectorMaxDistance;
-        private final ForgeConfigSpec.IntValue overloadFactoryParallelPerMatrix;
-        private final ForgeConfigSpec.LongValue overloadFactoryEnergyCapacity;
-        private final ForgeConfigSpec.LongValue overloadFactoryFePerTickNoSpeedCard;
-        private final ForgeConfigSpec.LongValue overloadFactoryFePerTickOneSpeedCard;
-        private final ForgeConfigSpec.LongValue overloadFactoryFePerTickTwoSpeedCards;
-        private final ForgeConfigSpec.LongValue overloadFactoryFePerTickThreeSpeedCards;
-        private final ForgeConfigSpec.LongValue overloadFactoryFePerTickFourSpeedCards;
-        private final ForgeConfigSpec.BooleanValue artificialLightningTriggerFromHotbar;
-        private final ForgeConfigSpec.BooleanValue artificialLightningTriggerFromBackpack;
-        private final ForgeConfigSpec.IntValue lightningCollectorHvBaseMin;
-        private final ForgeConfigSpec.IntValue lightningCollectorHvBaseMax;
-        private final ForgeConfigSpec.IntValue lightningCollectorEhvBaseMin;
-        private final ForgeConfigSpec.IntValue lightningCollectorEhvBaseMax;
-        private final ForgeConfigSpec.IntValue lightningCollectorHvCrystalStart;
-        private final ForgeConfigSpec.IntValue lightningCollectorHvCrystalEnd;
-        private final ForgeConfigSpec.IntValue lightningCollectorEhvCrystalStart;
-        private final ForgeConfigSpec.IntValue lightningCollectorEhvCrystalEnd;
-        private final ForgeConfigSpec.IntValue lightningCollectorPerfectHvOutput;
-        private final ForgeConfigSpec.IntValue lightningCollectorPerfectEhvOutput;
-        private final ForgeConfigSpec.IntValue electroChimeCatalysisPerStrikeMin;
-        private final ForgeConfigSpec.IntValue electroChimeCatalysisPerStrikeMax;
-        private final ForgeConfigSpec.DoubleValue lightningCollectorSpreadRatio;
-        private final ForgeConfigSpec.IntValue teslaCoilHighVoltageDustCost;
-        private final ForgeConfigSpec.IntValue teslaCoilHighVoltageFe;
-        private final ForgeConfigSpec.IntValue teslaCoilExtremeHighVoltageInput;
-        private final ForgeConfigSpec.IntValue teslaCoilExtremeHighVoltageFe;
-        private final ForgeConfigSpec.BooleanValue pigmeeFumoGiftOnFirstJoin;
+    public static boolean frequencyCardEnableAutoCleanup() {
+        return VALUES.frequencyCardEnableAutoCleanup.get();
+    }
 
-        private Values(ForgeConfigSpec.Builder builder) {
+    public static int frequencyCardCleanupIntervalSeconds() {
+        return VALUES.frequencyCardCleanupIntervalSeconds.get();
+    }
+
+    public static int frequencyCardInvalidCleanupDelaySeconds() {
+        return VALUES.frequencyCardInvalidCleanupDelaySeconds.get();
+    }
+
+    public static int frequencyCardInvalidCleanupRequiredChecks() {
+        return VALUES.frequencyCardInvalidCleanupRequiredChecks.get();
+    }
+
+    public static int frequencyCardCleanupBatchSize() {
+        return VALUES.frequencyCardCleanupBatchSize.get();
+    }
+
+    private static final class Values {
+        private final ModConfigSpec.IntValue configVersion;
+        private final ModConfigSpec.IntValue lightningCollectorCooldownTicks;
+        private final ModConfigSpec.IntValue electroChimeMaxCatalysis;
+        private final ModConfigSpec.BooleanValue overloadTntEnableTerrainDamage;
+        private final ModConfigSpec.BooleanValue overloadTntEnableMysteriousCellEasterEgg;
+        private final ModConfigSpec.IntValue overloadTntGlobalBlockBudgetPerTick;
+        private final ModConfigSpec.IntValue overloadTntGlobalLightningBudgetPerTick;
+        private final ModConfigSpec.IntValue overloadedControllerChannelsPerController;
+        private final ModConfigSpec.DoubleValue overloadedControllerPassiveAePerTick;
+        private final ModConfigSpec.IntValue wirelessConnectorMaxDistance;
+        private final ModConfigSpec.IntValue overloadFactoryParallelPerMatrix;
+        private final ModConfigSpec.LongValue overloadFactoryEnergyCapacity;
+        private final ModConfigSpec.LongValue overloadFactoryFePerTickNoSpeedCard;
+        private final ModConfigSpec.LongValue overloadFactoryFePerTickOneSpeedCard;
+        private final ModConfigSpec.LongValue overloadFactoryFePerTickTwoSpeedCards;
+        private final ModConfigSpec.LongValue overloadFactoryFePerTickThreeSpeedCards;
+        private final ModConfigSpec.LongValue overloadFactoryFePerTickFourSpeedCards;
+        private final ModConfigSpec.BooleanValue artificialLightningTriggerFromHotbar;
+        private final ModConfigSpec.BooleanValue artificialLightningTriggerFromBackpack;
+        private final ModConfigSpec.IntValue lightningCollectorHvBaseMin;
+        private final ModConfigSpec.IntValue lightningCollectorHvBaseMax;
+        private final ModConfigSpec.IntValue lightningCollectorEhvBaseMin;
+        private final ModConfigSpec.IntValue lightningCollectorEhvBaseMax;
+        private final ModConfigSpec.IntValue lightningCollectorHvCrystalStart;
+        private final ModConfigSpec.IntValue lightningCollectorHvCrystalEnd;
+        private final ModConfigSpec.IntValue lightningCollectorEhvCrystalStart;
+        private final ModConfigSpec.IntValue lightningCollectorEhvCrystalEnd;
+        private final ModConfigSpec.IntValue lightningCollectorPerfectHvOutput;
+        private final ModConfigSpec.IntValue lightningCollectorPerfectEhvOutput;
+        private final ModConfigSpec.IntValue electroChimeCatalysisPerStrikeMin;
+        private final ModConfigSpec.IntValue electroChimeCatalysisPerStrikeMax;
+        private final ModConfigSpec.DoubleValue lightningCollectorSpreadRatio;
+        private final ModConfigSpec.IntValue teslaCoilHighVoltageDustCost;
+        private final ModConfigSpec.IntValue teslaCoilHighVoltageFe;
+        private final ModConfigSpec.IntValue teslaCoilExtremeHighVoltageInput;
+        private final ModConfigSpec.IntValue teslaCoilExtremeHighVoltageFe;
+        private final ModConfigSpec.BooleanValue pigmeeFumoGiftOnFirstJoin;
+        private final ModConfigSpec.BooleanValue frequencyCardEnableAutoCleanup;
+        private final ModConfigSpec.IntValue frequencyCardCleanupIntervalSeconds;
+        private final ModConfigSpec.IntValue frequencyCardInvalidCleanupDelaySeconds;
+        private final ModConfigSpec.IntValue frequencyCardInvalidCleanupRequiredChecks;
+        private final ModConfigSpec.IntValue frequencyCardCleanupBatchSize;
+
+        private Values(ModConfigSpec.Builder builder) {
+            configVersion = builder
+                    .comment("Internal config schema version. Do not edit; used by the mod for upgrade migrations.")
+                    .defineInRange("configVersion", CURRENT_CONFIG_VERSION, 1, Integer.MAX_VALUE);
+
             builder.push("lightningCollector");
             lightningCollectorCooldownTicks = builder
                     .comment("Cooldown in ticks after each captured lightning strike.")
@@ -340,7 +372,26 @@ public final class AE2LTCommonConfig {
                     .comment("Controls whether players receive a Pigmee Fumo as a gift on their first login.")
                     .define("giftOnFirstJoin", true);
             builder.pop();
+
+            builder.push("frequencyCard");
+            builder.push("cleanup");
+            frequencyCardEnableAutoCleanup = builder
+                    .comment("Controls whether invalid Overloaded Frequency Card wireless link records are cleaned up automatically.")
+                    .define("enableAutoCleanup", true);
+            frequencyCardCleanupIntervalSeconds = builder
+                    .comment("Seconds between cleanup passes for Overloaded Frequency Card wireless links.")
+                    .defineInRange("cleanupIntervalSeconds", 300, 1, Integer.MAX_VALUE);
+            frequencyCardInvalidCleanupDelaySeconds = builder
+                    .comment("Seconds an invalid Overloaded Frequency Card wireless link must remain invalid before removal.")
+                    .defineInRange("invalidCleanupDelaySeconds", 300, 0, Integer.MAX_VALUE);
+            frequencyCardInvalidCleanupRequiredChecks = builder
+                    .comment("Number of cleanup passes that must confirm an invalid Overloaded Frequency Card wireless link before removal.")
+                    .defineInRange("invalidCleanupRequiredChecks", 3, 1, Integer.MAX_VALUE);
+            frequencyCardCleanupBatchSize = builder
+                    .comment("Maximum Overloaded Frequency Card wireless links checked per cleanup pass.")
+                    .defineInRange("cleanupBatchSize", 128, 1, Integer.MAX_VALUE);
+            builder.pop();
+            builder.pop();
         }
     }
 }
-

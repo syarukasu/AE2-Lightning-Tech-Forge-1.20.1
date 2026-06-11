@@ -183,6 +183,7 @@ public class TextureToggleButton extends Button implements ITooltip {
         OVERLOAD_MODE(texture("overloaded_off"), texture("overloaded_on")),
         // 水晶催化器 Mode { CRYSTAL=off, DUST=on }。
         CRYSTAL_CATALYZER_MODE(texture("catalyzer_crystal_mode"), texture("catalyzer_dust_mode")),
+        // 频率配置入口。机器与无线终端共用同一图标和工具栏样式。
         FREQUENCY_BIND(texture("frequency_select"));
 
         private final List<ResourceLocation> textures;
