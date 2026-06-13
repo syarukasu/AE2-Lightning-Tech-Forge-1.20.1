@@ -10,34 +10,22 @@
     },
     {
       "ingredient": {
-        "item": "ae2lt:ultimate_overload_core"
+        "item": "ae2lt:energy_module_t2"
       },
       "count": 4
     },
     {
       "ingredient": {
-        "item": "minecraft:elytra"
+        "item": "ae2lt:overload_processor"
       },
-      "count": 1
-    },
-    {
-      "ingredient": {
-        "item": "minecraft:dragon_head"
-      },
-      "count": 1
-    },
-    {
-      "ingredient": {
-        "item": "ae2lt:floating_matter"
-      },
-      "count": 2
+      "count": 256
     }
   ],
   "result": {
-    "id": "ae2lt:module_creative_flight",
+    "id": "ae2lt:energy_module_t3",
     "count": 1
   },
   "totalEnergy": 10000000,
-  "lightningCost": 32,
+  "lightningCost": 40,
   "lightningTier": "high_voltage"
 }
