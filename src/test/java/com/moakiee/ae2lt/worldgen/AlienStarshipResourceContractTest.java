@@ -38,7 +38,7 @@ final class AlienStarshipResourceContractTest {
     }
 
     @Test
-    void alienStarshipTemplateIsCleanAndSplitsChestLootByLayer() throws Exception {
+    void alienStarshipTemplateIsCleanAndUsesModestLayeredLoot() throws Exception {
         Path nbt = Path.of("src/main/resources/data/ae2lt/structure/alien_starship/alien_starship.nbt");
         String snbt = Files.readString(Path.of(
                 "src/main/resources/data/ae2lt/structure/alien_starship/alien_starship.snbt"));
@@ -55,9 +55,28 @@ final class AlienStarshipResourceContractTest {
                 "barrels should remain empty and not become loot containers");
 
         assertTrue(lowerLoot.contains("\"type\": \"minecraft:chest\""));
+        assertTrue(lowerLoot.contains("\"chance\": 0.35"));
+        assertTrue(lowerLoot.contains("\"min\": 2.0"));
+        assertTrue(lowerLoot.contains("\"max\": 3.0"));
         assertTrue(lowerLoot.contains("\"name\": \"ae2:certus_quartz_crystal\""));
+        assertTrue(lowerLoot.contains("\"name\": \"ae2:charged_certus_quartz_crystal\""));
+        assertTrue(lowerLoot.contains("\"name\": \"ae2:fluix_crystal\""));
+        assertTrue(lowerLoot.contains("\"name\": \"ae2:sky_dust\""));
+        assertTrue(lowerLoot.contains("\"name\": \"ae2:certus_quartz_dust\""));
+        assertTrue(lowerLoot.contains("\"name\": \"ae2:silicon\""));
+        assertTrue(lowerLoot.contains("\"name\": \"ae2:fluix_dust\""));
+        assertTrue(lowerLoot.contains("\"name\": \"ae2:sky_stone_block\""));
         assertTrue(upperLoot.contains("\"type\": \"minecraft:chest\""));
-        assertTrue(upperLoot.contains("\"name\": \"ae2lt:floating_matter\""));
+        assertTrue(upperLoot.contains("\"min\": 2.0"));
+        assertTrue(upperLoot.contains("\"max\": 4.0"));
+        assertTrue(upperLoot.contains("\"name\": \"minecraft:iron_nugget\""));
+        assertTrue(upperLoot.contains("\"name\": \"minecraft:copper_ingot\""));
+        assertTrue(upperLoot.contains("\"name\": \"minecraft:redstone\""));
+        assertTrue(upperLoot.contains("\"name\": \"minecraft:coal\""));
+        assertTrue(upperLoot.contains("\"name\": \"minecraft:glass\""));
+        assertTrue(upperLoot.contains("\"name\": \"minecraft:paper\""));
+        assertTrue(upperLoot.contains("\"name\": \"minecraft:string\""));
+        assertTrue(upperLoot.contains("\"name\": \"minecraft:bread\""));
     }
 
     @Test
