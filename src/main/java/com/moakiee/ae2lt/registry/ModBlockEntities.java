@@ -5,6 +5,7 @@ import com.moakiee.ae2lt.blockentity.AtmosphericIonizerBlockEntity;
 import com.moakiee.ae2lt.blockentity.CrystalCatalyzerBlockEntity;
 import com.moakiee.ae2lt.blockentity.FumoBlockEntity;
 import com.moakiee.ae2lt.blockentity.GhostOutputBlockEntity;
+import com.moakiee.ae2lt.blockentity.ExtendedOverloadedPatternProviderBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningAssemblyChamberBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningCollectorBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningSimulationChamberBlockEntity;
@@ -106,6 +107,14 @@ public final class ModBlockEntities {
                     () -> BlockEntityType.Builder.of(
                             OverloadedPatternProviderBlockEntity::new,
                             ModBlocks.OVERLOADED_PATTERN_PROVIDER.get())
+                            .build(null));
+
+    public static final RegistryObject<BlockEntityType<ExtendedOverloadedPatternProviderBlockEntity>>
+            EXTENDED_OVERLOADED_PATTERN_PROVIDER = BLOCK_ENTITY_TYPES.register(
+                    "extended_overloaded_pattern_provider",
+                    () -> BlockEntityType.Builder.of(
+                            ExtendedOverloadedPatternProviderBlockEntity::new,
+                            ModBlocks.EXTENDED_OVERLOADED_PATTERN_PROVIDER.get())
                             .build(null));
 
     public static final RegistryObject<BlockEntityType<OverloadedInterfaceBlockEntity>>
