@@ -1,6 +1,9 @@
 package com.moakiee.ae2lt.celestweave;
 
 import java.util.List;
+import java.util.UUID;
+
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -9,8 +12,10 @@ import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.tags.FluidTags;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
@@ -44,6 +49,23 @@ public final class CelestweaveArmorUtilityHandler {
                 PhaseFlightSubmodule.clearTransientPhaseState(player);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onLivingEquipmentChange(LivingEquipmentChangeEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        ItemStack removedArmor = event.getFrom();
+        if (removedArmor.isEmpty() || !(removedArmor.getItem() instanceof BaseCelestweaveArmorItem)) {
+            return;
+        }
+        if (!PhaseFlightArmorRemovalRules.shouldDeactivateRemovedArmor(
+                CelestweaveArmorState.getArmorId(removedArmor),
+                celestweaveArmorId(event.getTo()))) {
+            return;
+        }
+        deactivateRemovedArmor(player, removedArmor);
     }
 
     @SubscribeEvent
@@ -197,6 +219,24 @@ public final class CelestweaveArmorUtilityHandler {
             }
         }
         return ItemStack.EMPTY;
+    }
+
+    @Nullable
+    private static UUID celestweaveArmorId(ItemStack armor) {
+        if (armor.isEmpty() || !(armor.getItem() instanceof BaseCelestweaveArmorItem)) {
+            return null;
+        }
+        return CelestweaveArmorState.getArmorId(armor);
+    }
+
+    private static void deactivateRemovedArmor(ServerPlayer player, ItemStack armor) {
+        ArmorCapabilityCollector.clearCache(player);
+        CelestweaveArmorState.syncSubmoduleActiveState(
+                player,
+                armor,
+                player.registryAccess(),
+                false,
+                Dist.DEDICATED_SERVER);
     }
 
     private static void clearPlayerRuntime(Player player) {
