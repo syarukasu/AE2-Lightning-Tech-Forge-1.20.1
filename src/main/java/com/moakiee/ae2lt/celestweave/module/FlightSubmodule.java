@@ -26,6 +26,7 @@ public final class FlightSubmodule extends AbstractCelestweaveArmorSubmodule {
     private static final String TAG_HAD_MAYFLY = "FlightHadMayfly";
     private static final String TAG_WAS_FLYING = "FlightWasFlying";
     private static final String TAG_PREVIOUS_SPEED = "FlightPreviousFlyingSpeed";
+    private static final String TAG_HAD_GAME_MODE_FLIGHT = "FlightHadGameModeFlight";
     private static final float SPEED_EPSILON = 1.0E-6F;
     private FlightSubmodule() {}
 
@@ -180,6 +181,7 @@ public final class FlightSubmodule extends AbstractCelestweaveArmorSubmodule {
             data.putBoolean(TAG_HAD_MAYFLY, abilities.mayfly);
             data.putBoolean(TAG_WAS_FLYING, abilities.flying);
             data.putFloat(TAG_PREVIOUS_SPEED, abilities.getFlyingSpeed());
+            data.putBoolean(TAG_HAD_GAME_MODE_FLIGHT, player.isCreative() || player.isSpectator());
             CelestweaveArmorState.setSubmoduleData(armor, INSTANCE, data);
         }
         updateAbilitiesIfChanged(
@@ -200,9 +202,11 @@ public final class FlightSubmodule extends AbstractCelestweaveArmorSubmodule {
         float previousSpeed = data.contains(TAG_PREVIOUS_SPEED, CompoundTag.TAG_FLOAT)
                 ? data.getFloat(TAG_PREVIOUS_SPEED)
                 : FlightSpeedOption.VANILLA_FLYING_SPEED;
+        boolean hadGameModeFlight = capturedGameModeFlight(data, hadMayfly);
         data.remove(TAG_HAD_MAYFLY);
         data.remove(TAG_WAS_FLYING);
         data.remove(TAG_PREVIOUS_SPEED);
+        data.remove(TAG_HAD_GAME_MODE_FLIGHT);
         CelestweaveArmorState.setSubmoduleData(armor, INSTANCE, data);
 
         var abilities = player.getAbilities();
@@ -212,14 +216,25 @@ public final class FlightSubmodule extends AbstractCelestweaveArmorSubmodule {
             return;
         }
         boolean phaseFlightActive = CelestweaveArmorState.isSubmoduleRuntimeActive(armor, PhaseFlightSubmodule.INSTANCE.id());
-        boolean targetMayfly = hadMayfly || phaseFlightActive;
+        var target = FlightAbilityRestoreRules.targetForNonGameModePlayer(
+                hadMayfly,
+                wasFlying,
+                hadGameModeFlight,
+                phaseFlightActive);
         updateAbilitiesIfChanged(
                 player,
-                targetMayfly,
-                (wasFlying || phaseFlightActive) && targetMayfly,
+                target.mayfly(),
+                target.flying(),
                 phaseFlightActive
                         ? ArmorFlightSpeedRules.activeFlightSpeed(armor)
                         : previousSpeed > 0.0F ? previousSpeed : FlightSpeedOption.VANILLA_FLYING_SPEED);
+    }
+
+    private static boolean capturedGameModeFlight(CompoundTag data, boolean hadMayfly) {
+        if (data.contains(TAG_HAD_GAME_MODE_FLIGHT, CompoundTag.TAG_BYTE)) {
+            return data.getBoolean(TAG_HAD_GAME_MODE_FLIGHT);
+        }
+        return hadMayfly;
     }
 
     private static boolean updateAbilitiesIfChanged(
