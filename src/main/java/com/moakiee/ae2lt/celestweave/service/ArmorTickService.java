@@ -20,15 +20,14 @@ public final class ArmorTickService {
             Dist dist) {
         CelestweaveArmorState.ensureArmorId(armor);
         var installedSubmodules = CelestweaveArmorState.collectInstalledSubmoduleEntries(armor, registries);
-        CelestweaveArmorState.syncSubmoduleActiveState(player, armor, installedSubmodules, equipped, dist);
         if (!equipped) {
-            // sync(equipped=false) above already drops this armor's active entries from the runtime maps.
+            CelestweaveArmorState.syncSubmoduleActiveState(player, armor, installedSubmodules, false, dist);
             return;
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
             ArmorEnergyService.refillFromBoundNetworkIfLow(serverPlayer, armor, registries);
-            if (!ArmorEnergyService.consumePassiveDrain(serverPlayer, armor, registries)) {
+            if (!ArmorEnergyService.consumePassiveDrain(serverPlayer, armor, installedSubmodules, registries)) {
                 // Publish the forced-off state to the client so derived activity (e.g. dig affinity
                 // in BreakSpeed) matches the server instead of staying on with no power.
                 CelestweaveArmorState.setModulesPowered(armor, false);
@@ -39,6 +38,7 @@ public final class ArmorTickService {
             CelestweaveArmorState.setModulesPowered(armor, true);
         }
 
+        CelestweaveArmorState.syncSubmoduleActiveState(player, armor, installedSubmodules, true, dist);
         CelestweaveArmorState.tickActiveSubmodules(player, armor, installedSubmodules, dist);
         CelestweaveArmorState.tickEquipped(player, armor, installedSubmodules, registries);
     }

@@ -1,7 +1,10 @@
 package com.moakiee.ae2lt.celestweave.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,7 +23,6 @@ import com.moakiee.ae2lt.celestweave.ArmorNetworkRechargePolicy;
 import com.moakiee.ae2lt.celestweave.ArmorOverloadRules;
 import com.moakiee.ae2lt.celestweave.BaseCelestweaveArmorItem;
 import com.moakiee.ae2lt.celestweave.CelestweaveArmorState;
-import com.moakiee.ae2lt.celestweave.module.CelestweaveArmorSubmoduleItem;
 import com.moakiee.ae2lt.celestweave.service.ArmorLightningService.LightningCost;
 
 public final class ArmorEnergyService {
@@ -45,10 +47,22 @@ public final class ArmorEnergyService {
     }
 
     public static boolean consumePassiveDrain(Player player, ItemStack armor, HolderLookup.Provider registries) {
+        return consumePassiveDrain(
+                player,
+                armor,
+                CelestweaveArmorState.collectInstalledSubmoduleEntries(armor, registries),
+                registries);
+    }
+
+    public static boolean consumePassiveDrain(
+            Player player,
+            ItemStack armor,
+            List<CelestweaveArmorState.InstalledSubmodule> installedSubmodules,
+            HolderLookup.Provider registries) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return true;
         }
-        var cost = computePassiveCost(serverPlayer, armor, registries);
+        var cost = computePassiveCost(serverPlayer, armor, installedSubmodules, registries);
         if (!ArmorLightningService.hasCost(serverPlayer, armor, cost.lightning())) {
             ArmorResourceFeedback.noLightning(serverPlayer, armor, cost.lightning());
             return false;
@@ -192,26 +206,39 @@ public final class ArmorEnergyService {
         return false;
     }
 
-    private static PassiveCost computePassiveCost(ServerPlayer player, ItemStack armor, HolderLookup.Provider registries) {
+    private static PassiveCost computePassiveCost(
+            ServerPlayer player,
+            ItemStack armor,
+            List<CelestweaveArmorState.InstalledSubmodule> installedSubmodules,
+            HolderLookup.Provider registries) {
+        if (!CelestweaveArmorState.hasCore(armor, registries)) {
+            return new PassiveCost(0L, LightningCost.NONE);
+        }
         long drain = 0L;
         double multiplier = 1.0D;
         LightningCost lightning = LightningCost.NONE;
-        for (ItemStack module : CelestweaveArmorState.loadModuleStacks(armor, registries)) {
+        Set<ItemStack> chargedStacks = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (var entry : installedSubmodules) {
+            if (!CelestweaveArmorState.isSubmoduleEnabled(armor, entry.submodule())) {
+                continue;
+            }
+            ItemStack module = entry.stack();
             if (!(module.getItem() instanceof OverloadDeviceModuleItem provider)) {
                 continue;
             }
-            if (!moduleRuntimeActive(armor, module)) {
+            if (!chargedStacks.add(module)) {
                 continue;
             }
             List<DeviceCapability> capabilities = provider.capabilities(module);
             boolean movingFlight = hasFlightMode(capabilities) && isMovingInFlight(player);
+            int count = Math.max(1, entry.count());
             LightningCost moduleLightning = ArmorModuleLightningPolicy.passiveCost(
                             capabilities,
                             movingFlight,
                             AE2LTCommonConfig.overloadArmorPassiveHvPerTick(),
                             AE2LTCommonConfig.overloadArmorFlightHvPerTick(),
                             AE2LTCommonConfig.overloadArmorPhaseFlightHvPerTick())
-                    .times(Math.max(1, module.getCount()));
+                    .times(count);
             lightning = lightning.plus(moduleLightning);
             for (DeviceCapability capability : capabilities) {
                 if (capability instanceof DeviceCapability.PassiveDrain passiveDrain) {
@@ -219,26 +246,13 @@ public final class ArmorEnergyService {
                     if (movingFlight) {
                         fePerTick = Math.max(fePerTick, ArmorOverloadRules.FLIGHT_MOVING_DRAIN_FE);
                     }
-                    drain += fePerTick * Math.max(1, module.getCount());
+                    drain += fePerTick * count;
                 } else if (capability instanceof DeviceCapability.EnergyEfficiency efficiency) {
                     multiplier *= Math.max(0.0D, efficiency.drainMul());
                 }
             }
         }
         return new PassiveCost((long) Math.ceil(drain * multiplier), lightning);
-    }
-
-    private static boolean moduleRuntimeActive(ItemStack armor, ItemStack module) {
-        if (!(module.getItem() instanceof CelestweaveArmorSubmoduleItem provider)) {
-            return false;
-        }
-        boolean[] active = {false};
-        provider.collectSubmodules(module, submodule -> {
-            if (submodule != null && CelestweaveArmorState.isSubmoduleRuntimeActive(armor, submodule.id())) {
-                active[0] = true;
-            }
-        });
-        return active[0];
     }
 
     private static boolean hasFlightMode(List<DeviceCapability> capabilities) {

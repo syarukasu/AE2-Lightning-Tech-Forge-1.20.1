@@ -118,6 +118,5 @@ public final class ModDataComponents {
             CELESTWEAVE_MODULES_POWERED = DATA_COMPONENTS.registerComponentType(
                     "celestweave_modules_powered",
                     builder -> builder
-                            .persistent(Codec.BOOL)
                             .networkSynchronized(ByteBufCodecs.BOOL));
 }

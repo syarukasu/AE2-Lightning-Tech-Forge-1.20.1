@@ -1,6 +1,7 @@
 package com.moakiee.ae2lt.celestweave.state;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,9 +59,19 @@ public record CelestweaveModuleContainer(
                     CelestweaveModuleContainer::new);
 
     public CelestweaveModuleContainer {
-        modules = List.copyOf(modules);
-        toggles = Map.copyOf(toggles);
-        submoduleData = Map.copyOf(submoduleData);
+        modules = copyModules(modules);
+        toggles = toggles == null ? Map.of() : Map.copyOf(toggles);
+        submoduleData = copySubmoduleData(submoduleData);
+    }
+
+    @Override
+    public List<ItemStack> modules() {
+        return copyModules(modules);
+    }
+
+    @Override
+    public Map<String, CompoundTag> submoduleData() {
+        return copySubmoduleData(submoduleData);
     }
 
     public CelestweaveModuleContainer withArmorId(UUID id) {
@@ -82,5 +93,29 @@ public record CelestweaveModuleContainer(
 
     public CelestweaveModuleContainer withCapacity(Optional<Long> capacityFe) {
         return new CelestweaveModuleContainer(armorId, modules, toggles, submoduleData, capacityFe);
+    }
+
+    private static List<ItemStack> copyModules(List<ItemStack> modules) {
+        if (modules == null || modules.isEmpty()) {
+            return List.of();
+        }
+        return modules.stream()
+                .filter(stack -> stack != null && !stack.isEmpty())
+                .map(ItemStack::copy)
+                .toList();
+    }
+
+    private static Map<String, CompoundTag> copySubmoduleData(Map<String, CompoundTag> data) {
+        if (data == null || data.isEmpty()) {
+            return Map.of();
+        }
+        Map<String, CompoundTag> copy = new LinkedHashMap<>();
+        for (var entry : data.entrySet()) {
+            if (entry.getKey() == null || entry.getKey().isBlank() || entry.getValue() == null) {
+                continue;
+            }
+            copy.put(entry.getKey(), entry.getValue().copy());
+        }
+        return Map.copyOf(copy);
     }
 }
