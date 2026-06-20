@@ -28,7 +28,7 @@ public final class ResearchNoteGenerator {
             new Candidate(id("modern_industrialization", "quantum_upgrade"), Tier.SSS, 98, 2),
             new Candidate(id("bigreactors", "inanite_block"), Tier.SS, 95, 2),
             new Candidate(id("draconicevolution", "chaotic_core"), Tier.SS, 93, 2),
-            new Candidate(id("occultism", "ritual_dummy/misc_celestial_chalice"), Tier.SS, 91, 2),
+            new Candidate(id("occultism", "celestial_chalice"), Tier.SS, 91, 2),
             new Candidate(id("appflux", "core_256m"), Tier.S, 90, 2),
             new Candidate(id("advanced_ae", "data_entangler"), Tier.S, 89, 2),
             new Candidate(id("advanced_ae", "quantum_multi_threader"), Tier.S, 87, 2),
