@@ -82,4 +82,3 @@ body:
     attributes:
       label: 其他信息，可选 (Additional context, optional)
       description: 任何无法归入上面字段的补充信息。 / Any extra details that do not fit elsewhere.
-

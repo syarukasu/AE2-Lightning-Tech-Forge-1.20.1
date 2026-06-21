@@ -140,4 +140,3 @@ body:
     attributes:
       label: 其他信息，可选 (Additional context, optional)
       description: 可以附配置、数据包、KubeJS 脚本、截图、视频或最小实例说明。 / Add configs, datapacks, KubeJS scripts, screenshots, videos, or minimal instance notes.
-
