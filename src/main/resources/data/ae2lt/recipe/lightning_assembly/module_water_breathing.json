@@ -31,7 +31,7 @@
     "id": "ae2lt:module_water_breathing",
     "count": 1
   },
-  "totalEnergy": 2000000,
-  "lightningCost": 8,
+  "totalEnergy": 3000000,
+  "lightningCost": 12,
   "lightningTier": "high_voltage"
 }

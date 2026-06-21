@@ -31,7 +31,7 @@
     "id": "ae2lt:railgun_module_compute",
     "count": 1
   },
-  "totalEnergy": 6000000,
-  "lightningCost": 24,
+  "totalEnergy": 12000000,
+  "lightningCost": 48,
   "lightningTier": "high_voltage"
 }

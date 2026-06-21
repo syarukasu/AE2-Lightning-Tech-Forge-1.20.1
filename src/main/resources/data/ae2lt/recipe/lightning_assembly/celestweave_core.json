@@ -31,7 +31,7 @@
     "id": "ae2lt:celestweave_core",
     "count": 1
   },
-  "totalEnergy": 24000000,
-  "lightningCost": 256,
+  "totalEnergy": 48000000,
+  "lightningCost": 512,
   "lightningTier": "extreme_high_voltage"
 }

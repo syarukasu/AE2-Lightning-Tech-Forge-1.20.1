@@ -31,7 +31,7 @@
     "id": "ae2lt:module_purification",
     "count": 1
   },
-  "totalEnergy": 2500000,
-  "lightningCost": 10,
+  "totalEnergy": 5000000,
+  "lightningCost": 20,
   "lightningTier": "high_voltage"
 }

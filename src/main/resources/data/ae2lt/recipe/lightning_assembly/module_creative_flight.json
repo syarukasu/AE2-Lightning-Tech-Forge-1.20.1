@@ -37,7 +37,7 @@
     "id": "ae2lt:module_creative_flight",
     "count": 1
   },
-  "totalEnergy": 10000000,
-  "lightningCost": 32,
+  "totalEnergy": 18000000,
+  "lightningCost": 64,
   "lightningTier": "high_voltage"
 }

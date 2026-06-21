@@ -31,7 +31,7 @@
     "id": "ae2lt:module_saturation",
     "count": 1
   },
-  "totalEnergy": 1500000,
-  "lightningCost": 6,
+  "totalEnergy": 3000000,
+  "lightningCost": 12,
   "lightningTier": "high_voltage"
 }

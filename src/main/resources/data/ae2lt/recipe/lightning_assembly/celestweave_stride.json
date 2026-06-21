@@ -31,7 +31,7 @@
     "id": "ae2lt:celestweave_stride",
     "count": 1
   },
-  "totalEnergy": 10000000,
-  "lightningCost": 256,
+  "totalEnergy": 20000000,
+  "lightningCost": 512,
   "lightningTier": "extreme_high_voltage"
 }

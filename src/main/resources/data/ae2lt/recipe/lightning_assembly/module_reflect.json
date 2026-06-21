@@ -31,7 +31,7 @@
     "id": "ae2lt:module_reflect",
     "count": 1
   },
-  "totalEnergy": 4000000,
-  "lightningCost": 16,
+  "totalEnergy": 6000000,
+  "lightningCost": 24,
   "lightningTier": "high_voltage"
 }

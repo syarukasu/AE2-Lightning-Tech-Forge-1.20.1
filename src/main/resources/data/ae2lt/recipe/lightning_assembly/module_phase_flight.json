@@ -31,7 +31,7 @@
     "id": "ae2lt:module_phase_flight",
     "count": 1
   },
-  "totalEnergy": 12000000,
-  "lightningCost": 48,
-  "lightningTier": "high_voltage"
+  "totalEnergy": 32000000,
+  "lightningCost": 128,
+  "lightningTier": "extreme_high_voltage"
 }

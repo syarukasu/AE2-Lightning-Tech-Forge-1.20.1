@@ -31,7 +31,7 @@
     "id": "ae2lt:celestweave_oculus",
     "count": 1
   },
-  "totalEnergy": 8000000,
-  "lightningCost": 256,
+  "totalEnergy": 16000000,
+  "lightningCost": 512,
   "lightningTier": "extreme_high_voltage"
 }

@@ -31,7 +31,7 @@
     "id": "ae2lt:module_reach_extension",
     "count": 1
   },
-  "totalEnergy": 2500000,
-  "lightningCost": 10,
+  "totalEnergy": 4000000,
+  "lightningCost": 16,
   "lightningTier": "high_voltage"
 }

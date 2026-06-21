@@ -37,7 +37,7 @@
     "id": "ae2lt:module_phase_shield",
     "count": 1
   },
-  "totalEnergy": 8000000,
-  "lightningCost": 32,
-  "lightningTier": "high_voltage"
+  "totalEnergy": 16000000,
+  "lightningCost": 64,
+  "lightningTier": "extreme_high_voltage"
 }

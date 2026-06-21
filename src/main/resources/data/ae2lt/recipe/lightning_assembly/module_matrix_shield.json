@@ -37,7 +37,7 @@
     "id": "ae2lt:module_matrix_shield",
     "count": 1
   },
-  "totalEnergy": 5000000,
-  "lightningCost": 20,
+  "totalEnergy": 8000000,
+  "lightningCost": 32,
   "lightningTier": "high_voltage"
 }
