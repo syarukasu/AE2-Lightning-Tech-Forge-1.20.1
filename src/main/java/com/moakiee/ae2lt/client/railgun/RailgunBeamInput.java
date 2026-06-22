@@ -29,6 +29,10 @@ public final class RailgunBeamInput {
 
     private RailgunBeamInput() {}
 
+    public static void reset() {
+        firing = false;
+    }
+
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Pre e) {
         Minecraft mc = Minecraft.getInstance();

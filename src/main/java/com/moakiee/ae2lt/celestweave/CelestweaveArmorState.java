@@ -390,10 +390,11 @@ public final class CelestweaveArmorState {
                             serverPlayer,
                             new CelestweaveSubmoduleActivePacket(armorId, submodule.id(), active));
                 }
-                // Flight inertia drives client-side movement decay, so push it when flight engages.
-                if (changed && active
-                        && (FlightSubmodule.INSTANCE.id().equals(submodule.id())
-                                || PhaseFlightSubmodule.INSTANCE.id().equals(submodule.id()))) {
+                // Flight inertia drives client-side movement decay, so push it when flight engages
+                // and when the client needs an authoritative resync after player transfer.
+                boolean flightModule = FlightSubmodule.INSTANCE.id().equals(submodule.id())
+                        || PhaseFlightSubmodule.INSTANCE.id().equals(submodule.id());
+                if (FlightInertiaSyncRules.shouldSync(changed, active, forceClientSync, flightModule)) {
                     syncFlightInertiaToClient(serverPlayer, armor, armorId);
                 }
             }

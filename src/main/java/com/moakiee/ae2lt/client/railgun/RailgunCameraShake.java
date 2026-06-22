@@ -23,6 +23,11 @@ public final class RailgunCameraShake {
 
     private RailgunCameraShake() {}
 
+    public static void clear() {
+        intensity = 0f;
+        decayTicks = 0;
+    }
+
     /** Server-driven recoil entry point. */
     public static void applyRecoil(float pitchUp, int tierOrdinal) {
         LocalPlayer lp = Minecraft.getInstance().player;

@@ -107,6 +107,12 @@ public final class RailgunBeamRenderClient {
 
     private RailgunBeamRenderClient() {}
 
+    public static void reset() {
+        ACTIVE.clear();
+        localRequestedFiring = false;
+        localFiring = false;
+    }
+
     public static void setLocalRequestedFiring(boolean firing) {
         localRequestedFiring = firing;
         if (!firing) {
