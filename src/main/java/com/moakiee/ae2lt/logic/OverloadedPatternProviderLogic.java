@@ -310,6 +310,7 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
     private final ReadyDispatchQueue<WirelessConnection, ConnectionState> evenReadyQueue =
             new ReadyDispatchQueue<>(connectionStates::get);
     private List<WirelessConnection> pushWheelValidRef = List.of();
+    private boolean pushStructuresDirty = true;
     private long lastPushWheelTick = -1;
 
     private enum PushOutcome { SUCCESS, SOFT_FAIL, HARD_FAIL }
@@ -673,7 +674,7 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
         boolean fastMode = overloadedHost.getWirelessSpeedMode()
                 == OverloadedPatternProviderBlockEntity.WirelessSpeedMode.FAST;
 
-        if (valid != pushWheelValidRef) {
+        if (pushStructuresDirty || (valid != pushWheelValidRef && !valid.equals(pushWheelValidRef))) {
             rebuildPushStructures(valid, gameTick, dispatchMode);
         }
         advancePushWheel(gameTick, fastMode, dispatchMode);
@@ -829,6 +830,7 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
             }
         }
         pushWheelValidRef = valid;
+        pushStructuresDirty = false;
         lastPushWheelTick = gameTick;
     }
 
@@ -1001,6 +1003,7 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
 
         pendingOverflowByConn.put(conn, bucket);
         connectionsDirty = true;
+        pushStructuresDirty = true;
         refreshGlobalBackpressure();
         alertGridTick();
     }
@@ -1385,6 +1388,7 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
             if (cleared) {
                 iter.remove();
                 connectionsDirty = true;
+                pushStructuresDirty = true;
             }
         }
         refreshGlobalBackpressure();
@@ -1973,6 +1977,7 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
         }
         pendingOverflowByConn.remove(conn);
         connectionsDirty = true;
+        pushStructuresDirty = true;
         refreshGlobalBackpressure();
         alertGridTick();
         return true;
@@ -2137,6 +2142,7 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
         validTargetsCache = List.of();
         validTargetsVersion++;
         pushWheelValidRef = List.of();
+        pushStructuresDirty = true;
         for (var slot : pushWheel) slot.clear();
         clearReadyQueuesAndQueuedFlags();
         lastPushWheelTick = -1;
@@ -2604,6 +2610,7 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
         pendingOverflowPatternDefinitions.clear();
         pendingOverflowBuckets.clear();
         connectionsDirty = true;
+        pushStructuresDirty = true;
         refreshGlobalBackpressure();
     }
 
