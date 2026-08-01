@@ -70,6 +70,29 @@ final class ForgePortResourceContractTest {
     }
 
     @Test
+    void everyMixinSourceIsConfigured() throws Exception {
+        assertMixinSourcesConfigured(
+                RESOURCES.resolve("ae2lt.mixins.json"),
+                JAVA,
+                JAVA.resolve("ae2wtlib"));
+        assertMixinSourcesConfigured(
+                RESOURCES.resolve("ae2lt.ae2wtlib.mixins.json"),
+                JAVA.resolve("ae2wtlib"),
+                null);
+    }
+
+    @Test
+    void everyMixinConfigLoadsTheGeneratedRefmap() throws Exception {
+        for (String fileName : List.of("ae2lt.mixins.json", "ae2lt.ae2wtlib.mixins.json")) {
+            var json = JsonParser.parseString(Files.readString(RESOURCES.resolve(fileName))).getAsJsonObject();
+            assertTrue(json.has("refmap"), fileName + " does not declare a refmap");
+            assertTrue(
+                    json.get("refmap").getAsString().equals("ae2lt.refmap.json"),
+                    fileName + " declares the wrong refmap");
+        }
+    }
+
+    @Test
     void attributionIdentifiesBothUpstreamsAndTheUnofficialFork() throws Exception {
         String credits = Files.readString(Path.of("CREDITS.md"));
         assertTrue(credits.contains("MOAKIEE"), "original AE2LT creator is not credited");
@@ -92,6 +115,40 @@ final class ForgePortResourceContractTest {
                 String className = element.getAsString();
                 Path source = packageRoot.resolve(className.replace('.', '/') + ".java");
                 assertTrue(Files.isRegularFile(source), className + " is configured but has no source file");
+            }
+        }
+    }
+
+    private static void assertMixinSourcesConfigured(Path config, Path packageRoot, Path excludedRoot)
+            throws Exception {
+        var json = JsonParser.parseString(Files.readString(config)).getAsJsonObject();
+        var configured = new java.util.HashSet<String>();
+        for (String section : List.of("mixins", "client")) {
+            if (!json.has(section)) {
+                continue;
+            }
+            for (var element : json.getAsJsonArray(section)) {
+                configured.add(element.getAsString());
+            }
+        }
+
+        try (Stream<Path> paths = Files.walk(packageRoot)) {
+            for (Path source : paths.filter(Files::isRegularFile)
+                    .filter(candidate -> candidate.toString().endsWith(".java"))
+                    .filter(candidate -> excludedRoot == null || !candidate.startsWith(excludedRoot))
+                    .filter(candidate -> {
+                        try {
+                            return Files.readString(candidate).matches("(?s).*@Mixin\\s*\\(.*");
+                        } catch (Exception exception) {
+                            throw new RuntimeException(exception);
+                        }
+                    })
+                    .toList()) {
+                String className = packageRoot.relativize(source).toString()
+                        .replace('\\', '.')
+                        .replace('/', '.')
+                        .replaceFirst("\\.java$", "");
+                assertTrue(configured.contains(className), className + " is a mixin source but is not configured");
             }
         }
     }
