@@ -160,7 +160,7 @@ public class OverloadedPatternProviderScreen<M extends OverloadedPatternProvider
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
         if (this.menu.getTotalPages() > 1) {
             var direction = PatternProviderPageScroll.directionForDelta(scrollY);
             if (direction == PatternProviderPageScroll.Direction.PREVIOUS) {
@@ -172,7 +172,7 @@ public class OverloadedPatternProviderScreen<M extends OverloadedPatternProvider
                 return true;
             }
         }
-        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        return super.mouseScrolled(mouseX, mouseY, scrollY);
     }
 
     private void setBlockingModeButtonVisible(boolean visible) {

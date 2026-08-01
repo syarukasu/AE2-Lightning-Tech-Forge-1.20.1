@@ -12,7 +12,7 @@ final class OverloadedIoCost {
             return 0.0;
         }
         long perOperation = Math.max(1L, amountPerOperation);
-        return Math.ceilDiv(amount, perOperation);
+        return 1L + (amount - 1L) / perOperation;
     }
 
     static long amountForOperations(long requested, long amountPerOperation, long operations) {
