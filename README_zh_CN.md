@@ -2,6 +2,11 @@
 
 [English](README.md)
 
+> [!IMPORTANT]
+> 本仓库是 [AE2 Lightning Tech](https://github.com/ae2lt/AE2-Lightning-Tech)
+> 的**非官方 Minecraft 1.20.1 Forge 分支**。本分支不由原模组作者或
+> Applied Energistics 2 团队维护，也不代表他们的官方发布。
+
 一个 [Applied Energistics 2](https://github.com/AppliedEnergistics/Applied-Energistics-2) 的附属模组，添加了一套闪电能源系统、进阶机器以及过载 ME 网络组件。
 
 > 依赖 AE2 · 适用于 Minecraft 1.20.1 / Forge
@@ -73,6 +78,12 @@ AE2 闪电科技对源码和材质使用不同的许可证：
 
 ## 鸣谢
 
-由 **MOAKIEE**、**CystrySU**、**gjmhmm8**、**_leng**、**TedXenon**、**MHanHanBing** 开发。
+- **原版 AE2 Lightning Tech：**由 **MOAKIEE** 创建，并由
+  **CystrySU**、**gjmhmm8**、**_leng**、**TedXenon**、**MHanHanBing**
+  共同开发。
+- **Applied Energistics 2：**由 **TeamAppliedEnergistics** 创建并维护。
+  没有 AE2 就没有这个附属模组。
+- **本仓库：**由 **syarukasu** 维护的非官方 Minecraft 1.20.1 Forge
+  移植版，并非任一上游项目的官方发布。
 
-特别感谢 Applied Energistics 2 团队 —— 没有 AE2 就没有这个附属。
+发行 JAR 内也包含永久署名文件 [CREDITS.md](CREDITS.md)。

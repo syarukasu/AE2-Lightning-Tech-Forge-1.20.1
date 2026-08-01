@@ -7,9 +7,10 @@ issueTrackerURL = "https://github.com/syarukasu/AE2-Lightning-Tech-Forge-1.20.1/
 modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
-displayURL = "https://github.com/MOAKIEE/AE2-Lightning-Tech"
+displayURL = "https://github.com/syarukasu/AE2-Lightning-Tech-Forge-1.20.1"
 logoFile = "ae2lt.png"
 authors = "${mod_authors}"
+credits = "${mod_credits}"
 description = '''${mod_description}'''
 
 [[dependencies."${mod_id}"]]
