@@ -176,6 +176,23 @@ tasks.named('jarJar', Jar).configure {
     finalizedBy 'reobfJar'
 }
 
+// Keep the upstream source and asset license boundaries inside every
+// distributable JAR. The visual assets are CC BY-NC-SA, not LGPL.
+tasks.withType(Jar).configureEach {
+    from('LICENSE') {
+        into 'META-INF'
+        rename { 'LICENSE_ae2lt.txt' }
+    }
+    from('LICENSE_ASSETS.md') {
+        into 'META-INF'
+        rename { 'LICENSE_ASSETS_ae2lt.md' }
+    }
+    from('PORT_NOTES.md') {
+        into 'META-INF'
+        rename { 'PORT_NOTES_ae2lt.md' }
+    }
+}
+
 afterEvaluate {
     tasks.findByName('reobfJarJar')?.configure {
         mustRunAfter 'jar'
