@@ -6,8 +6,29 @@ import com.moakiee.ae2lt.AE2LightningTech;
 import com.moakiee.ae2lt.item.DebugLightningRodItem;
 import com.moakiee.ae2lt.item.ElectroChimeCrystalItem;
 import com.moakiee.ae2lt.item.FixedInfiniteCellItem;
+import com.moakiee.ae2lt.item.FloatingMatterItem;
 import com.moakiee.ae2lt.item.InfiniteStorageCellItem;
+import com.moakiee.ae2lt.item.LightningCollapseMatrixItem;
 import com.moakiee.ae2lt.item.LightningStorageComponentItem;
+import com.moakiee.ae2lt.item.RisingItem;
+import com.moakiee.ae2lt.item.CelestweaveConduitItem;
+import com.moakiee.ae2lt.item.CelestweaveCoreItem;
+import com.moakiee.ae2lt.item.CelestweaveOculusItem;
+import com.moakiee.ae2lt.item.CelestweaveStrideItem;
+import com.moakiee.ae2lt.item.DashSubmoduleItem;
+import com.moakiee.ae2lt.item.DigAffinitySubmoduleItem;
+import com.moakiee.ae2lt.item.FlightSubmoduleItem;
+import com.moakiee.ae2lt.item.NightVisionSubmoduleItem;
+import com.moakiee.ae2lt.item.OverloadedFrequencyCardItem;
+import com.moakiee.ae2lt.item.OverloadedPatternProviderUpgradeItem;
+import com.moakiee.ae2lt.item.PhaseFlightSubmoduleItem;
+import com.moakiee.ae2lt.item.PurificationSubmoduleItem;
+import com.moakiee.ae2lt.item.ReachSubmoduleItem;
+import com.moakiee.ae2lt.item.ReflectSubmoduleItem;
+import com.moakiee.ae2lt.item.ResistanceSubmoduleItem;
+import com.moakiee.ae2lt.item.SaturationSubmoduleItem;
+import com.moakiee.ae2lt.item.UndyingSubmoduleItem;
+import com.moakiee.ae2lt.item.WaterBreathingSubmoduleItem;
 import com.moakiee.ae2lt.item.OverloadCrystalItem;
 import com.moakiee.ae2lt.item.OverloadPatternEncoderItem;
 import com.moakiee.ae2lt.item.OverloadPatternItem;
@@ -16,9 +37,16 @@ import com.moakiee.ae2lt.item.OverloadedWirelessConnectorItem;
 import com.moakiee.ae2lt.item.PerfectElectroChimeCrystalItem;
 import com.moakiee.ae2lt.item.ResearchNoteItem;
 import com.moakiee.ae2lt.item.WeatherCondensateItem;
+import com.moakiee.ae2lt.item.railgun.ElectromagneticRailgunItem;
+import com.moakiee.ae2lt.item.railgun.RailgunModuleItem;
+import com.moakiee.ae2lt.item.railgun.RailgunModuleType;
+import com.moakiee.ae2lt.celestweave.ArmorEnergyModuleItem;
+import com.moakiee.ae2lt.celestweave.ArmorEnergyRules;
+import com.moakiee.ae2lt.celestweave.module.ResistanceSubmodule;
 import com.moakiee.ae2lt.part.OverloadedCablePart;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -37,6 +65,27 @@ public final class ModItems {
 
     public static final RegistryObject<Item> OVERLOAD_CRYSTAL_DUST =
             registerSimpleItem("overload_crystal_dust", new Item.Properties());
+
+    public static final RegistryObject<RisingItem> FIRMAMENT_DUST =
+            registerItem("firmament_dust", RisingItem::new, new Item.Properties());
+    public static final RegistryObject<RisingItem> FIRMAMENT_MIXTURE =
+            registerItem("firmament_mixture", RisingItem::new, new Item.Properties());
+    public static final RegistryObject<RisingItem> FIRMAMENT_ALLOY_INGOT =
+            registerItem("firmament_alloy_ingot", RisingItem::new, new Item.Properties());
+    public static final RegistryObject<RisingItem> FIRMAMENT_ESSENCE =
+            registerItem("firmament_essence", RisingItem::new, new Item.Properties());
+    public static final RegistryObject<RisingItem> INACTIVE_FIRMAMENT_SPIRIT_CORE =
+            registerItem("inactive_firmament_spirit_core", RisingItem::new, new Item.Properties());
+    public static final RegistryObject<RisingItem> FIRMAMENT_SPIRIT_CORE_OCULUS =
+            registerItem("firmament_spirit_core_oculus", RisingItem::new, new Item.Properties());
+    public static final RegistryObject<RisingItem> FIRMAMENT_SPIRIT_CORE_CORE =
+            registerItem("firmament_spirit_core_core", RisingItem::new, new Item.Properties());
+    public static final RegistryObject<RisingItem> FIRMAMENT_SPIRIT_CORE_CONDUIT =
+            registerItem("firmament_spirit_core_conduit", RisingItem::new, new Item.Properties());
+    public static final RegistryObject<RisingItem> FIRMAMENT_SPIRIT_CORE_STRIDE =
+            registerItem("firmament_spirit_core_stride", RisingItem::new, new Item.Properties());
+    public static final RegistryObject<RisingItem> FIRMAMENT_SUPERCONDUCTING_WIRE =
+            registerItem("firmament_superconducting_wire", RisingItem::new, new Item.Properties());
 
     public static final RegistryObject<Item> UNOVERLOADED_CIRCUIT_BOARD =
             registerSimpleItem("unoverloaded_circuit_board", new Item.Properties());
@@ -65,8 +114,11 @@ public final class ModItems {
     public static final RegistryObject<Item> ULTIMATE_OVERLOAD_CORE =
             registerSimpleItem("ultimate_overload_core", new Item.Properties());
 
-    public static final RegistryObject<Item> LIGHTNING_COLLAPSE_MATRIX =
-            registerSimpleItem("lightning_collapse_matrix", new Item.Properties());
+    public static final RegistryObject<LightningCollapseMatrixItem> LIGHTNING_COLLAPSE_MATRIX =
+            registerItem("lightning_collapse_matrix", LightningCollapseMatrixItem::new, new Item.Properties());
+
+    public static final RegistryObject<FloatingMatterItem> FLOATING_MATTER =
+            registerItem("floating_matter", FloatingMatterItem::new, new Item.Properties());
 
     public static final RegistryObject<DebugLightningRodItem> DEBUG_LIGHTNING_ROD = registerItem(
             "debug_lightning_rod",
@@ -144,6 +196,16 @@ public final class ModItems {
             OverloadedWirelessConnectorItem::new,
             new Item.Properties());
 
+    public static final RegistryObject<OverloadedFrequencyCardItem> OVERLOADED_FREQUENCY_CARD = registerItem(
+            "overloaded_frequency_card",
+            OverloadedFrequencyCardItem::new,
+            new Item.Properties());
+
+    public static final RegistryObject<OverloadedPatternProviderUpgradeItem> OVERLOADED_PATTERN_PROVIDER_UPGRADE = registerItem(
+            "overloaded_pattern_provider_upgrade",
+            OverloadedPatternProviderUpgradeItem::new,
+            new Item.Properties());
+
     public static final RegistryObject<OverloadPatternItem> OVERLOAD_PATTERN = registerItem(
             "overload_pattern",
             OverloadPatternItem::new,
@@ -158,6 +220,87 @@ public final class ModItems {
             "overloaded_filter_component",
             OverloadedFilterComponentItem::new,
             new Item.Properties().stacksTo(1));
+
+    public static final RegistryObject<CelestweaveOculusItem> CELESTWEAVE_OCULUS = registerItem(
+            "celestweave_oculus", CelestweaveOculusItem::new, new Item.Properties().rarity(Rarity.EPIC));
+    public static final RegistryObject<CelestweaveCoreItem> CELESTWEAVE_CORE = registerItem(
+            "celestweave_core", CelestweaveCoreItem::new, new Item.Properties().rarity(Rarity.EPIC));
+    public static final RegistryObject<CelestweaveConduitItem> CELESTWEAVE_CONDUIT = registerItem(
+            "celestweave_conduit", CelestweaveConduitItem::new, new Item.Properties().rarity(Rarity.EPIC));
+    public static final RegistryObject<CelestweaveStrideItem> CELESTWEAVE_STRIDE = registerItem(
+            "celestweave_stride", CelestweaveStrideItem::new, new Item.Properties().rarity(Rarity.EPIC));
+
+    public static final RegistryObject<NightVisionSubmoduleItem> CELESTWEAVE_SUBMODULE_NIGHT_VISION = registerItem(
+            "module_night_vision", NightVisionSubmoduleItem::new, new Item.Properties());
+    public static final RegistryObject<WaterBreathingSubmoduleItem> CELESTWEAVE_SUBMODULE_WATER_BREATHING = registerItem(
+            "module_water_breathing", WaterBreathingSubmoduleItem::new, new Item.Properties());
+    public static final RegistryObject<ReachSubmoduleItem> CELESTWEAVE_SUBMODULE_REACH_EXTENSION = registerItem(
+            "module_reach_extension", ReachSubmoduleItem::new, new Item.Properties());
+    public static final RegistryObject<ResistanceSubmoduleItem> CELESTWEAVE_SUBMODULE_MATRIX_SHIELD = registerItem(
+            "module_matrix_shield",
+            properties -> new ResistanceSubmoduleItem(properties, ResistanceSubmodule.T1),
+            new Item.Properties());
+    public static final RegistryObject<ResistanceSubmoduleItem> CELESTWEAVE_SUBMODULE_PHASE_SHIELD = registerItem(
+            "module_phase_shield",
+            properties -> new ResistanceSubmoduleItem(properties, ResistanceSubmodule.T2),
+            new Item.Properties());
+    public static final RegistryObject<ReflectSubmoduleItem> CELESTWEAVE_SUBMODULE_REFLECT = registerItem(
+            "module_reflect", ReflectSubmoduleItem::new, new Item.Properties());
+    public static final RegistryObject<UndyingSubmoduleItem> CELESTWEAVE_SUBMODULE_UNDYING = registerItem(
+            "module_undying", UndyingSubmoduleItem::new, new Item.Properties().rarity(Rarity.EPIC));
+    public static final RegistryObject<DashSubmoduleItem> CELESTWEAVE_SUBMODULE_DASH = registerItem(
+            "module_dash", DashSubmoduleItem::new, new Item.Properties());
+    public static final RegistryObject<FlightSubmoduleItem> CELESTWEAVE_SUBMODULE_FLIGHT = registerItem(
+            "module_creative_flight", FlightSubmoduleItem::new, new Item.Properties());
+    public static final RegistryObject<PurificationSubmoduleItem> CELESTWEAVE_SUBMODULE_PURIFICATION = registerItem(
+            "module_purification", PurificationSubmoduleItem::new, new Item.Properties());
+    public static final RegistryObject<SaturationSubmoduleItem> CELESTWEAVE_SUBMODULE_SATURATION = registerItem(
+            "module_saturation", SaturationSubmoduleItem::new, new Item.Properties());
+    public static final RegistryObject<DigAffinitySubmoduleItem> CELESTWEAVE_SUBMODULE_DIG_AFFINITY = registerItem(
+            "module_dig_affinity", DigAffinitySubmoduleItem::new, new Item.Properties());
+    public static final RegistryObject<PhaseFlightSubmoduleItem> CELESTWEAVE_SUBMODULE_PHASE_FLIGHT = registerItem(
+            "module_phase_flight", PhaseFlightSubmoduleItem::new, new Item.Properties());
+
+    public static final RegistryObject<ArmorEnergyModuleItem> ENERGY_MODULE_T1 = ITEMS.register(
+            "energy_module_t1",
+            () -> new ArmorEnergyModuleItem(
+                    new Item.Properties().stacksTo(16).rarity(Rarity.RARE),
+                    ArmorEnergyRules.MODULE_T1_CAPACITY_FE,
+                    ArmorEnergyRules.MODULE_T1_LEGACY_CAPACITY_FE));
+    public static final RegistryObject<ArmorEnergyModuleItem> ENERGY_MODULE_T2 = ITEMS.register(
+            "energy_module_t2",
+            () -> new ArmorEnergyModuleItem(
+                    new Item.Properties().stacksTo(16).rarity(Rarity.EPIC),
+                    ArmorEnergyRules.MODULE_T2_CAPACITY_FE,
+                    ArmorEnergyRules.MODULE_T2_LEGACY_CAPACITY_FE));
+    public static final RegistryObject<ArmorEnergyModuleItem> ENERGY_MODULE_T3 = ITEMS.register(
+            "energy_module_t3",
+            () -> new ArmorEnergyModuleItem(
+                    new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant(),
+                    ArmorEnergyRules.MODULE_T3_CAPACITY_FE,
+                    ArmorEnergyRules.MODULE_T3_LEGACY_CAPACITY_FE));
+
+    public static final RegistryObject<Item> OVERLOAD_MODULE_BASE =
+            registerSimpleItem("overload_module_base", new Item.Properties());
+
+    public static final RegistryObject<ElectromagneticRailgunItem> ELECTROMAGNETIC_RAILGUN = registerItem(
+            "electromagnetic_railgun",
+            ElectromagneticRailgunItem::new,
+            new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant());
+    public static final RegistryObject<RailgunModuleItem> RAILGUN_MODULE_CORE = ITEMS.register(
+            "railgun_module_core",
+            () -> new RailgunModuleItem(new Item.Properties().stacksTo(16).rarity(Rarity.RARE), RailgunModuleType.CORE));
+    public static final RegistryObject<RailgunModuleItem> RAILGUN_MODULE_COMPUTE = ITEMS.register(
+            "railgun_module_compute",
+            () -> new RailgunModuleItem(new Item.Properties().stacksTo(16).rarity(Rarity.RARE), RailgunModuleType.COMPUTE));
+    public static final RegistryObject<RailgunModuleItem> RAILGUN_MODULE_ACCELERATION = ITEMS.register(
+            "railgun_module_acceleration",
+            () -> new RailgunModuleItem(new Item.Properties().stacksTo(16).rarity(Rarity.RARE), RailgunModuleType.ACCELERATION));
+    public static final RegistryObject<RailgunModuleItem> RAILGUN_MODULE_OVERLOAD_EXECUTION = ITEMS.register(
+            "railgun_module_overload_execution",
+            () -> new RailgunModuleItem(
+                    new Item.Properties().stacksTo(16).rarity(Rarity.EPIC),
+                    RailgunModuleType.OVERLOAD_EXECUTION));
 
     public static final RegistryObject<ColoredPartItem<OverloadedCablePart>> OVERLOADED_CABLE =
             registerOverloadedCable("overloaded_cable", AEColor.TRANSPARENT);

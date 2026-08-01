@@ -8,6 +8,6 @@ import appeng.client.gui.widgets.VerticalButtonBar;
 
 @Mixin(AEBaseScreen.class)
 public interface AEBaseScreenAccessor {
-    @Accessor("verticalToolbar")
+    @Accessor(value = "verticalToolbar", remap = false)
     VerticalButtonBar ae2lt$getVerticalToolbar();
 }

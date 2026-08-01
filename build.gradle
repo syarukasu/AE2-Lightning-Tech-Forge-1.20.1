@@ -69,6 +69,7 @@ minecraft {
 mixin {
     add sourceSets.main, "${mod_id}.refmap.json"
     config "${mod_id}.mixins.json"
+    config "${mod_id}.ae2wtlib.mixins.json"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
@@ -81,9 +82,14 @@ repositories {
         content {
             includeGroup 'appeng'
             includeGroup 'org.appliedenergistics'
+            includeGroup 'de.mari_023'
             includeGroup 'mekanism'
             includeGroup 'dev.technici4n'
         }
+    }
+    maven {
+        name = 'Curios'
+        url = 'https://maven.theillusivec4.top/'
     }
     maven {
         url = 'https://maven.blamejared.com/'
@@ -101,6 +107,9 @@ dependencies {
 
     implementation fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
 
+    compileOnly fg.deobf("curse.maven:applied-energistics-2-wireless-terminals-459929:${ae2wtlib_file_id}")
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api")
+
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
@@ -112,6 +121,8 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:applied-flux-965012:${appflux_file_id}")
     runtimeOnly fg.deobf("org.appliedenergistics:guideme:${guideme_version}")
     runtimeOnly fg.deobf("curse.maven:glodium-957920:${glodium_file_id}")
+    runtimeOnly fg.deobf("curse.maven:applied-energistics-2-wireless-terminals-459929:${ae2wtlib_file_id}")
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}")
 
     compileOnly fg.deobf("curse.maven:extendedae-892005:${extendedae_file_id}")
     runtimeOnly fg.deobf("curse.maven:extendedae-892005:${extendedae_file_id}")
@@ -128,6 +139,13 @@ dependencies {
     jarJar(group: 'io.github.llamalad7', name: 'mixinextras-forge', version: "[${mixinextras_version},)") {
         jarJar.pin(it, "${mixinextras_version}")
     }
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
 }
 
 tasks.named('processResources', ProcessResources).configure {
@@ -164,7 +182,7 @@ tasks.named('jar', Jar).configure {
                 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 'TweakClass'              : 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder'              : 0,
-                'MixinConfigs'            : "${mod_id}.mixins.json"
+                'MixinConfigs'            : "${mod_id}.mixins.json,${mod_id}.ae2wtlib.mixins.json"
         ])
     }
 
@@ -201,4 +219,5 @@ afterEvaluate {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.compilerArgs.addAll(['-Xmaxerrs', '1000'])
 }

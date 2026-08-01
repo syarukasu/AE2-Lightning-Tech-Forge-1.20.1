@@ -1,76 +1,118 @@
 package com.moakiee.ae2lt.network;
 
+import java.util.function.Supplier;
+
+import appeng.api.implementations.menuobjects.ItemMenuHost;
+import appeng.menu.AEBaseMenu;
+import appeng.menu.MenuOpener;
+import appeng.menu.locator.MenuLocator;
 import com.moakiee.ae2lt.api.frequency.FrequencyBindingHost;
 import com.moakiee.ae2lt.api.frequency.FrequencyBindingMenuHost;
 import com.moakiee.ae2lt.grid.FrequencySecurityLevel;
 import com.moakiee.ae2lt.grid.WirelessFrequencyManager;
+import com.moakiee.ae2lt.item.TerminalCardAccess;
 import com.moakiee.ae2lt.menu.FrequencyMenu;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.NetworkEvent;
-import java.util.function.Supplier;
 
-public record OpenFrequencyMenuPacket(int token, BlockPos blockPos) {
+public record OpenFrequencyMenuPacket(boolean cardMode) {
 
-    public static void encode(OpenFrequencyMenuPacket pkt, FriendlyByteBuf buf) {
-        buf.writeVarInt(pkt.token);
-        buf.writeBlockPos(pkt.blockPos);
+    public static OpenFrequencyMenuPacket forBlock() {
+        return new OpenFrequencyMenuPacket(false);
+    }
+
+    public static OpenFrequencyMenuPacket forCard() {
+        return new OpenFrequencyMenuPacket(true);
+    }
+
+    public static void encode(OpenFrequencyMenuPacket packet, FriendlyByteBuf buf) {
+        buf.writeBoolean(packet.cardMode);
     }
 
     public static OpenFrequencyMenuPacket decode(FriendlyByteBuf buf) {
-        return new OpenFrequencyMenuPacket(buf.readVarInt(), buf.readBlockPos());
+        return new OpenFrequencyMenuPacket(buf.readBoolean());
     }
 
-    public static void handle(OpenFrequencyMenuPacket pkt, Supplier<NetworkEvent.Context> ctxSupplier) {
-        var ctx = ctxSupplier.get();
-        ctx.enqueueWork(() -> {
-            ServerPlayer player = ctx.getSender();
-            if (player == null) return;
-
-            if (!(player.containerMenu instanceof FrequencyBindingMenuHost menu)
-                    || menu.getFrequencyBindingToken() != pkt.token
-                    || !menu.getFrequencyBindingBlockPos().equals(pkt.blockPos)
-                    || !((AbstractContainerMenu) menu).stillValid(player)) {
-                player.displayClientMessage(
-                        Component.translatable("ae2lt.gui.error.rejected").withStyle(ChatFormatting.RED),
-                        true);
+    public static void handle(OpenFrequencyMenuPacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
+        var context = contextSupplier.get();
+        context.enqueueWork(() -> {
+            ServerPlayer player = context.getSender();
+            if (player == null) {
                 return;
             }
-
-            var be = player.serverLevel().getBlockEntity(pkt.blockPos);
-            if (!(be instanceof FrequencyBindingHost bindingHost)) {
-                player.displayClientMessage(
-                        Component.translatable("ae2lt.gui.error.rejected").withStyle(ChatFormatting.RED),
-                        true);
-                return;
+            if (packet.cardMode) {
+                handleCardMode(player);
+            } else {
+                handleBlockMode(player);
             }
-
-            int freqId = bindingHost.getFrequencyId();
-            if (freqId > 0) {
-                var manager = WirelessFrequencyManager.get();
-                var freq = manager == null ? null : manager.getFrequency(freqId);
-                if (freq != null
-                        && !freq.getPlayerAccess(player).canUse()
-                        && freq.getSecurity() != FrequencySecurityLevel.ENCRYPTED) {
-                    player.displayClientMessage(
-                            Component.translatable("ae2lt.gui.error.no_access").withStyle(ChatFormatting.RED),
-                            true);
-                    return;
-                }
-            }
-
-            NetworkHooks.openScreen(player, new SimpleMenuProvider(
-                    (id, inv, p) -> new FrequencyMenu(id, inv, be),
-                    be.getBlockState().getBlock().getName()
-            ), buf -> FrequencyMenu.writeExtraData(buf, be));
         });
-        ctx.setPacketHandled(true);
+        context.setPacketHandled(true);
+    }
+
+    private static void handleBlockMode(ServerPlayer player) {
+        if (!(player.containerMenu instanceof AEBaseMenu parentMenu)
+                || !(parentMenu instanceof FrequencyBindingMenuHost)
+                || !parentMenu.stillValid(player)) {
+            reject(player);
+            return;
+        }
+
+        MenuLocator parentLocator = parentMenu.getLocator();
+        if (parentLocator == null) {
+            reject(player);
+            return;
+        }
+
+        FrequencyBindingHost bindingHost = parentLocator.locate(player, FrequencyBindingHost.class);
+        if (bindingHost == null) {
+            reject(player);
+            return;
+        }
+        int frequencyId = bindingHost.getFrequencyId();
+        if (frequencyId > 0) {
+            var manager = WirelessFrequencyManager.get();
+            var frequency = manager == null ? null : manager.getFrequency(frequencyId);
+            if (frequency != null
+                    && !frequency.getPlayerAccess(player).canUse()
+                    && frequency.getSecurity() != FrequencySecurityLevel.ENCRYPTED) {
+                player.displayClientMessage(
+                        Component.translatable("ae2lt.gui.error.no_access").withStyle(ChatFormatting.RED),
+                        true);
+                return;
+            }
+        }
+
+        if (!MenuOpener.open(FrequencyMenu.TYPE, player, parentLocator)) {
+            reject(player);
+        }
+    }
+
+    private static void handleCardMode(ServerPlayer player) {
+        if (!(player.containerMenu instanceof AEBaseMenu aeMenu) || !aeMenu.stillValid(player)) {
+            reject(player);
+            return;
+        }
+
+        MenuLocator locator = aeMenu.getLocator();
+        ItemMenuHost host = locator == null ? null : locator.locate(player, ItemMenuHost.class);
+        if (host == null || !TerminalCardAccess.hasCard(host.getItemStack())) {
+            player.displayClientMessage(
+                    Component.translatable("ae2lt.frequency_card.terminal_no_card").withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
+        if (!MenuOpener.open(FrequencyMenu.TYPE, player, locator)) {
+            reject(player);
+        }
+    }
+
+    private static void reject(ServerPlayer player) {
+        player.displayClientMessage(
+                Component.translatable("ae2lt.gui.error.rejected").withStyle(ChatFormatting.RED),
+                true);
     }
 }
-

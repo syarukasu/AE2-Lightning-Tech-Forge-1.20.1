@@ -5,6 +5,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -59,6 +61,14 @@ public final class LightningKeyClientInit {
                 ModItems.LIGHTNING_STORAGE_COMPONENT_III.get(),
                 ModItems.LIGHTNING_STORAGE_COMPONENT_IV.get(),
                 ModItems.LIGHTNING_STORAGE_COMPONENT_V.get());
+    }
+
+    @SubscribeEvent
+    public static void registerOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerAbove(
+                VanillaGuiOverlay.ARMOR_LEVEL.id(),
+                "celestweave_energy_level",
+                CelestweaveArmorEnergyLevel.INSTANCE);
     }
 }
 

@@ -2,8 +2,9 @@
 
 This private repository preserves the upstream history of
 [ae2lt/AE2-Lightning-Tech](https://github.com/ae2lt/AE2-Lightning-Tech).
-It is based on the upstream `port/1.20.1-forge` branch at commit
-`b7830ef`.
+It uses the upstream `port/1.20.1-forge` branch at commit `b7830ef` as
+the platform baseline and ports the upstream `1.1.4` release at commit
+`e4bce55f` onto it.
 
 ## Runtime target
 
@@ -12,10 +13,23 @@ It is based on the upstream `port/1.20.1-forge` branch at commit
 - Applied Energistics 2 `15.4.10`
 - Java `17`
 
-The mod id, package names, content, recipes, assets, and gameplay behavior are
-kept compatible with the upstream Forge port. This initial release represents
-the upstream `1.0.13` Forge feature set. It must not be described as feature
-parity with the upstream NeoForge `1.1.4` release.
+The mod id, package names, registered content, recipes, assets, configuration,
+and gameplay behavior follow upstream `1.1.4`. Platform APIs, networking,
+registries, data components, resource paths, and JSON formats are adapted only
+where Minecraft 1.20.1 and Forge 47.4.20 require different interfaces.
+
+The upstream NeoForge project remains the canonical project. This repository
+exists solely to maintain the Minecraft 1.20.1 Forge port.
+
+## Version-specific compatibility
+
+Upstream `1.1.4` optionally adds an Overload Processor recipe to ExtendedAE's
+1.21-only Crystal Assembler. ExtendedAE for Minecraft 1.20.1 does not register
+that machine or recipe type, so the port does not publish an invalid placeholder
+recipe. Overload Processors retain both upstream core production paths: the AE2
+Inscriber recipe and the 36-output Overload Processing Factory recipe. Empty
+storage-cell disassembly is provided directly by AE2 15.4.10's
+`BasicStorageCell` behavior rather than duplicate data-component recipes.
 
 ## Attribution and licenses
 

@@ -5,10 +5,13 @@ import com.moakiee.ae2lt.blockentity.WirelessOverloadedControllerBlockEntity;
 import com.moakiee.ae2lt.grid.FrequencySecurityLevel;
 import com.moakiee.ae2lt.grid.WirelessFrequency;
 import com.moakiee.ae2lt.grid.WirelessFrequencyManager;
+import com.moakiee.ae2lt.item.OverloadedFrequencyCardData;
+import com.moakiee.ae2lt.item.TerminalCardAccess;
 import com.moakiee.ae2lt.menu.FrequencyMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
@@ -39,7 +42,17 @@ public record SelectFrequencyPacket(
             if (player == null) return;
 
             FrequencyMenu menu = FrequencyMenu.validateToken(player, pkt.token);
-            if (menu == null || !menu.getBlockPos().equals(pkt.blockPos)) {
+            if (menu == null) {
+                NetworkInit.sendToPlayer(player, new FrequencyResponsePacket(FrequencyResponsePacket.REJECTED));
+                return;
+            }
+
+            if (menu.isCardMode()) {
+                handleCardSelect(player, menu, pkt.frequencyId, pkt.password);
+                return;
+            }
+
+            if (!menu.getBlockPos().equals(pkt.blockPos)) {
                 NetworkInit.sendToPlayer(player, new FrequencyResponsePacket(FrequencyResponsePacket.REJECTED));
                 return;
             }
@@ -150,6 +163,71 @@ public record SelectFrequencyPacket(
             // DataSlot handles freqId sync; members may have been updated above
         });
         ctx.setPacketHandled(true);
+    }
+
+    private static void handleCardSelect(ServerPlayer player, FrequencyMenu menu, int targetFrequencyId,
+                                         String password) {
+        ItemStack terminal = menu.resolveTerminalStack();
+        if (!TerminalCardAccess.hasCard(terminal)) {
+            NetworkInit.sendToPlayer(player, new FrequencyResponsePacket(FrequencyResponsePacket.REJECTED));
+            return;
+        }
+
+        var manager = WirelessFrequencyManager.get();
+        if (manager == null) {
+            return;
+        }
+
+        int currentFrequencyId = TerminalCardAccess.readCardData(terminal).frequencyId();
+        boolean changingBinding = targetFrequencyId != currentFrequencyId;
+        if (changingBinding && currentFrequencyId > 0) {
+            var currentFrequency = manager.getFrequency(currentFrequencyId);
+            if (currentFrequency != null && !currentFrequency.canPlayerAccess(player, "")) {
+                NetworkInit.sendToPlayer(player,
+                        new FrequencyResponsePacket(FrequencyResponsePacket.NO_PERMISSION));
+                return;
+            }
+        }
+
+        if (targetFrequencyId <= 0) {
+            TerminalCardAccess.updateCard(terminal, OverloadedFrequencyCardData::clearFrequency);
+            return;
+        }
+
+        WirelessFrequency frequency = manager.getFrequency(targetFrequencyId);
+        if (frequency == null) {
+            NetworkInit.sendToPlayer(player,
+                    new FrequencyResponsePacket(FrequencyResponsePacket.INVALID_FREQUENCY));
+            return;
+        }
+
+        if (!frequency.canPlayerAccess(player, password)) {
+            if (frequency.getSecurity() == FrequencySecurityLevel.ENCRYPTED
+                    && !frequency.getPlayerAccess(player).canUse()
+                    && password.isBlank()) {
+                NetworkInit.sendToPlayer(player,
+                        new FrequencyResponsePacket(FrequencyResponsePacket.REQUIRE_PASSWORD));
+            } else if (frequency.getSecurity() == FrequencySecurityLevel.ENCRYPTED
+                    && !frequency.getPlayerAccess(player).canUse()) {
+                NetworkInit.sendToPlayer(player,
+                        new FrequencyResponsePacket(FrequencyResponsePacket.REJECTED));
+            } else {
+                NetworkInit.sendToPlayer(player,
+                        new FrequencyResponsePacket(FrequencyResponsePacket.NO_PERMISSION));
+            }
+            return;
+        }
+
+        if (!frequency.isMember(player) && frequency.enrollAsUser(player)) {
+            manager.markModified();
+            SyncFrequencyDetailPacket.broadcastMembersTo(player.getServer(), targetFrequencyId);
+        }
+
+        TerminalCardAccess.updateCard(terminal, data -> data.bindFrequency(
+                targetFrequencyId,
+                player.level().dimension().location().toString(),
+                player.blockPosition().asLong(),
+                player.getUUID()));
     }
 }
 

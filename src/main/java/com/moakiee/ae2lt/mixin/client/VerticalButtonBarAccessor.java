@@ -11,6 +11,6 @@ import appeng.client.gui.widgets.VerticalButtonBar;
 
 @Mixin(VerticalButtonBar.class)
 public interface VerticalButtonBarAccessor {
-    @Accessor("buttons")
+    @Accessor(value = "buttons", remap = false)
     List<Button> ae2lt$getButtons();
 }
