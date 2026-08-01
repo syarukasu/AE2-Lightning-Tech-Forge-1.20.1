@@ -271,6 +271,11 @@ public class OverloadProcessingFactoryMenu extends AEBaseMenu implements Frequen
         return host;
     }
 
+    @Override
+    public net.minecraft.core.BlockPos getFrequencyBindingBlockPos() {
+        return host.getBlockPos();
+    }
+
     public ToolboxMenu getToolbox() {
         return toolbox;
     }

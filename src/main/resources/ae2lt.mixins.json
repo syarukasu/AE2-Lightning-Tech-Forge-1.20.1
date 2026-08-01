@@ -30,9 +30,7 @@
     "client.CableBusRenderStateMixin",
     "client.CableBusContainerRenderMixin",
     "client.CableBusBakedModelMixin",
-    "client.PatternProviderScreenAccessor",
-    "client.AEBaseScreenAccessor",
-    "client.AEBaseScreenFrequencyTerminalButtonMixin"
+    "client.PatternProviderScreenAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

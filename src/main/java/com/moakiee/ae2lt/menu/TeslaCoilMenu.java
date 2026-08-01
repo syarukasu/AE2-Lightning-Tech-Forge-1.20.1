@@ -229,6 +229,11 @@ public class TeslaCoilMenu extends AEBaseMenu implements FrequencyBindingMenu {
         return host;
     }
 
+    @Override
+    public net.minecraft.core.BlockPos getFrequencyBindingBlockPos() {
+        return host.getBlockPos();
+    }
+
     private void cycleMode() {
         if (!isServerSide()) {
             return;

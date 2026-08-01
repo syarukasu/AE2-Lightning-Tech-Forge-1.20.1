@@ -111,6 +111,11 @@ public class AtmosphericIonizerMenu extends AEBaseMenu implements FrequencyBindi
         return consumedEnergy;
     }
 
+    @Override
+    public net.minecraft.core.BlockPos getFrequencyBindingBlockPos() {
+        return host.getBlockPos();
+    }
+
     public long getTotalEnergyRequired() {
         return totalEnergy;
     }
