@@ -1,7 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "${loader_version_range}"
 license = "${mod_license}"
-issueTrackerURL = "https://github.com/MOAKIEE/AE2-Lightning-Tech/issues"
+issueTrackerURL = "https://github.com/syarukasu/AE2-Lightning-Tech-Forge-1.20.1/issues"
 
 [[mods]]
 modId = "${mod_id}"
@@ -48,6 +48,13 @@ ordering = "AFTER"
 side = "CLIENT"
 
 [[dependencies."${mod_id}"]]
+modId = "ae2jeiintegration"
+mandatory = false
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "CLIENT"
+
+[[dependencies."${mod_id}"]]
 modId = "advanced_ae"
 mandatory = false
 versionRange = "[0,)"
@@ -56,6 +63,48 @@ side = "BOTH"
 
 [[dependencies."${mod_id}"]]
 modId = "expatternprovider"
+mandatory = false
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "extendedae_plus"
+mandatory = false
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "ae2wtlib"
+mandatory = false
+versionRange = "[15.3.3,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "curios"
+mandatory = false
+versionRange = "[5.14.1,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "flywheel"
+mandatory = false
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "CLIENT"
+
+[[dependencies."${mod_id}"]]
+modId = "ponder"
+mandatory = false
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "CLIENT"
+
+[[dependencies."${mod_id}"]]
+modId = "neoecoae"
 mandatory = false
 versionRange = "[0,)"
 ordering = "AFTER"

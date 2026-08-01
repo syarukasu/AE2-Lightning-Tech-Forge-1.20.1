@@ -59,8 +59,10 @@ final class AE2NativeMachineAdapter implements MachineAdapter {
 
     private final Map<TargetFaceKey, StorageCacheEntry> storageCache = new HashMap<>();
 
-    /** Reusable scan buffer — safe because server tick is single-threaded. */
-    private final KeyCounter scanBuffer = new KeyCounter();
+    /** Sweep interval for dropping cache entries whose block entity is gone. */
+    private static final int SWEEP_INTERVAL_TICKS = 600;
+    /** Negative init so the first call sweeps immediately without long overflow. */
+    private long lastSweepTick = -SWEEP_INTERVAL_TICKS;
 
     private AE2NativeMachineAdapter() {}
 
@@ -192,18 +194,22 @@ final class AE2NativeMachineAdapter implements MachineAdapter {
     // ---- extractOutputs ---------------------------------------------------------
 
     @Override
-    public List<GenericStack> extractOutputs(ServerLevel level, BlockPos pos, Direction face,
-                                             AllowedOutputFilter allowedOutputs, IActionSource source) {
+    public boolean extractOutputs(ServerLevel level, BlockPos pos, Direction face,
+                                  AllowedOutputFilter allowedOutputs, IActionSource source,
+                                  OutputSink sink) {
         var cached = resolveCache(level, pos, face);
-        if (cached == null) return List.of();
+        if (cached == null) return false;
 
         var wrappers = cached.getWrappers(level.getGameTime());
-        if (wrappers == null) return List.of();
+        if (wrappers == null) return false;
 
-        var extracted = new ArrayList<GenericStack>();
+        boolean extractedAny = false;
 
         for (var wrapper : wrappers.values()) {
-            scanBuffer.reset();
+            // Fresh counter per scan: KeyCounter.reset() keeps zeroed keys forever,
+            // so a reused buffer accumulates every key ever scanned and makes
+            // reset/iteration cost grow unboundedly (was 77% of server tick).
+            var scanBuffer = new KeyCounter();
             wrapper.getAvailableStacks(scanBuffer);
 
             for (var entry : scanBuffer) {
@@ -211,13 +217,27 @@ final class AE2NativeMachineAdapter implements MachineAdapter {
                 long amount = entry.getLongValue();
                 if (amount <= 0 || !allowedOutputs.matches(key)) continue;
 
-                long taken = wrapper.extract(key, amount, Actionable.MODULATE, source);
-                if (taken > 0) {
-                    extracted.add(new GenericStack(key, taken));
+                // Cap before extracting: an uncapped extract-then-store used to
+                // void items whenever power or sink capacity ran out mid-transfer.
+                long cap = sink.maxAccept(key, amount);
+                if (cap <= 0) continue;
+
+                long taken = wrapper.extract(key, Math.min(cap, amount), Actionable.MODULATE, source);
+                if (taken <= 0) continue;
+                extractedAny = true;
+
+                long leftover = taken - sink.accept(key, taken);
+                if (leftover > 0) {
+                    // Sink state changed between maxAccept and accept; try the
+                    // machine first, then force the rest on the sink — never void.
+                    leftover -= wrapper.insert(key, leftover, Actionable.MODULATE, source);
+                    if (leftover > 0) {
+                        sink.acceptOverflow(key, leftover);
+                    }
                 }
             }
         }
-        return extracted;
+        return extractedAny;
     }
 
     // ---- helpers ----------------------------------------------------------------
@@ -246,13 +266,15 @@ final class AE2NativeMachineAdapter implements MachineAdapter {
      */
     @Nullable
     private StorageCacheEntry resolveCache(ServerLevel level, BlockPos pos, Direction face) {
+        sweepStaleEntries(level.getGameTime());
+
+        var cacheKey = new TargetFaceKey(level.dimension(), pos.asLong(), face);
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity == null) {
-            storageCache.remove(new TargetFaceKey(level.dimension(), pos.asLong(), face));
+            storageCache.remove(cacheKey);
             return null;
         }
 
-        var cacheKey = new TargetFaceKey(level.dimension(), pos.asLong(), face);
         var cached = storageCache.get(cacheKey);
 
         if (cached == null || !cached.isValid(blockEntity)) {
@@ -266,5 +288,20 @@ final class AE2NativeMachineAdapter implements MachineAdapter {
         }
 
         return cached;
+    }
+
+    /**
+     * Periodically drop cache entries whose target block entity was removed
+     * or unloaded; otherwise stale strategies (and their capability caches)
+     * for dismantled machines would be retained forever.
+     */
+    private void sweepStaleEntries(long gameTick) {
+        // gameTick may move backwards (singleton outlives world reloads); sweep immediately then.
+        if (gameTick >= lastSweepTick && gameTick - lastSweepTick < SWEEP_INTERVAL_TICKS) return;
+        lastSweepTick = gameTick;
+        storageCache.values().removeIf(entry -> {
+            var be = entry.blockEntityRef.get();
+            return be == null || be.isRemoved();
+        });
     }
 }

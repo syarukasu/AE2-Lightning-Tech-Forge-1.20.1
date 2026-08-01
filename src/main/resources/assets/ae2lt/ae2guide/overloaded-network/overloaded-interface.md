@@ -39,7 +39,7 @@ In Wireless Mode, the Overloaded ME Interface can manage input, output, and ener
 
 Use the **Overloaded Wireless Connect Tool** to establish wireless connections:
 
-1. Hold the tool and **Shift + right-click** the Overloaded ME Interface to select it
+1. Hold the tool and **right-click** the Overloaded ME Interface to select it
 2. Right-click a specific face of a target machine to connect
 3. One interface can bind to multiple remote machines
 
@@ -67,6 +67,10 @@ The interface uses an adaptive cooldown — the cooldown shortens when items are
 ## Unlimited Mode
 
 Shift-clicking a configuration slot switches it to **Unlimited Mode**. In this mode, the slot continuously supplies the configured item to remote machines in unlimited quantity.
+
+## ME Power Cost
+
+Transfers consume ME network power. For large imports or exports, make sure the network has a large enough AE energy buffer; if power is insufficient, transfer pauses or moves only what the network can support.
 
 ## Import Filter
 

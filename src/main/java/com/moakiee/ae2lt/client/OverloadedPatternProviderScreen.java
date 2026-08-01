@@ -3,7 +3,6 @@ package com.moakiee.ae2lt.client;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -11,9 +10,12 @@ import appeng.client.gui.implementations.PatternProviderScreen;
 import appeng.client.gui.style.ScreenStyle;
 import appeng.menu.SlotSemantics;
 
+import com.moakiee.ae2lt.api.client.PatternProviderToolbarButtonHider;
 import com.moakiee.ae2lt.blockentity.OverloadedPatternProviderBlockEntity.ReturnMode;
 import com.moakiee.ae2lt.menu.OverloadedPatternProviderMenu;
+import com.moakiee.ae2lt.mixin.client.AEBaseScreenAccessor;
 import com.moakiee.ae2lt.mixin.client.PatternProviderScreenAccessor;
+import com.moakiee.ae2lt.mixin.client.VerticalButtonBarAccessor;
 
 public class OverloadedPatternProviderScreen<M extends OverloadedPatternProviderMenu> extends PatternProviderScreen<M> {
 
@@ -44,12 +46,11 @@ public class OverloadedPatternProviderScreen<M extends OverloadedPatternProvider
 
     private static final int SLOTS_PER_PAGE = 36;
 
-    private Button prevPageButton;
-    private Button nextPageButton;
-
     public OverloadedPatternProviderScreen(M menu, Inventory playerInventory,
                                            Component title, ScreenStyle style) {
         super(menu, playerInventory, title, style);
+
+        removeHiddenToolbarButtons();
 
         addToLeftToolbar(FrequencyBindingClient.createToolbarButton(menu));
 
@@ -92,17 +93,6 @@ public class OverloadedPatternProviderScreen<M extends OverloadedPatternProvider
         super.init();
 
         alignSlotPositions();
-
-        prevPageButton = Button.builder(Component.literal("<"),
-                btn -> this.menu.clientPrevPage())
-                .bounds(this.leftPos + 110, this.topPos + 30, 14, 12).build();
-
-        nextPageButton = Button.builder(Component.literal(">"),
-                btn -> this.menu.clientNextPage())
-                .bounds(this.leftPos + 156, this.topPos + 30, 14, 12).build();
-
-        addRenderableWidget(prevPageButton);
-        addRenderableWidget(nextPageButton);
     }
 
     /**
@@ -132,7 +122,11 @@ public class OverloadedPatternProviderScreen<M extends OverloadedPatternProvider
         if (tp > 1) {
             String pageText = (this.menu.getCurrentPage() + 1) + "/" + tp;
             int textWidth = this.font.width(pageText);
-            guiGraphics.drawString(this.font, pageText, 136 - textWidth / 2, 33, 0x404040, false);
+            guiGraphics.drawString(this.font, pageText,
+                    PatternProviderPageIndicator.centeredX(this.imageWidth, textWidth),
+                    33,
+                    0x404040,
+                    false);
         }
     }
 
@@ -163,18 +157,34 @@ public class OverloadedPatternProviderScreen<M extends OverloadedPatternProvider
         this.wirelessSpeedButton.setState(this.menu.isFastSpeedMode());
         this.wirelessSpeedButton.setVisibility(
                 this.menu.isWirelessMode() && this.menu.isWirelessTuningVisible());
+    }
 
-        boolean multiPage = this.menu.getTotalPages() > 1;
-        prevPageButton.visible = multiPage;
-        nextPageButton.visible = multiPage;
-        prevPageButton.active = multiPage && this.menu.getCurrentPage() > 0;
-        nextPageButton.active = multiPage && this.menu.getCurrentPage() < this.menu.getTotalPages() - 1;
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
+        if (this.menu.getTotalPages() > 1) {
+            var direction = PatternProviderPageScroll.directionForDelta(scrollY);
+            if (direction == PatternProviderPageScroll.Direction.PREVIOUS) {
+                this.menu.clientPrevPage();
+                return true;
+            }
+            if (direction == PatternProviderPageScroll.Direction.NEXT) {
+                this.menu.clientNextPage();
+                return true;
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollY);
     }
 
     private void setBlockingModeButtonVisible(boolean visible) {
         var button = ((PatternProviderScreenAccessor) this).ae2lt$getBlockingModeButton();
         button.visible = visible;
         button.active = visible;
+    }
+
+    private void removeHiddenToolbarButtons() {
+        var toolbar = ((AEBaseScreenAccessor) this).ae2lt$getVerticalToolbar();
+        var buttons = ((VerticalButtonBarAccessor) toolbar).ae2lt$getButtons();
+        PatternProviderToolbarButtonHider.removeHiddenToolbarButtons(buttons);
     }
 
 }

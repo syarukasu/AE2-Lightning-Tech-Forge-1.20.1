@@ -3,12 +3,15 @@ package com.moakiee.ae2lt.registry;
 import com.moakiee.ae2lt.AE2LightningTech;
 import com.moakiee.ae2lt.blockentity.AtmosphericIonizerBlockEntity;
 import com.moakiee.ae2lt.blockentity.CrystalCatalyzerBlockEntity;
+import com.moakiee.ae2lt.blockentity.FirmamentConversionCoreBlockEntity;
 import com.moakiee.ae2lt.blockentity.FumoBlockEntity;
 import com.moakiee.ae2lt.blockentity.GhostOutputBlockEntity;
+import com.moakiee.ae2lt.blockentity.ExtendedOverloadedPatternProviderBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningAssemblyChamberBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningCollectorBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningSimulationChamberBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadProcessingFactoryBlockEntity;
+import com.moakiee.ae2lt.blockentity.OverloadDeviceWorkbenchBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadedControllerBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadedInterfaceBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadedPatternProviderBlockEntity;
@@ -34,6 +37,14 @@ public final class ModBlockEntities {
                     () -> BlockEntityType.Builder.of(
                             LightningCollectorBlockEntity::new,
                             ModBlocks.LIGHTNING_COLLECTOR.get())
+                            .build(null));
+
+    public static final RegistryObject<BlockEntityType<FirmamentConversionCoreBlockEntity>>
+            FIRMAMENT_CONVERSION_CORE = BLOCK_ENTITY_TYPES.register(
+                    "firmament_conversion_core",
+                    () -> BlockEntityType.Builder.of(
+                            FirmamentConversionCoreBlockEntity::new,
+                            ModBlocks.FIRMAMENT_CONVERSION_CORE.get())
                             .build(null));
 
     public static final RegistryObject<BlockEntityType<OverloadedControllerBlockEntity>>
@@ -108,6 +119,14 @@ public final class ModBlockEntities {
                             ModBlocks.OVERLOADED_PATTERN_PROVIDER.get())
                             .build(null));
 
+    public static final RegistryObject<BlockEntityType<ExtendedOverloadedPatternProviderBlockEntity>>
+            EXTENDED_OVERLOADED_PATTERN_PROVIDER = BLOCK_ENTITY_TYPES.register(
+                    "extended_overloaded_pattern_provider",
+                    () -> BlockEntityType.Builder.of(
+                            ExtendedOverloadedPatternProviderBlockEntity::new,
+                            ModBlocks.EXTENDED_OVERLOADED_PATTERN_PROVIDER.get())
+                            .build(null));
+
     public static final RegistryObject<BlockEntityType<OverloadedInterfaceBlockEntity>>
             OVERLOADED_INTERFACE = BLOCK_ENTITY_TYPES.register(
                     "overloaded_interface",
@@ -167,6 +186,14 @@ public final class ModBlockEntities {
                             ModFumos.MOAKIEE_FUMO.get(),
                             ModFumos.CYSTRYSU_FUMO.get(),
                             ModFumos.PIGMEE_FUMO.get())
+                            .build(null));
+
+    public static final RegistryObject<BlockEntityType<OverloadDeviceWorkbenchBlockEntity>>
+            OVERLOAD_DEVICE_WORKBENCH = BLOCK_ENTITY_TYPES.register(
+                    "overload_device_workbench",
+                    () -> BlockEntityType.Builder.of(
+                            OverloadDeviceWorkbenchBlockEntity::new,
+                            ModBlocks.OVERLOAD_DEVICE_WORKBENCH.get())
                             .build(null));
 
     private ModBlockEntities() {

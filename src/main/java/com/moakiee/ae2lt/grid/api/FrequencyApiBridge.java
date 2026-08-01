@@ -84,10 +84,10 @@ public final class FrequencyApiBridge implements FrequencyApiProvider {
 
     @Override
     public void openBindingScreen(AbstractContainerMenu menu) {
-        var host = (FrequencyBindingMenuHost) menu;
-        NetworkInit.sendToServer(new OpenFrequencyMenuPacket(
-                host.getFrequencyBindingToken(),
-                host.getFrequencyBindingBlockPos()));
+        if (!(menu instanceof FrequencyBindingMenuHost)) {
+            throw new IllegalArgumentException("Menu does not expose a frequency binding host");
+        }
+        NetworkInit.sendToServer(OpenFrequencyMenuPacket.forBlock());
     }
 
     private static FrequencySecurity toApiSecurity(FrequencySecurityLevel level) {

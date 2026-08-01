@@ -5,33 +5,46 @@ import org.jetbrains.annotations.Nullable;
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.networking.IGrid;
+import appeng.api.stacks.AEFluidKey;
+import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.AEKey;
 import appeng.api.stacks.KeyCounter;
 
 /**
  * Centralised AE-power accounting used by the Overloaded ME Interface and the
  * Overloaded Pattern Provider. The model mirrors AE2's vanilla I/O bus
- * pricing — one logical operation costs {@link #AE_PER_OPERATION} AE, where
- * the operation count is {@code ceil(amount / key.getAmountPerOperation())}.
+ * pricing — one logical operation costs {@link #AE_PER_OPERATION} AE. The
+ * overloaded item/fluid channels use larger batches than vanilla AE2 because
+ * these machines are intended for high-throughput I/O.
  *
  * <p>Cost is dimension-agnostic by design: cross-dimension transfers cost the
  * same as same-dimension transfers.
  */
 public final class PowerCostUtil {
 
-    /** AE charged for each logical transfer operation (1 item / 125 mB / etc.). */
+    /** AE charged for each logical transfer operation (4 items / 500 mB / etc.). */
     public static final double AE_PER_OPERATION = 1.0;
 
+    /**
+     * Ticks of idle drain kept untouched by bulk consumers. Draining the grid
+     * to exactly zero makes the end-of-tick idle payment fail, which AE2
+     * punishes with an instant network power-down plus a 30-tick reboot delay.
+     */
+    private static final double RESERVE_TICKS = 60.0;
+
     private PowerCostUtil() {
+    }
+
+    /** AE amount bulk consumers must leave in the grid (see {@link #RESERVE_TICKS}). */
+    public static double idleReserve(IGrid grid) {
+        return grid.getEnergyService().getIdlePowerUsage() * RESERVE_TICKS;
     }
 
     public static double cost(AEKey key, long amount) {
         if (key == null || amount <= 0) {
             return 0.0;
         }
-        long perOp = Math.max(1L, key.getAmountPerOperation());
-        long ops = 1L + ((amount - 1L) / perOp);
-        return ops * AE_PER_OPERATION;
+        return OverloadedIoCost.cost(amount, amountPerOperation(key)) * AE_PER_OPERATION;
     }
 
     public static double totalCost(KeyCounter[] inputs) {
@@ -62,23 +75,28 @@ public final class PowerCostUtil {
         if (need <= 0.0) {
             return requested;
         }
+        double reserve = idleReserve(grid);
         double available = grid.getEnergyService()
-                .extractAEPower(need, Actionable.SIMULATE, PowerMultiplier.CONFIG);
-        if (available + 1.0e-6 >= need) {
+                .extractAEPower(need + reserve, Actionable.SIMULATE, PowerMultiplier.CONFIG);
+        double usable = available - reserve;
+        if (usable + 1.0e-6 >= need) {
             return requested;
         }
-        long perOp = Math.max(1L, key.getAmountPerOperation());
-        long affordableOps = (long) Math.floor(available / AE_PER_OPERATION);
+        long affordableOps = (long) Math.floor(usable / AE_PER_OPERATION);
         if (affordableOps <= 0) {
             return 0;
         }
-        long capped;
-        try {
-            capped = Math.multiplyExact(affordableOps, perOp);
-        } catch (ArithmeticException overflow) {
-            capped = Long.MAX_VALUE;
+        return OverloadedIoCost.amountForOperations(requested, amountPerOperation(key), affordableOps);
+    }
+
+    private static long amountPerOperation(AEKey key) {
+        if (AEItemKey.is(key)) {
+            return OverloadedIoCost.ITEMS_PER_OPERATION;
         }
-        return Math.max(0, Math.min(requested, capped));
+        if (AEFluidKey.is(key)) {
+            return OverloadedIoCost.FLUID_PER_OPERATION;
+        }
+        return Math.max(1L, key.getAmountPerOperation());
     }
 
     /**
@@ -110,9 +128,10 @@ public final class PowerCostUtil {
         if (grid == null) {
             return false;
         }
+        double total = need + idleReserve(grid);
         double available = grid.getEnergyService()
-                .extractAEPower(need, Actionable.SIMULATE, PowerMultiplier.CONFIG);
-        return available + 1.0e-6 >= need;
+                .extractAEPower(total, Actionable.SIMULATE, PowerMultiplier.CONFIG);
+        return available + 1.0e-6 >= total;
     }
 
     /**

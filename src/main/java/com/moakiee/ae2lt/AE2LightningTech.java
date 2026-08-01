@@ -8,6 +8,10 @@ import com.moakiee.ae2lt.registry.ModAEKeyTypes;
 import com.moakiee.ae2lt.registry.ModFumos;
 import com.moakiee.ae2lt.registry.ModMenuTypes;
 import com.moakiee.ae2lt.registry.ModRecipeTypes;
+import com.moakiee.ae2lt.registry.ModLootModifiers;
+import com.moakiee.ae2lt.registry.ModMobEffects;
+import com.moakiee.ae2lt.registry.ModSounds;
+import com.moakiee.ae2lt.registry.ModStructureTypes;
 import com.moakiee.ae2lt.config.AE2LTCommonConfig;
 import com.moakiee.ae2lt.api.lightning.ILightningEnergyHandler;
 import com.moakiee.ae2lt.blockentity.AtmosphericIonizerBlockEntity;
@@ -15,6 +19,7 @@ import com.moakiee.ae2lt.blockentity.CrystalCatalyzerBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningAssemblyChamberBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningCollectorBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadedControllerBlockEntity;
+import com.moakiee.ae2lt.blockentity.ExtendedOverloadedPatternProviderBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadedInterfaceBlockEntity;
 import com.moakiee.ae2lt.blockentity.LightningSimulationChamberBlockEntity;
 import com.moakiee.ae2lt.blockentity.OverloadProcessingFactoryBlockEntity;
@@ -115,6 +120,7 @@ public class AE2LightningTech {
                         // 网络设备
                         acceptCreative(output, ModBlocks.OVERLOADED_CONTROLLER);
                         acceptCreative(output, ModBlocks.OVERLOADED_PATTERN_PROVIDER);
+                        acceptCreative(output, ModBlocks.EXTENDED_OVERLOADED_PATTERN_PROVIDER);
                         acceptCreative(output, ModBlocks.OVERLOADED_INTERFACE);
                         if (ModBlocks.hasOverloadedPowerSupply()) {
                             acceptCreative(output, ModBlocks.OVERLOADED_POWER_SUPPLY);
@@ -207,6 +213,11 @@ public class AE2LightningTech {
         ModMenuTypes.MENU_TYPES.register(modEventBus);
         ModRecipeTypes.RECIPE_SERIALIZERS.register(modEventBus);
         ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
+        ModLootModifiers.LOOT_MODIFIER_SERIALIZERS.register(modEventBus);
+        ModMobEffects.EFFECTS.register(modEventBus);
+        ModSounds.SOUND_EVENTS.register(modEventBus);
+        ModStructureTypes.STRUCTURE_TYPES.register(modEventBus);
+        ModStructureTypes.STRUCTURE_PIECES.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         modEventBus.addListener(ModAEKeyTypes::register);
         modEventBus.addListener(this::registerCapabilities);
@@ -587,6 +598,15 @@ public class AE2LightningTech {
                     OverloadedPatternProviderBlockEntity::serverTick
             );
 
+            var extendedPatternProviderBlock = ModBlocks.EXTENDED_OVERLOADED_PATTERN_PROVIDER.get();
+            var extendedPatternProviderBeType = ModBlockEntities.EXTENDED_OVERLOADED_PATTERN_PROVIDER.get();
+            extendedPatternProviderBlock.setBlockEntity(
+                    ExtendedOverloadedPatternProviderBlockEntity.class,
+                    extendedPatternProviderBeType,
+                    null,
+                    ExtendedOverloadedPatternProviderBlockEntity::serverTick
+            );
+
             var interfaceBlock = ModBlocks.OVERLOADED_INTERFACE.get();
             var interfaceBeType = ModBlockEntities.OVERLOADED_INTERFACE.get();
             interfaceBlock.setBlockEntity(
@@ -614,6 +634,9 @@ public class AE2LightningTech {
             appeng.blockentity.AEBaseBlockEntity.registerBlockEntityItem(
                     ModBlockEntities.OVERLOADED_PATTERN_PROVIDER.get(),
                     ModBlocks.OVERLOADED_PATTERN_PROVIDER.get().asItem());
+            appeng.blockentity.AEBaseBlockEntity.registerBlockEntityItem(
+                    ModBlockEntities.EXTENDED_OVERLOADED_PATTERN_PROVIDER.get(),
+                    ModBlocks.EXTENDED_OVERLOADED_PATTERN_PROVIDER.get().asItem());
             appeng.blockentity.AEBaseBlockEntity.registerBlockEntityItem(
                     interfaceBeType,
                     interfaceBlock.asItem());

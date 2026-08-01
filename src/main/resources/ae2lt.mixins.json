@@ -3,11 +3,9 @@
   "minVersion": "0.8",
   "package": "com.moakiee.ae2lt.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "ae2lt.refmap.json",
   "mixins": [
     "ServerLevelMixin",
-    "LightningBoltMixin",
-    "ItemEntityMixin",
+    "AnnihilationPlaneFirmamentDustMixin",
     "PatternProviderLogicAccessor",
     "PatternProviderLogicMixin",
     "CraftingCpuLogicAccessor",
@@ -15,22 +13,34 @@
     "ElapsedTimeTrackerAccessor",
     "AdvCraftingCpuAccessor",
     "AdvCraftingCpuLogicMixin",
+    "ECOCraftingCpuAccessor",
+    "ECOCraftingCpuLogicMixin",
     "CraftingCpuLogicMixin",
     "GridNodeMaxChannelsMixin",
     "GridConnectionMaxChannelsMixin",
     "GridGetMachineNodesMixin",
     "PathingCalculationCapMixin",
+    "LivingEntityUndyingMixin",
+    "LivingEntityShieldHitFeedbackMixin",
+    "ServerPlayerUndyingMixin",
+    "PlayerPhaseFlightMixin",
     "ControllerValidatorMixin",
-    "RecipeManagerMixin",
     "EjectGhostBEMixin",
-    "MenuTypeBuilderAccessor",
-    "AEBaseMenuAccessor"
+    "AnnihilationPlaneShulkerMixin"
   ],
   "client": [
     "client.CableBusRenderStateMixin",
     "client.CableBusContainerRenderMixin",
     "client.CableBusBakedModelMixin",
-    "client.PatternProviderScreenAccessor"
+    "client.EapSettingToggleButtonMixin",
+    "client.PatternProviderScreenAccessor",
+    "client.RailgunHumanoidModelMixin",
+    "client.AEBaseScreenAccessor",
+    "client.VerticalButtonBarAccessor",
+    "client.AEBaseScreenFrequencyTerminalButtonMixin",
+    "client.ClientPacketListenerShieldHitFeedbackMixin",
+    "client.LocalPlayerShieldHitFeedbackMixin",
+    "client.EntityShieldFireVisualMixin"
   ],
   "injectors": {
     "defaultRequire": 1

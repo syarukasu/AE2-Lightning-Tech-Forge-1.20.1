@@ -275,6 +275,17 @@ public final class WirelessFrequencyManager extends SavedData {
         return null;
     }
 
+    public boolean isAdvancedTransmitter(int freqId) {
+        var entry = transmitters.get(freqId);
+        return entry != null && entry.advanced();
+    }
+
+    /** Frequency-card links are intentionally restricted to advanced transmitters. */
+    @Nullable
+    public IGridNode resolveAdvancedNode(int freqId, MinecraftServer server) {
+        return isAdvancedTransmitter(freqId) ? resolveNode(freqId, server) : null;
+    }
+
     // ── Listeners ──
 
     public void addListener(int freqId, TransmitterListener listener) {

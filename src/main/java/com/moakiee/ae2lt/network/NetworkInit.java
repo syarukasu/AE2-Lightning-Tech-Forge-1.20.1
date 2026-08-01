@@ -9,8 +9,17 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.Optional;
 
+import com.moakiee.ae2lt.network.hub.DeviceHubActionPacket;
+import com.moakiee.ae2lt.network.hub.DeviceHubSyncPacket;
+import com.moakiee.ae2lt.network.hub.OpenDeviceHubPacket;
+import com.moakiee.ae2lt.network.railgun.RailgunBeamChainFxPacket;
+import com.moakiee.ae2lt.network.railgun.RailgunBeamTogglePacket;
+import com.moakiee.ae2lt.network.railgun.RailgunBeamUpdatePacket;
+import com.moakiee.ae2lt.network.railgun.RailgunFirePacket;
+import com.moakiee.ae2lt.network.railgun.RailgunRecoilFxPacket;
+
 public final class NetworkInit {
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             id("main"),
             () -> PROTOCOL_VERSION,
@@ -116,6 +125,64 @@ public final class NetworkInit {
                 FrequencyResponsePacket::encode,
                 FrequencyResponsePacket::decode,
                 FrequencyResponsePacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+
+        CHANNEL.registerMessage(
+                nextPacketId++, FrequencyCardUsePacket.class,
+                FrequencyCardUsePacket::encode, FrequencyCardUsePacket::decode, FrequencyCardUsePacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(
+                nextPacketId++, ToggleFrequencyCardAutoConnectPacket.class,
+                ToggleFrequencyCardAutoConnectPacket::encode, ToggleFrequencyCardAutoConnectPacket::decode,
+                ToggleFrequencyCardAutoConnectPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(
+                nextPacketId++, DashPacket.class,
+                DashPacket::encode, DashPacket::decode, DashPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(
+                nextPacketId++, OpenDeviceHubPacket.class,
+                OpenDeviceHubPacket::encode, OpenDeviceHubPacket::decode, OpenDeviceHubPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(
+                nextPacketId++, DeviceHubActionPacket.class,
+                DeviceHubActionPacket::encode, DeviceHubActionPacket::decode, DeviceHubActionPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(
+                nextPacketId++, RailgunBeamTogglePacket.class,
+                RailgunBeamTogglePacket::encode, RailgunBeamTogglePacket::decode, RailgunBeamTogglePacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+
+        CHANNEL.registerMessage(
+                nextPacketId++, CelestweaveSubmoduleActivePacket.class,
+                CelestweaveSubmoduleActivePacket::encode, CelestweaveSubmoduleActivePacket::decode,
+                CelestweaveSubmoduleActivePacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(
+                nextPacketId++, FlightInertiaSyncPacket.class,
+                FlightInertiaSyncPacket::encode, FlightInertiaSyncPacket::decode, FlightInertiaSyncPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(
+                nextPacketId++, ShieldHitFeedbackSuppressionPacket.class,
+                ShieldHitFeedbackSuppressionPacket::encode, ShieldHitFeedbackSuppressionPacket::decode,
+                ShieldHitFeedbackSuppressionPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(
+                nextPacketId++, DeviceHubSyncPacket.class,
+                DeviceHubSyncPacket::encode, DeviceHubSyncPacket::decode, DeviceHubSyncPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(
+                nextPacketId++, RailgunFirePacket.class,
+                RailgunFirePacket::encode, RailgunFirePacket::decode, RailgunFirePacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(
+                nextPacketId++, RailgunBeamUpdatePacket.class,
+                RailgunBeamUpdatePacket::encode, RailgunBeamUpdatePacket::decode, RailgunBeamUpdatePacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(
+                nextPacketId++, RailgunBeamChainFxPacket.class,
+                RailgunBeamChainFxPacket::encode, RailgunBeamChainFxPacket::decode, RailgunBeamChainFxPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(
+                nextPacketId++, RailgunRecoilFxPacket.class,
+                RailgunRecoilFxPacket::encode, RailgunRecoilFxPacket::decode, RailgunRecoilFxPacket::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 

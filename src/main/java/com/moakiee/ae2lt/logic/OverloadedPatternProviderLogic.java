@@ -659,10 +659,6 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
         if (!(level instanceof ServerLevel sl)) return false;
         var server = sl.getServer();
         var dispatchMode = overloadedHost.getWirelessDispatchMode();
-        if (dispatchMode == OverloadedPatternProviderBlockEntity.WirelessDispatchMode.SINGLE_TARGET
-                && !pendingOverflowByConn.isEmpty()) {
-            return false;
-        }
 
         var valid = getOrRefreshValidConnections(sl, sl.getGameTime());
         if (valid.isEmpty()) return false;
@@ -1524,9 +1520,9 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
             if (adapter == null) continue;
 
             var face = dir.getOpposite();
-            var outputs = adapter.extractOutputs(level, targetPos, face, allowedOutputs, wirelessSource);
-            returnToNetwork(outputs);
-            updateBackoff(key, gameTick, !outputs.isEmpty());
+            boolean found = adapter.extractOutputs(
+                    level, targetPos, face, allowedOutputs, wirelessSource, returnInvSink);
+            updateBackoff(key, gameTick, found);
         }
     }
 
@@ -1553,9 +1549,9 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
             var adapter = state.resolveAdapter(targetLevel, conn.pos());
             if (adapter == null) continue;
 
-            var outputs = adapter.extractOutputs(
-                    targetLevel, conn.pos(), conn.boundFace(), allowedOutputs, wirelessSource);
-            insertOutputsToReturnInv(outputs);
+            adapter.extractOutputs(
+                    targetLevel, conn.pos(), conn.boundFace(), allowedOutputs, wirelessSource,
+                    returnInvSink);
         }
     }
 
@@ -1602,20 +1598,48 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
         machineNextPoll.put(key, gameTick + interval);
     }
 
-    private void returnToNetwork(List<GenericStack> outputs) {
-        if (outputs.isEmpty()) return;
-        gridNode.ifPresent((grid, node) -> {
-            var storage = grid.getStorageService().getInventory();
-            for (var stack : outputs) {
-                long affordable = PowerCostUtil.maxAffordable(grid, stack.what(), stack.amount());
-                if (affordable <= 0) continue;
-                long inserted = storage.insert(stack.what(), affordable,
-                        appeng.api.config.Actionable.MODULATE, wirelessSource);
-                if (inserted > 0) {
-                    PowerCostUtil.consume(grid, stack.what(), inserted);
-                }
+    /** Stores auto-returned outputs into the wireless return inventory (WIRELESS mode). */
+    private final MachineAdapter.OutputSink returnInvSink = new MachineAdapter.OutputSink() {
+        @Override
+        public long maxAccept(AEKey what, long available) {
+            long affordable = PowerCostUtil.maxAffordable(gridNode.getGrid(), what, available);
+            if (affordable <= 0) return 0;
+            return fullReturnInv.insert(0, what, affordable, Actionable.SIMULATE);
+        }
+
+        @Override
+        public long accept(AEKey what, long amount) {
+            long inserted = fullReturnInv.insert(0, what, amount, Actionable.MODULATE);
+            if (inserted > 0) {
+                PowerCostUtil.consume(gridNode.getGrid(), what, inserted);
             }
-        });
+            return inserted;
+        }
+
+        @Override
+        public void acceptOverflow(AEKey what, long amount) {
+            forceInsertToNetwork(what, amount);
+        }
+    };
+
+    /** Power-free last-resort insert; losing job items is worse than free power. */
+    private void forceInsertToNetwork(AEKey what, long amount) {
+        var grid = gridNode.getGrid();
+        long inserted = grid == null ? 0
+                : grid.getStorageService().getInventory()
+                        .insert(what, amount, Actionable.MODULATE, wirelessSource);
+        if (inserted < amount) {
+            logVoidedReturn(what, amount - inserted);
+        }
+        if (inserted > 0) {
+            handleOverloadUnlockOnReturnedStack(new GenericStack(what, inserted));
+        }
+    }
+
+    private static void logVoidedReturn(AEKey what, long amount) {
+        org.slf4j.LoggerFactory.getLogger("ae2lt").warn(
+                "Auto-return voided {} x{}: return inventory, machine and network all rejected it",
+                what, amount);
     }
 
 
@@ -1635,28 +1659,12 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
         var adapter = state.resolveAdapter(targetLevel, conn.pos());
         if (adapter == null) return;
 
-        var outputs = adapter.extractOutputs(
-                targetLevel, conn.pos(), conn.boundFace(), allowedOutputs, wirelessSource);
-        insertOutputsToReturnInv(outputs);
-    }
-
-    protected void insertOutputsToReturnInv(List<GenericStack> outputs) {
-        var grid = gridNode.getGrid();
-        for (var stack : outputs) {
-            long affordable = PowerCostUtil.maxAffordable(grid, stack.what(), stack.amount());
-            if (affordable <= 0) continue;
-            long inserted = fullReturnInv.insert(0, stack.what(), affordable, Actionable.MODULATE);
-            if (inserted > 0) {
-                PowerCostUtil.consume(grid, stack.what(), inserted);
-            }
-        }
+        adapter.extractOutputs(
+                targetLevel, conn.pos(), conn.boundFace(), allowedOutputs, wirelessSource,
+                returnInvSink);
     }
 
     public boolean handleOverloadUnlockOnReturnedStack(GenericStack returnedStack) {
-        if (pendingUnlockMatchMode != MatchMode.ID_ONLY) {
-            return false;
-        }
-
         if (getCraftingLockedReason() != LockCraftingMode.LOCK_UNTIL_RESULT) {
             clearPendingUnlockRule();
             return false;
@@ -1668,30 +1676,39 @@ public class OverloadedPatternProviderLogic extends PatternProviderLogic {
             return true;
         }
 
-        Item expectedItem = null;
-        if (pendingUnlockTemplate != null && !pendingUnlockTemplate.isEmpty()) {
-            expectedItem = pendingUnlockTemplate.getItem();
-        } else if (unlockStack.what() instanceof AEItemKey unlockItemKey) {
-            expectedItem = unlockItemKey.getItem();
-        }
-
-        if (expectedItem == null) {
+        var result = ReturnedCraftingUnlock.resolveMatchedAmount(
+                returnedStackMatchesUnlock(unlockStack, returnedStack),
+                unlockStack.amount(),
+                returnedStack.amount());
+        if (!result.matched()) {
             return false;
         }
 
-        if (returnedStack.what() instanceof AEItemKey returnedItemKey
-                && returnedItemKey.getItem() == expectedItem) {
-            long remainingAmount = unlockStack.amount() - returnedStack.amount();
-            if (remainingAmount <= 0) {
-                resetCraftingLock();
-            } else {
-                ((PatternProviderLogicAccessor) this)
-                        .setUnlockStack(new GenericStack(unlockStack.what(), remainingAmount));
-                saveChanges();
-            }
+        if (result.shouldResetLock()) {
+            resetCraftingLock();
+        } else {
+            ((PatternProviderLogicAccessor) this)
+                    .setUnlockStack(new GenericStack(unlockStack.what(), result.remainingAmount()));
+            saveChanges();
         }
 
         return true;
+    }
+
+    private boolean returnedStackMatchesUnlock(GenericStack unlockStack, GenericStack returnedStack) {
+        if (pendingUnlockMatchMode == MatchMode.ID_ONLY) {
+            Item expectedItem = null;
+            if (pendingUnlockTemplate != null && !pendingUnlockTemplate.isEmpty()) {
+                expectedItem = pendingUnlockTemplate.getItem();
+            } else if (unlockStack.what() instanceof AEItemKey unlockItemKey) {
+                expectedItem = unlockItemKey.getItem();
+            }
+            return expectedItem != null
+                    && returnedStack.what() instanceof AEItemKey returnedItemKey
+                    && returnedItemKey.getItem() == expectedItem;
+        }
+
+        return unlockStack.what().equals(returnedStack.what());
     }
 
     protected void syncPendingUnlockRule(IPatternDetails pattern) {
