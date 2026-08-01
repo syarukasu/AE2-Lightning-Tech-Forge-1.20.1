@@ -1,4 +1,4 @@
-# Forge 1.20.1 Port Provenance
+# Unofficial Forge 1.20.1 Port Provenance
 
 This private repository preserves the upstream history of
 [ae2lt/AE2-Lightning-Tech](https://github.com/ae2lt/AE2-Lightning-Tech).
@@ -19,7 +19,9 @@ registries, data components, resource paths, and JSON formats are adapted only
 where Minecraft 1.20.1 and Forge 47.4.20 require different interfaces.
 
 The upstream NeoForge project remains the canonical project. This repository
-exists solely to maintain the Minecraft 1.20.1 Forge port.
+exists solely to maintain an unofficial Minecraft 1.20.1 Forge port. It is not
+maintained, sponsored, or endorsed by the original AE2 Lightning Tech authors
+or by TeamAppliedEnergistics.
 
 ## Version-specific compatibility
 
@@ -36,6 +38,7 @@ storage-cell disassembly is provided directly by AE2 15.4.10's
 - Source code: GNU Lesser General Public License version 3 (`LICENSE`)
 - Textures and visual assets: CC BY-NC-SA 3.0 (`LICENSE_ASSETS.md`)
 - Original project and credits: `README.md`
+- Permanent attribution notice: `CREDITS.md`
 
 The original author and contributor credits remain intact. Visual assets may
 not be used commercially and derivatives must retain attribution and the same

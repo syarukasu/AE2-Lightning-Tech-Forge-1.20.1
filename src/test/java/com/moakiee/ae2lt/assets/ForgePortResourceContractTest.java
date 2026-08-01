@@ -69,6 +69,19 @@ final class ForgePortResourceContractTest {
                 JAVA.resolve("ae2wtlib"));
     }
 
+    @Test
+    void attributionIdentifiesBothUpstreamsAndTheUnofficialFork() throws Exception {
+        String credits = Files.readString(Path.of("CREDITS.md"));
+        assertTrue(credits.contains("MOAKIEE"), "original AE2LT creator is not credited");
+        assertTrue(
+                credits.contains("TeamAppliedEnergistics"),
+                "Applied Energistics 2 team is not credited");
+        assertTrue(credits.contains("unofficial"), "fork status is not disclosed");
+
+        String modsToml = Files.readString(RESOURCES.resolve("META-INF/mods.toml"));
+        assertTrue(modsToml.contains("credits = \"${mod_credits}\""));
+    }
+
     private static void assertMixinSourcesExist(Path config, Path packageRoot) throws Exception {
         var json = JsonParser.parseString(Files.readString(config)).getAsJsonObject();
         for (String section : List.of("mixins", "client")) {

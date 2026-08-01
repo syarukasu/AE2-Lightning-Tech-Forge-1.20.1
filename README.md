@@ -4,6 +4,12 @@
 
 [中文文档](README_zh_CN.md)
 
+> [!IMPORTANT]
+> This repository is an **unofficial Forge 1.20.1 fork** of
+> [AE2 Lightning Tech](https://github.com/ae2lt/AE2-Lightning-Tech). It is not
+> maintained or endorsed by the original AE2 Lightning Tech authors or by the
+> Applied Energistics 2 team.
+
 An [Applied Energistics 2](https://github.com/AppliedEnergistics/Applied-Energistics-2) addon that introduces a lightning energy system, advanced machines, and overloaded network components.
 
 > Requires AE2 · This branch ports upstream 1.1.4 to Minecraft 1.20.1 / Forge 47.4.20
@@ -75,6 +81,12 @@ AE2 Lightning Tech uses separate licenses for source code and textures:
 
 ## Credits
 
-Developed by **MOAKIEE**, **CystrySU**, **gjmhmm8**, **_leng**, **TedXenon**, **MHanHanBing**.
+- **Original AE2 Lightning Tech:** created by **MOAKIEE** and developed with
+  **CystrySU**, **gjmhmm8**, **_leng**, **TedXenon**, and **MHanHanBing**.
+- **Applied Energistics 2:** created and maintained by
+  **TeamAppliedEnergistics**. This addon would not exist without AE2.
+- **This repository:** an unofficial Minecraft 1.20.1 Forge port maintained by
+  **syarukasu**. It is not an official release of either upstream project.
 
-Special thanks to the Applied Energistics 2 team — without AE2 this addon would not exist.
+See [CREDITS.md](CREDITS.md) for the permanent attribution notice included in
+the distributed JAR.
