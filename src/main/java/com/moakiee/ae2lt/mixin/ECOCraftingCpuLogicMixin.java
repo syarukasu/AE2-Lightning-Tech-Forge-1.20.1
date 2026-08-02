@@ -167,7 +167,8 @@ public abstract class ECOCraftingCpuLogicMixin {
     }
 
     @WrapOperation(
-            method = "executeCrafting",
+            // Neo ECO AE 20.3.x performs the ordinary provider push in this slow-path method.
+            method = "tryPushSlowPattern",
             at = @At(
                     value = "INVOKE",
                     target = "Lappeng/api/networking/crafting/ICraftingProvider;pushPattern(Lappeng/api/crafting/IPatternDetails;[Lappeng/api/stacks/KeyCounter;)Z"),
