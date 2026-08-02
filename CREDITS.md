@@ -1,6 +1,6 @@
-# Credits and Fork Notice
+# Credits and Port Notice
 
-This project is an unofficial Minecraft 1.20.1 Forge fork of
+This project is an unofficial Minecraft 1.20.1 Forge port of
 [AE2 Lightning Tech](https://github.com/ae2lt/AE2-Lightning-Tech). It is not
 maintained, sponsored, or endorsed by either upstream project named below.
 

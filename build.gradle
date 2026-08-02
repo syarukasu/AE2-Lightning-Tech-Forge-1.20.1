@@ -152,6 +152,7 @@ tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [
             minecraft_version: minecraft_version,
             minecraft_version_range: minecraft_version_range,
+            ae2_version_range: ae2_version_range,
             forge_version: forge_version,
             forge_version_range: forge_version_range,
             loader_version_range: loader_version_range,
@@ -172,17 +173,19 @@ tasks.named('processResources', ProcessResources).configure {
 }
 
 tasks.named('jar', Jar).configure {
+    archiveClassifier = 'slim'
+
     manifest {
         attributes([
-                'Specification-Title'     : mod_id,
+                'Specification-Title'     : mod_name,
                 'Specification-Vendor'    : mod_authors,
                 'Specification-Version'   : '1',
-                'Implementation-Title'    : project.name,
+                'Implementation-Title'    : mod_name,
                 'Implementation-Version'  : project.jar.archiveVersion,
                 'Implementation-Vendor'   : mod_authors,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                'TweakClass'              : 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder'              : 0,
+                'Implementation-License'  : mod_license,
+                'Port-Maintainer'         : 'syarukasu',
+                'Upstream-Project'        : 'https://github.com/ae2lt/AE2-Lightning-Tech',
                 'MixinConfigs'            : "${mod_id}.mixins.json,${mod_id}.ae2wtlib.mixins.json"
         ])
     }
@@ -192,7 +195,7 @@ tasks.named('jar', Jar).configure {
 
 tasks.named('jarJar', Jar).configure {
     archiveClassifier = ''
-    finalizedBy 'reobfJar'
+    finalizedBy 'reobfJarJar'
 }
 
 // Keep the upstream source and asset license boundaries inside every
@@ -218,7 +221,7 @@ tasks.withType(Jar).configureEach {
 
 afterEvaluate {
     tasks.findByName('reobfJarJar')?.configure {
-        mustRunAfter 'jar'
+        mustRunAfter 'reobfJar'
     }
 }
 

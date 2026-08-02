@@ -1,6 +1,6 @@
 # Unofficial Forge 1.20.1 Port Provenance
 
-This private repository preserves the upstream history of
+This repository preserves the upstream history of
 [ae2lt/AE2-Lightning-Tech](https://github.com/ae2lt/AE2-Lightning-Tech).
 It uses the upstream `port/1.20.1-forge` branch at commit `b7830ef` as
 the platform baseline and ports the upstream `1.1.4` release at commit

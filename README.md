@@ -1,14 +1,17 @@
-# AE2 Lightning Tech
-
-[![Modrinth](https://img.shields.io/modrinth/dt/ArHeh5Fz?style=flat&logo=modrinth&label=Modrinth)](https://modrinth.com/mod/ae2-lightning-tech) [![CurseForge](https://img.shields.io/curseforge/dt/1527395?style=flat&logo=curseforge&label=CurseForge)](https://www.curseforge.com/minecraft/mc-mods/ae2-lightning-tech)
+# AE2 Lightning Tech - Unofficial Forge 1.20.1 Port
 
 [中文文档](README_zh_CN.md)
 
 > [!IMPORTANT]
-> This repository is an **unofficial Forge 1.20.1 fork** of
+> This repository and its releases are an **unofficial Forge 1.20.1 port** of
 > [AE2 Lightning Tech](https://github.com/ae2lt/AE2-Lightning-Tech). It is not
 > maintained or endorsed by the original AE2 Lightning Tech authors or by the
 > Applied Energistics 2 team.
+>
+> The upstream [CurseForge](https://www.curseforge.com/minecraft/mc-mods/ae2-lightning-tech)
+> and [Modrinth](https://modrinth.com/mod/ae2-lightning-tech) pages distribute
+> the original NeoForge project. Forge 1.20.1 downloads and support for this
+> port belong to this repository only.
 
 An [Applied Energistics 2](https://github.com/AppliedEnergistics/Applied-Energistics-2) addon that introduces a lightning energy system, advanced machines, and overloaded network components.
 
@@ -76,7 +79,7 @@ Found a bug in this Forge 1.20.1 port? Please open an issue on the [port tracker
 
 AE2 Lightning Tech uses separate licenses for source code and textures:
 
-- Source code is licensed under [GNU LGPL 3.0](https://www.gnu.org/licenses/lgpl-3.0.html).
+- Source code is licensed under [LGPL-3.0-only](https://www.gnu.org/licenses/lgpl-3.0.html).
 - Textures and other visual assets are licensed under [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/).
 
 ## Credits
