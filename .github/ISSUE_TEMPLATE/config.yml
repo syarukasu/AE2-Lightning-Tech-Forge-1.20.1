@@ -1,1 +1,8 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
+contact_links:
+  - name: Canonical Forge 1.20.1 issue tracker
+    url: https://github.com/syarukasu/AE2-Lightning-Tech/issues
+    about: Report bugs and request features in the single canonical repository.
+  - name: AE2LT 2.0.6 Forge backport roadmap
+    url: https://github.com/syarukasu/AE2-Lightning-Tech/issues/21
+    about: Track the next major Forge 1.20.1 update here.
