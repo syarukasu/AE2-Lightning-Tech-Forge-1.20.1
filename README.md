@@ -13,6 +13,13 @@
 > the original NeoForge project. Forge 1.20.1 downloads and support for this
 > port belong to this repository only.
 
+> [!NOTE]
+> This is the **single canonical repository** for the Forge 1.20.1 port.
+> Development, releases, issues, pull requests, and Codex/LLM navigation files
+> are maintained here. The older fork at
+> [`syarukasu/AE2-Lightning-Tech`](https://github.com/syarukasu/AE2-Lightning-Tech)
+> is retained only as a redirect and upstream-history reference.
+
 An [Applied Energistics 2](https://github.com/AppliedEnergistics/Applied-Energistics-2) addon that introduces a lightning energy system, advanced machines, and overloaded network components.
 
 > Requires AE2 · This branch ports upstream 1.1.4 to Minecraft 1.20.1 / Forge 47.4.20
