@@ -2,6 +2,15 @@
 
 > **Navigation only.** このMapはCodex・LLM・reviewerの探索量を減らすためのindexです。仕様判断はREADME、PORT_NOTES、public API docs、現行Issueを使用します。
 
+## Repository identity
+
+```text
+Canonical:  syarukasu/AE2-Lightning-Tech-Forge-1.20.1
+Retired:    syarukasu/AE2-Lightning-Tech
+```
+
+旧forkはredirect/upstream履歴参照専用です。明示的な履歴比較taskを除き、旧forkのsource、Issue、PR、Mapを横断検索しません。このMapと同じ名前のファイルが旧forkに存在しても正本として扱いません。
+
 ## 使い方
 
 1. [`../AGENTS.md`](../AGENTS.md)を読む。
@@ -18,6 +27,7 @@ build/**
 全assets / 全recipes / 全lang
 全block entity / 全client code
 対象外optional integration
+syarukasu/AE2-Lightning-Tech（retired fork）
 ```
 
 ## 固定座標
@@ -30,6 +40,7 @@ Status             unofficial upstream port/support tracker
 Stable API         com.moakiee.ae2lt.api.*
 Source license     LGPL-3.0-only
 Assets license     CC BY-NC-SA 3.0
+Canonical repo     syarukasu/AE2-Lightning-Tech-Forge-1.20.1
 ```
 
 ## Task router
@@ -104,5 +115,6 @@ AGENTS.mdとdocs/CODEBASE_MAP.mdの<Route ID>だけを基準に作業する。
 Task: <作業内容>
 最初はroute記載の文書、package、直近test以外を読まない。
 別scopeへ広げる場合はcompile dependencyまたはtest failureを根拠として示す。
+旧fork syarukasu/AE2-Lightning-Techは、明示的な履歴比較以外では読まない。
 Unofficial port表記、public API、license境界を維持する。
 ```
