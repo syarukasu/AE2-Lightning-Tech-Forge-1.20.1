@@ -2,6 +2,20 @@
 
 このファイルはCodex・LLM・自動レビューが、Forge port全体を毎回読み込まずに作業範囲を決めるための入口です。
 
+## Repository identity
+
+このリポジトリ `syarukasu/AE2-Lightning-Tech-Forge-1.20.1` がForge 1.20.1 portの唯一の正本です。
+
+```text
+source / development
+releases
+issues / pull requests
+Codex / LLM navigation
+CurseForge metadata
+```
+
+旧fork `syarukasu/AE2-Lightning-Tech` はredirectとupstream履歴参照専用です。Taskが明示的に履歴比較を要求しない限り、旧forkを追加sourceとして検索・読込・編集しません。
+
 ## 最小読込手順
 
 1. 最初に本書と [`docs/CODEBASE_MAP.md`](docs/CODEBASE_MAP.md) だけを読む。
@@ -21,6 +35,7 @@ Source license             LGPL-3.0-only
 Visual assets license      CC BY-NC-SA 3.0
 Stable addon API           com.moakiee.ae2lt.api.* only
 Default branch             main
+Canonical repository       syarukasu/AE2-Lightning-Tech-Forge-1.20.1
 ```
 
 このportを原作者・AE2 teamの公式releaseと表現しません。upstream attribution、source license、asset license、permanent noticesを削除・曖昧化しません。
