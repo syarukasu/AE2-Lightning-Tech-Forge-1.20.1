@@ -47,17 +47,12 @@ minecraft {
         }
 
         client {
-            property 'forge.enabledGameTestNamespaces', mod_id
         }
 
         server {
-            property 'forge.enabledGameTestNamespaces', mod_id
             args '--nogui'
         }
 
-        gameTestServer {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
 
         data {
             workingDirectory project.file('run-data')
@@ -140,13 +135,8 @@ dependencies {
         jarJar.pin(it, "${mixinextras_version}")
     }
 
-    testImplementation platform('org.junit:junit-bom:5.10.2')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
-tasks.named('test', Test).configure {
-    useJUnitPlatform()
-}
 
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [
